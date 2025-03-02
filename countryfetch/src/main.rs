@@ -1,8 +1,3 @@
-use local_ip_address::linux::local_ip;
+mod generated;
 
-fn main() {
-    let ip = local_ip().unwrap();
-    println!("{ip:?}");
-}
-
-unsafe auto trait Lol {}
+fn main() {}

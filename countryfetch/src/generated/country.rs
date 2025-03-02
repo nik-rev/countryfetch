@@ -1,4 +1,4 @@
-enum Countries {
+pub enum Countries {
     HongKong,
     Iraq,
     Germany,
@@ -272,8 +272,8 @@ enum Countries {
     UnitedKingdom,
 }
 
-impl Countries {
-    fn from_str(s: &str) -> Result<Self> {
+pub impl Countries {
+    pub fn from_str(s: &str) -> Result<Self, ()> {
         match s {
             "hong-kong" => Ok(Countries::HongKong),
             "iraq" => Ok(Countries::Iraq),
@@ -465,9 +465,7 @@ impl Countries {
             "tuvalu" => Ok(Countries::Tuvalu),
             "paraguay" => Ok(Countries::Paraguay),
             "guam" => Ok(Countries::Guam),
-            "central-european-free-trade-agreement" => {
-                Ok(Countries::CentralEuropeanFreeTradeAgreement)
-            }
+            "central-european-free-trade-agreement" => Ok(Countries::CentralEuropeanFreeTradeAgreement),
             "egypt" => Ok(Countries::Egypt),
             "comoros" => Ok(Countries::Comoros),
             "liberia" => Ok(Countries::Liberia),
@@ -506,9 +504,7 @@ impl Countries {
             "djibouti" => Ok(Countries::Djibouti),
             "france" => Ok(Countries::France),
             "finland" => Ok(Countries::Finland),
-            "association-of-southeast-asian-nations" => {
-                Ok(Countries::AssociationOfSoutheastAsianNations)
-            }
+            "association-of-southeast-asian-nations" => Ok(Countries::AssociationOfSoutheastAsianNations),
             "bonaire-saint-eustatius-and-saba" => Ok(Countries::BonaireSaintEustatiusAndSaba),
             "guatemala" => Ok(Countries::Guatemala),
             "russia" => Ok(Countries::Russia),
@@ -516,9 +512,7 @@ impl Countries {
             "sao-tome-and-principe" => Ok(Countries::SaoTomeAndPrincipe),
             "greenland" => Ok(Countries::Greenland),
             "ethiopia" => Ok(Countries::Ethiopia),
-            "united-states-minor-outlying-islands" => {
-                Ok(Countries::UnitedStatesMinorOutlyingIslands)
-            }
+            "united-states-minor-outlying-islands" => Ok(Countries::UnitedStatesMinorOutlyingIslands),
             "cocos-keeling-islands" => Ok(Countries::CocosKeelingIslands),
             "gambia" => Ok(Countries::Gambia),
             "china" => Ok(Countries::China),
@@ -533,9 +527,7 @@ impl Countries {
             "eritrea" => Ok(Countries::Eritrea),
             "belize" => Ok(Countries::Belize),
             "netherlands" => Ok(Countries::Netherlands),
-            "south-georgia-and-the-south-sandwich-islands" => {
-                Ok(Countries::SouthGeorgiaAndTheSouthSandwichIslands)
-            }
+            "south-georgia-and-the-south-sandwich-islands" => Ok(Countries::SouthGeorgiaAndTheSouthSandwichIslands),
             "gibraltar" => Ok(Countries::Gibraltar),
             "portugal" => Ok(Countries::Portugal),
             "republic-of-the-congo" => Ok(Countries::RepublicOfTheCongo),
@@ -554,10 +546,10 @@ impl Countries {
             "iceland" => Ok(Countries::Iceland),
             "algeria" => Ok(Countries::Algeria),
             "united-kingdom" => Ok(Countries::UnitedKingdom),
-            _ => Err(),
+            _ => Err(()),
         }
     }
-    fn from_country_code(s: &str) -> Result<Self, ()> {
+    pub fn from_country_code(s: &str) -> Result<Self, ()> {
         match s {
             "gb" => Err(()),
             "gb" => Err(()),
@@ -830,7 +822,7 @@ impl Countries {
             "gb" => Err(()),
             "gb" => Err(()),
             "gb" => Err(()),
-            _ => Err(),
+            _ => Err(()),
         }
     }
 }
