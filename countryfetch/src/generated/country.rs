@@ -161,7 +161,6 @@ pub enum Country {
     Malta,
     ElSalvador,
     PacificCommunity,
-    Sh,
     Belize,
     ClippertonIsland,
     BouvetIsland,
@@ -273,7 +272,6 @@ pub enum Country {
     SouthSudan,
     Kyrgyzstan,
 }
-
 impl Country {
     pub const ALL_COUNTRIES: &[Self] = &[
         Country::FaroeIslands,
@@ -436,7 +434,6 @@ impl Country {
         Country::Malta,
         Country::ElSalvador,
         Country::PacificCommunity,
-        Country::Sh,
         Country::Belize,
         Country::ClippertonIsland,
         Country::BouvetIsland,
@@ -548,7 +545,6 @@ impl Country {
         Country::SouthSudan,
         Country::Kyrgyzstan,
     ];
-
     pub fn country_code(&self) -> &'static str {
         match self {
             Country::FaroeIslands => "fo",
@@ -711,7 +707,6 @@ impl Country {
             Country::Malta => "mt",
             Country::ElSalvador => "sv",
             Country::PacificCommunity => "pc",
-            Country::Sh => "svg",
             Country::Belize => "bz",
             Country::ClippertonIsland => "cp",
             Country::BouvetIsland => "bv",
@@ -986,7 +981,6 @@ impl Country {
             "malta" => Some(Country::Malta),
             "el-salvador" => Some(Country::ElSalvador),
             "pacific-community" => Some(Country::PacificCommunity),
-            "sh" => Some(Country::Sh),
             "belize" => Some(Country::Belize),
             "clipperton-island" => Some(Country::ClippertonIsland),
             "bouvet-island" => Some(Country::BouvetIsland),
@@ -1262,7 +1256,6 @@ impl Country {
             "mt" => Some(Country::Malta),
             "sv" => Some(Country::ElSalvador),
             "pc" => Some(Country::PacificCommunity),
-            "svg" => Some(Country::Sh),
             "bz" => Some(Country::Belize),
             "cp" => Some(Country::ClippertonIsland),
             "bv" => Some(Country::BouvetIsland),

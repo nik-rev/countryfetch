@@ -1,284 +1,206 @@
 use heck::ToPascalCase;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
-use std::fmt::Write as _;
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use std::fs::{self, File, create_dir_all};
+use std::io::Write as _;
+use std::path::{Path, PathBuf};
 
-fn main() {
-    // Location of the current script file
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-
+struct Paths {
     // Path where generated code lives.
-    let generated_dir = manifest_dir
-        .join("..")
-        .join("countryfetch")
-        .join("src")
-        .join("generated");
-
+    generated_dir: PathBuf,
     // Path where the .svg files for each of the flags are located.
-    let svg_src_dir = manifest_dir.join("flag-svgs").join("4x3");
-
+    svg_src_dir: PathBuf,
     // Re-exports of generated code for ease of use.
-    let mod_rs = generated_dir.join("mod.rs");
-
+    mod_rs: PathBuf,
     // country.rs: Contains implementations of all methods for the Country enum.
-    let country_rs = generated_dir.join("country.rs");
-
-    // flag.rs: Contains a single implementation of the `Country::flag` method.
+    country_rs: PathBuf,
+    // flag.rs: Contains a single implementation of the Country::flag method.
     // Impl is in a separate file due to the huge size of this file.
-    let flag_rs = generated_dir.join("flag.rs");
+    flag_rs: PathBuf,
+}
 
-    std::fs::create_dir_all(generated_dir).unwrap();
+impl Paths {
+    fn new() -> Self {
+        let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let generated_dir = manifest_dir
+            .join("..")
+            .join("countryfetch")
+            .join("src")
+            .join("generated");
 
-    let mut country_enum = String::from(
-        "\
-#![cfg_attr(rustfmt, rustfmt_skip)]
-#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd)]
-pub enum Country {
-",
-    );
+        Self {
+            generated_dir: generated_dir.clone(),
+            svg_src_dir: manifest_dir.join("flag-svgs").join("4x3"),
+            mod_rs: generated_dir.join("mod.rs"),
+            country_rs: generated_dir.join("country.rs"),
+            flag_rs: generated_dir.join("flag.rs"),
+        }
+    }
+}
 
-    let mut country_enum_impl = String::from(
-        "impl Country {
-",
-    );
-
-    let mut country_enum_impl_fn_from_str = String::from(
-        "    pub fn from_str(s: &str) -> Option<Self> {
-        match s {
-",
-    );
-
-    let mut country_enum_impl_const_countries = String::from(
-        "    pub const ALL_COUNTRIES: &[Self] = &[
-",
-    );
-
-    let mut country_enum_impl_fn_from_country_code = String::from(
-        "    pub fn from_country_code(s: &str) -> Option<Self> {
-        match s {
-",
-    );
-
-    let mut country_enum_impl_fn_country_code = String::from(
-        "    pub fn country_code(&self) -> &'static str {
-        match self {
-",
-    );
-
-    // because this one is so large, it goes into a separate file
-    let mut flag_rs_contents = String::from(
-        "#![cfg_attr(rustfmt, rustfmt_skip)]
-
-use super::Country;
-
-impl Country {
-    pub fn flag(&self) -> &'static str {
-        match self {
-",
-    );
-
-    let items: Vec<_> = (*svg_src_dir)
+/// Reads the available SVG flag files from the source directory.
+fn read_svg_files(svg_src_dir: &Path) -> Vec<PathBuf> {
+    svg_src_dir
         .read_dir()
-        .unwrap()
-        .map(|a| a.unwrap())
-        .collect();
+        .expect("Failed to read SVG directory")
+        .filter_map(|entry| entry.ok().map(|e| e.path()))
+        .collect()
+}
 
-    let additions: Vec<_> = items
+/// Generates ASCII art representation of a flag from an SVG file.
+fn generate_ascii_art(svg_path: &Path) -> String {
+    let svg_data = fs::read(svg_path).expect("Failed to read SVG file");
+    let tree =
+        resvg::usvg::Tree::from_data(&svg_data, &Default::default()).expect("Invalid SVG data");
+    let pixmap_size = tree.size().to_int_size();
+    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height())
+        .expect("Failed to create Pixmap");
+    resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
+
+    let img = image::io::Reader::with_format(
+        std::io::Cursor::new(pixmap.encode_png().expect("Failed to encode PNG")),
+        image::ImageFormat::Png,
+    )
+    .decode()
+    .expect("Failed to decode PNG image");
+
+    let mut ascii_buf = Vec::new();
+    rascii_art::render_image(
+        &img,
+        &mut ascii_buf,
+        &rascii_art::RenderOptions::new()
+            .width(40)
+            .height(17)
+            .colored(true),
+    )
+    .expect("Could not render SVG to ASCII");
+
+    String::from_utf8(ascii_buf).expect("Invalid UTF-8 in ASCII art")
+}
+
+/// Parses the filename to extract the country name and code.
+fn parse_filename(file_name: &str) -> (String, String) {
+    let parts: Vec<&str> = file_name.split('.').collect();
+
+    assert!(
+        parts.len() == 3,
+        "File name: {file_name}, File name must have the following form: {{human-readable-name}}.{{country-code}}.svg"
+    );
+
+    (parts[0].to_string(), parts[1].to_string()) // (country_name, country_code)
+}
+
+/// Generates Rust code for country enum and its implementation.
+fn generate_code(svg_files: &[PathBuf]) -> (String, String, String) {
+    let mut country_enum = String::from(
+        "#![cfg_attr(rustfmt, rustfmt_skip)]\n#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd)]\npub enum Country {\n",
+    );
+
+    let mut country_impl = String::from("impl Country {\n");
+    let mut from_str_match =
+        String::from("    pub fn from_str(s: &str) -> Option<Self> {\n        match s {\n");
+    let mut from_code_match = String::from(
+        "    pub fn from_country_code(s: &str) -> Option<Self> {\n        match s {\n",
+    );
+    let mut country_code_match =
+        String::from("    pub fn country_code(&self) -> &'static str {\n        match self {\n");
+    let mut all_countries = String::from("    pub const ALL_COUNTRIES: &[Self] = &[\n");
+
+    let mut flag_impl = String::from(
+        "#![cfg_attr(rustfmt, rustfmt_skip)]\n\nuse super::Country;\n\nimpl Country {\n    pub fn flag(&self) -> &'static str {\n        match self {\n",
+    );
+
+    // parallel iteration, each thread does heavy computation:
+    // 1. Rendering the SVG into a PNG
+    // 2. Parsing the PNG into an Ascii representation
+    let additions: Vec<_> = svg_files
         .par_iter()
-        .map(|svg_flag| {
-            let img = {
-                let svg_path = svg_flag.path();
-                let tree = {
-                    let opt = resvg::usvg::Options {
-                        resources_dir: Some(svg_path.to_path_buf()),
-                        ..Default::default()
-                    };
-                    let svg_data = std::fs::read(svg_path).unwrap();
-
-                    resvg::usvg::Tree::from_data(&svg_data, &opt).unwrap()
-                };
-
-                let pixmap_size = tree.size().to_int_size();
-                let width = pixmap_size.width();
-                let height = pixmap_size.height();
-
-                let mut pixmap = tiny_skia::Pixmap::new(width, height).unwrap();
-
-                resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
-
-                pixmap
-                    .encode_png()
-                    .map(std::io::Cursor::new)
-                    .map_err(drop)
-                    .and_then(|png_bytes| {
-                        image::io::Reader::with_format(png_bytes, image::ImageFormat::Png)
-                            .decode()
-                            .map_err(drop)
-                    })
-                    .expect("Format is not valid PNG")
-            };
-
-            let mut ascii_buf: Vec<u8> = Vec::new();
-
-            rascii_art::render_image(
-                &img,
-                &mut ascii_buf,
-                &rascii_art::RenderOptions::new()
-                    .width(40)
-                    .height(17)
-                    .colored(true),
-            )
-            .expect("Could not render SVG");
-
-            let ascii_art = String::from_utf8(ascii_buf).unwrap();
-
-            let file_name = svg_flag
-                .file_name()
-                .into_string()
-                .expect("filename only consists of ASCII characters");
-
-            let flag_parts: Vec<&str> = file_name.split('.').collect();
-
-            let country_name = flag_parts[0];
-            let country_code = flag_parts[1];
-
-            let flag_name_enum_member = country_name.to_pascal_case();
-
-            // Add flag for each country
-            let flag_rs_contents = format!(
-                "            Country::{} => r###\"{}\"###,",
-                flag_name_enum_member, ascii_art
-            );
-
-            // Add enum member
-            let country_enum = format!("    {},", flag_name_enum_member);
-
-            // Add match for Countries::from_str
-            let country_enum_impl_fn_from_str = format!(
-                "            \"{}\" => Some(Country::{}),",
-                country_name, flag_name_enum_member
-            );
-
-            // Add country code for each country
-            let country_enum_impl_fn_country_code = format!(
-                "            Country::{} => \"{}\",",
-                flag_name_enum_member, country_code
-            );
-
-            // Add country to array (for iteration)
-            let country_enum_impl_const_countries =
-                format!("        Country::{},", flag_name_enum_member);
-
-            // Add match for Countries::from_country_code
-            let country_enum_impl_fn_from_country_code = format!(
-                "            \"{}\" => Some(Country::{}),",
-                country_code, flag_name_enum_member
-            );
+        .map(|svg_path| {
+            let file_name = svg_path.file_name().unwrap().to_string_lossy().to_string();
+            let (country_name, country_code) = parse_filename(&file_name);
+            let country_enum_member = country_name.to_pascal_case();
+            let ascii_art = generate_ascii_art(svg_path);
 
             (
-                flag_rs_contents,
-                country_enum,
-                country_enum_impl_fn_from_str,
-                country_enum_impl_fn_country_code,
-                country_enum_impl_const_countries,
-                country_enum_impl_fn_from_country_code,
+                format!(
+                    "            Country::{} => r###\"{}\"###,\n",
+                    country_enum_member, ascii_art
+                ),
+                format!("    {},\n", country_enum_member),
+                format!(
+                    "            \"{}\" => Some(Country::{}),\n",
+                    country_name, country_enum_member
+                ),
+                format!(
+                    "            \"{}\" => Some(Country::{}),\n",
+                    country_code, country_enum_member
+                ),
+                format!(
+                    "            Country::{} => \"{}\",\n",
+                    country_enum_member, country_code
+                ),
+                format!("        Country::{},\n", country_enum_member),
             )
         })
         .collect();
 
+    // Where mutation is required, no parallel iteration
     for (
-        flag_rs_contents_addition,
-        country_enum_addition,
-        country_enum_impl_fn_from_str_addition,
-        country_enum_impl_fn_country_code_addition,
-        country_enum_impl_const_countries_addition,
-        country_enum_impl_fn_from_country_code_addition,
+        flag_line,
+        enum_line,
+        from_str_line,
+        from_code_line,
+        country_code_line,
+        all_countries_line,
     ) in additions
     {
-        writeln!(&mut flag_rs_contents, "{flag_rs_contents_addition}").unwrap();
-        writeln!(&mut country_enum, "{country_enum_addition}").unwrap();
-        writeln!(
-            &mut country_enum_impl_fn_from_str,
-            "{country_enum_impl_fn_from_str_addition}"
-        )
-        .unwrap();
-        writeln!(
-            &mut country_enum_impl_fn_country_code,
-            "{country_enum_impl_fn_country_code_addition}"
-        )
-        .unwrap();
-        writeln!(
-            &mut country_enum_impl_const_countries,
-            "{country_enum_impl_const_countries_addition}"
-        )
-        .unwrap();
-        writeln!(
-            &mut country_enum_impl_fn_from_country_code,
-            "{country_enum_impl_fn_from_country_code_addition}"
-        )
-        .unwrap();
+        flag_impl.push_str(&flag_line);
+        country_enum.push_str(&enum_line);
+        from_str_match.push_str(&from_str_line);
+        from_code_match.push_str(&from_code_line);
+        country_code_match.push_str(&country_code_line);
+        all_countries.push_str(&all_countries_line);
     }
 
-    writeln!(
-        &mut country_enum_impl_fn_from_str,
-        "            _ => None,
-        }}
-    }}"
-    )
-    .unwrap();
-    writeln!(
-        &mut flag_rs_contents,
-        "        }}
-    }}
-}}"
-    )
-    .unwrap();
-    writeln!(
-        &mut country_enum_impl_fn_country_code,
-        "        }}
-    }}"
-    )
-    .unwrap();
-    writeln!(
-        &mut country_enum_impl_fn_from_country_code,
-        "            _ => None,
-        }}
-    }}"
-    )
-    .unwrap();
-    writeln!(&mut country_enum, "}}").unwrap();
-    writeln!(&mut country_enum_impl_const_countries, "    ];\n").unwrap();
+    from_str_match.push_str("            _ => None,\n        }\n    }\n");
+    from_code_match.push_str("            _ => None,\n        }\n    }\n");
+    country_code_match.push_str("        }\n    }\n");
+    all_countries.push_str("    ];\n");
 
-    write!(
-        &mut country_enum_impl,
-        "{country_enum_impl_const_countries}{country_enum_impl_fn_country_code}{country_enum_impl_fn_from_str}{country_enum_impl_fn_from_country_code}"
-    )
-    .unwrap();
+    flag_impl.push_str("        }\n    }\n}");
+    country_enum.push('}');
 
-    writeln!(&mut country_enum_impl, "}}").unwrap();
+    country_impl.push_str(&all_countries);
+    country_impl.push_str(&country_code_match);
+    country_impl.push_str(&from_str_match);
+    country_impl.push_str(&from_code_match);
+    country_impl.push_str("}\n");
 
-    let country_rs_contents = format!("{country_enum}\n{country_enum_impl}");
+    (country_enum, country_impl, flag_impl)
+}
 
-    let mut country_file = File::create(country_rs).unwrap();
-    let mut flag_file = File::create(flag_rs).unwrap();
-    let mut mod_file = File::create(mod_rs).unwrap();
+/// Writes generated Rust code to appropriate files.
+fn write_files(paths: &Paths, country_enum: &str, country_impl: &str, flag_impl: &str) {
+    create_dir_all(&paths.generated_dir).expect("Failed to create generated directory");
 
-    country_file
-        .write_all(country_rs_contents.as_bytes())
-        .unwrap();
+    File::create(&paths.country_rs)
+        .expect("Failed to create country.rs")
+        .write_all(format!("{}\n{}", country_enum, country_impl).as_bytes())
+        .expect("Failed to write to country.rs");
 
-    flag_file.write_all(flag_rs_contents.as_bytes()).unwrap();
+    File::create(&paths.flag_rs)
+        .expect("Failed to create flag.rs")
+        .write_all(flag_impl.as_bytes())
+        .expect("Failed to write to flag.rs");
 
-    mod_file
-        .write_all(
-            b"mod country;
-mod flag;
+    File::create(&paths.mod_rs)
+        .expect("Failed to create mod.rs")
+        .write_all(b"mod country;\nmod flag;\n\npub use country::*;\npub use flag::*;")
+        .expect("Failed to write to mod.rs");
+}
 
-pub use country::*;
-pub use flag::*;",
-        )
-        .unwrap();
+fn main() {
+    let paths = Paths::new();
+    let svg_files = read_svg_files(&paths.svg_src_dir);
+    let (country_enum, country_impl, flag_impl) = generate_code(&svg_files);
+    write_files(&paths, &country_enum, &country_impl, &flag_impl);
 }
