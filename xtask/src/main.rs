@@ -1,6 +1,3 @@
-use std::path::Path;
-
-use rascii_art::render_image;
 use resvg::usvg;
 
 fn main() {
@@ -15,15 +12,37 @@ fn main() {
     };
 
     let pixmap_size = tree.size().to_int_size();
+    let width = pixmap_size.width();
+    let height = pixmap_size.height();
 
-    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    let mut pixmap = tiny_skia::Pixmap::new(width, height).unwrap();
 
     resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
-    pixmap.save_png("uk.png").unwrap();
 
-    // let pixmap_size = tiny_skia::Pixmap::new(110, 120).unwrap();
-    // tree.si
-    // resvg::default_backend();
-    // resvg::Render::render_to_image(&self, tree, opt)
-    // render_image(buffer, to, options)
+    let png = pixmap
+        .encode_png()
+        .map(std::io::Cursor::new)
+        .map_err(drop)
+        .and_then(|png_bytes| {
+            image::io::Reader::with_format(png_bytes, image::ImageFormat::Png)
+                .decode()
+                .map_err(drop)
+        })
+        .expect("Format is not valid PNG");
+
+    let mut buf: Vec<u8> = Vec::new();
+
+    rascii_art::render_image(
+        &png,
+        &mut buf,
+        &rascii_art::RenderOptions::new()
+            .width(40)
+            .height(17)
+            .colored(true),
+    )
+    .expect("Could not render SVG");
+
+    let ascii = String::from_utf8(buf).unwrap();
+
+    println!("{ascii}");
 }

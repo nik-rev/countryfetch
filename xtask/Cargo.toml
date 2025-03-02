@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# Convert SVG -> PNG
+# SVG -> PNG
 resvg = "0.45"
-# Convert PNG -> ASCII
+# PNG -> ASCII
 rascii_art = "0.4.5"
+
+# NOTE: This must be the same version as what is required by `rascii_art`
+image = "0.24.9"
 tiny-skia = "0.11"
