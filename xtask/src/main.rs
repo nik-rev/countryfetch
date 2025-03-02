@@ -1,4 +1,6 @@
 use heck::ToPascalCase;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use std::fmt::Write as _;
 use std::fs::File;
 use std::io::Write;
@@ -78,110 +80,144 @@ impl Country {
 ",
     );
 
-    for svg_flag in (*svg_src_dir).read_dir().unwrap().map(|a| a.unwrap()) {
-        // let img = {
-        //     let svg_path = svg_flag.path();
-        //     let tree = {
-        //         let opt = resvg::usvg::Options {
-        //             resources_dir: Some(svg_path.to_path_buf()),
-        //             ..Default::default()
-        //         };
-        //         let svg_data = std::fs::read(svg_path).unwrap();
+    let items: Vec<_> = (*svg_src_dir)
+        .read_dir()
+        .unwrap()
+        .map(|a| a.unwrap())
+        .collect();
 
-        //         resvg::usvg::Tree::from_data(&svg_data, &opt).unwrap()
-        //     };
+    let additions: Vec<_> = items
+        .par_iter()
+        .map(|svg_flag| {
+            let img = {
+                let svg_path = svg_flag.path();
+                let tree = {
+                    let opt = resvg::usvg::Options {
+                        resources_dir: Some(svg_path.to_path_buf()),
+                        ..Default::default()
+                    };
+                    let svg_data = std::fs::read(svg_path).unwrap();
 
-        //     let pixmap_size = tree.size().to_int_size();
-        //     let width = pixmap_size.width();
-        //     let height = pixmap_size.height();
+                    resvg::usvg::Tree::from_data(&svg_data, &opt).unwrap()
+                };
 
-        //     let mut pixmap = tiny_skia::Pixmap::new(width, height).unwrap();
+                let pixmap_size = tree.size().to_int_size();
+                let width = pixmap_size.width();
+                let height = pixmap_size.height();
 
-        //     resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
+                let mut pixmap = tiny_skia::Pixmap::new(width, height).unwrap();
 
-        //     pixmap
-        //         .encode_png()
-        //         .map(std::io::Cursor::new)
-        //         .map_err(drop)
-        //         .and_then(|png_bytes| {
-        //             image::io::Reader::with_format(png_bytes, image::ImageFormat::Png)
-        //                 .decode()
-        //                 .map_err(drop)
-        //         })
-        //         .expect("Format is not valid PNG")
-        // };
+                resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
 
-        // let mut ascii_buf: Vec<u8> = Vec::new();
+                pixmap
+                    .encode_png()
+                    .map(std::io::Cursor::new)
+                    .map_err(drop)
+                    .and_then(|png_bytes| {
+                        image::io::Reader::with_format(png_bytes, image::ImageFormat::Png)
+                            .decode()
+                            .map_err(drop)
+                    })
+                    .expect("Format is not valid PNG")
+            };
 
-        // rascii_art::render_image(
-        //     &img,
-        //     &mut ascii_buf,
-        //     &rascii_art::RenderOptions::new()
-        //         .width(40)
-        //         .height(17)
-        //         .colored(true),
-        // )
-        // .expect("Could not render SVG");
+            let mut ascii_buf: Vec<u8> = Vec::new();
 
-        // let ascii_flag_destination = destination.join(flag_name);
-        // let mut file = std::fs::File::create(ascii_flag_destination).unwrap();
+            rascii_art::render_image(
+                &img,
+                &mut ascii_buf,
+                &rascii_art::RenderOptions::new()
+                    .width(40)
+                    .height(17)
+                    .colored(true),
+            )
+            .expect("Could not render SVG");
 
-        // file.write_all(&ascii_buf).unwrap();
+            let ascii_art = String::from_utf8(ascii_buf).unwrap();
 
-        let ascii_buf = "temp";
+            let file_name = svg_flag
+                .file_name()
+                .into_string()
+                .expect("filename only consists of ASCII characters");
 
-        let file_name = svg_flag
-            .file_name()
-            .into_string()
-            .expect("filename only consists of ASCII characters");
+            let flag_parts: Vec<&str> = file_name.split('.').collect();
 
-        let flag_parts: Vec<&str> = file_name.split('.').collect();
+            let country_name = flag_parts[0];
+            let country_code = flag_parts[1];
 
-        let country_name = flag_parts[0];
-        let country_code = flag_parts[1];
+            let flag_name_enum_member = country_name.to_pascal_case();
 
-        let flag_name_enum_member = country_name.to_pascal_case();
+            // Add flag for each country
+            let flag_rs_contents = format!(
+                "            Country::{} => \"{}\",",
+                flag_name_enum_member, ascii_art
+            );
 
-        // Add enum member
-        writeln!(&mut country_enum, "    {},", flag_name_enum_member).unwrap();
+            // Add enum member
+            let country_enum = format!("    {},", flag_name_enum_member);
 
-        // Add match for Countries::from_str
-        writeln!(
+            // Add match for Countries::from_str
+            let country_enum_impl_fn_from_str = format!(
+                "            \"{}\" => Some(Country::{}),",
+                country_name, flag_name_enum_member
+            );
+
+            // Add country code for each country
+            let country_enum_impl_fn_country_code = format!(
+                "            Country::{} => \"{}\",",
+                flag_name_enum_member, country_code
+            );
+
+            // Add country to array (for iteration)
+            let country_enum_impl_const_countries =
+                format!("        Country::{},", flag_name_enum_member);
+
+            // Add match for Countries::from_country_code
+            let country_enum_impl_fn_from_country_code = format!(
+                "            \"{}\" => Some(Country::{}),",
+                country_code, flag_name_enum_member
+            );
+
+            (
+                flag_rs_contents,
+                country_enum,
+                country_enum_impl_fn_from_str,
+                country_enum_impl_fn_country_code,
+                country_enum_impl_const_countries,
+                country_enum_impl_fn_from_country_code,
+            )
+        })
+        .collect();
+
+    for (
+        flag_rs_contents_addition,
+        country_enum_addition,
+        country_enum_impl_fn_from_str_addition,
+        country_enum_impl_fn_country_code_addition,
+        country_enum_impl_const_countries_addition,
+        country_enum_impl_fn_from_country_code_addition,
+    ) in additions
+    {
+        write!(&mut flag_rs_contents, "{flag_rs_contents_addition}").unwrap();
+        write!(&mut country_enum, "{country_enum_addition}").unwrap();
+        write!(
             &mut country_enum_impl_fn_from_str,
-            "            \"{}\" => Some(Country::{}),",
-            country_name, flag_name_enum_member
+            "{country_enum_impl_fn_from_str_addition}"
         )
         .unwrap();
-
-        // Add flag for each country
-        writeln!(
-            &mut flag_rs_contents,
-            "            Country::{} => {},",
-            flag_name_enum_member, ascii_buf
-        )
-        .unwrap();
-
-        // Add country code for each country
-        writeln!(
+        write!(
             &mut country_enum_impl_fn_country_code,
-            "            Country::{} => \"{}\",",
-            flag_name_enum_member, country_code
+            "{country_enum_impl_fn_country_code_addition}"
         )
         .unwrap();
-
-        // Add country to array (for iteration)
-        writeln!(
+        write!(
             &mut country_enum_impl_const_countries,
-            "        Country::{},",
-            flag_name_enum_member
+            "{country_enum_impl_const_countries_addition}"
         )
         .unwrap();
-
-        // Add match for Countries::from_country_code
-        writeln!(
+        write!(
             &mut country_enum_impl_fn_from_country_code,
-            "            \"{}\" => Some(Country::{}),",
-            country_code, flag_name_enum_member
+            "{country_enum_impl_fn_from_country_code_addition}"
         )
         .unwrap();
     }

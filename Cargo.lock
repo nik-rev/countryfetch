@@ -1015,6 +1015,7 @@ dependencies = [
  "heck",
  "image",
  "rascii_art",
+ "rayon",
  "resvg",
  "tiny-skia",
 ]
