@@ -149,7 +149,7 @@ impl Country {
 
             // Add flag for each country
             let flag_rs_contents = format!(
-                "            Country::{} => \"{}\",",
+                "            Country::{} => r###\"{}\"###,",
                 flag_name_enum_member, ascii_art
             );
 
@@ -198,24 +198,24 @@ impl Country {
         country_enum_impl_fn_from_country_code_addition,
     ) in additions
     {
-        write!(&mut flag_rs_contents, "{flag_rs_contents_addition}").unwrap();
-        write!(&mut country_enum, "{country_enum_addition}").unwrap();
-        write!(
+        writeln!(&mut flag_rs_contents, "{flag_rs_contents_addition}").unwrap();
+        writeln!(&mut country_enum, "{country_enum_addition}").unwrap();
+        writeln!(
             &mut country_enum_impl_fn_from_str,
             "{country_enum_impl_fn_from_str_addition}"
         )
         .unwrap();
-        write!(
+        writeln!(
             &mut country_enum_impl_fn_country_code,
             "{country_enum_impl_fn_country_code_addition}"
         )
         .unwrap();
-        write!(
+        writeln!(
             &mut country_enum_impl_const_countries,
             "{country_enum_impl_const_countries_addition}"
         )
         .unwrap();
-        write!(
+        writeln!(
             &mut country_enum_impl_fn_from_country_code,
             "{country_enum_impl_fn_from_country_code_addition}"
         )
