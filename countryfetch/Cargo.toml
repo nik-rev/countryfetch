@@ -3,6 +3,14 @@ name = "countryfetch"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "countryfetch"
+path = "src/lib.rs"
+
+[[bin]]
+name = "countryfetch"
+path = "src/main.rs"
+
 [dependencies]
 public-ip = "0.2"
 tokio = { version = "1.43", features = ["full"] }
@@ -12,4 +20,8 @@ reqwest = { version = "0.12", default-features = false, features = [
   "json",
   "native-tls",
 ] }
-serde-query = "0.2"
+
+# PNG -> ASCII
+rascii_art = "0.4.5"
+# NOTE: This must be the same version as what is required by `rascii_art`
+image = "0.24.9"

@@ -1,14 +1,16 @@
+use countryfetch::Country;
+use deunicode::deunicode;
 use heck::ToPascalCase;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use std::fs::{self, File, create_dir_all};
+use std::fs::{File, create_dir_all};
 use std::io::Write as _;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 struct Paths {
     // Path where generated code lives.
     generated_dir: PathBuf,
-    // Path where the .svg files for each of the flags are located.
-    svg_src_dir: PathBuf,
     // Re-exports of generated code for ease of use.
     mod_rs: PathBuf,
     // country.rs: Contains implementations of all methods for the Country enum.
@@ -29,7 +31,6 @@ impl Paths {
 
         Self {
             generated_dir: generated_dir.clone(),
-            svg_src_dir: manifest_dir.join("flag-svgs").join("4x3"),
             mod_rs: generated_dir.join("mod.rs"),
             country_rs: generated_dir.join("country.rs"),
             flag_rs: generated_dir.join("flag.rs"),
@@ -37,147 +38,433 @@ impl Paths {
     }
 }
 
-/// Reads the available SVG flag files from the source directory.
-fn read_svg_files(svg_src_dir: &Path) -> Vec<PathBuf> {
-    svg_src_dir
-        .read_dir()
-        .expect("Failed to read SVG directory")
-        .filter_map(|entry| entry.ok().map(|e| e.path()))
-        .collect()
+async fn fetch_countries() -> Result<Vec<Country>> {
+    Ok(reqwest::get("https://restcountries.com/v3.1/all")
+        .await?
+        .json::<Vec<Country>>()
+        .await?)
 }
 
-/// Generates ASCII art representation of a flag from an SVG file.
-fn generate_ascii_art(svg_path: &Path) -> String {
-    let svg_data = fs::read(svg_path).expect("Failed to read SVG file");
-    let tree =
-        resvg::usvg::Tree::from_data(&svg_data, &Default::default()).expect("Invalid SVG data");
-    let pixmap_size = tree.size().to_int_size();
-    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height())
-        .expect("Failed to create Pixmap");
-    resvg::render(&tree, tiny_skia::Transform::default(), &mut pixmap.as_mut());
+/// Given a URL to a .png file, convert the file into colored Ascii
+async fn png_url_to_ascii(png_url: &str) -> Result<String> {
+    let bytes: Vec<u8> = reqwest::get(png_url).await?.bytes().await?.to_vec();
 
-    let img = image::io::Reader::with_format(
-        std::io::Cursor::new(pixmap.encode_png().expect("Failed to encode PNG")),
-        image::ImageFormat::Png,
-    )
-    .decode()
-    .expect("Failed to decode PNG image");
+    let image = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png)?;
 
     let mut ascii_buf = Vec::new();
     rascii_art::render_image(
-        &img,
+        &image,
         &mut ascii_buf,
         &rascii_art::RenderOptions::new()
             .width(40)
             .height(17)
             .colored(true),
-    )
-    .expect("Could not render SVG to ASCII");
+    )?;
 
-    String::from_utf8(ascii_buf).expect("Invalid UTF-8 in ASCII art")
-}
-
-/// Parses the filename to extract the country name and code.
-fn parse_filename(file_name: &str) -> (String, String) {
-    let parts: Vec<&str> = file_name.split('.').collect();
-
-    assert!(
-        parts.len() == 3,
-        "File name: {file_name}, File name must have the following form: {{human-readable-name}}.{{country-code}}.svg"
-    );
-
-    (parts[0].to_string(), parts[1].to_string()) // (country_name, country_code)
+    Ok(String::from_utf8(ascii_buf)?)
 }
 
 /// Generates Rust code for country enum and its implementation.
-fn generate_code(svg_files: &[PathBuf]) -> (String, String, String) {
+async fn generate_code(countries: &[Country]) -> (String, String, String) {
+    // ----- Types to represent the code structure -----
+
+    /// Represents a method to generate for the Country impl
+    struct Method {
+        name: &'static str,
+        return_type: &'static str,
+        default_case: Option<&'static str>,
+    }
+
+    /// Represents a static method that takes a string parameter
+    struct StringMatchMethod {
+        name: &'static str,
+        return_type: &'static str,
+        match_expr: &'static str,
+        default_case: &'static str,
+    }
+
+    // ----- Configuration of methods to generate -----
+
+    // Regular instance methods that match on self
+    let instance_methods = vec![
+        Method {
+            name: "description",
+            return_type: "Option<&'static str>",
+            default_case: None,
+        },
+        Method {
+            name: "country_name",
+            return_type: "&'static str",
+            default_case: None,
+        },
+        Method {
+            name: "country_code",
+            return_type: "&'static str",
+            default_case: None,
+        },
+        Method {
+            name: "top_level_domain",
+            return_type: "&'static [&'static str]",
+            default_case: None,
+        },
+        Method {
+            name: "currencies",
+            return_type: "&'static [(&'static str, &'static str, &'static str)]",
+            default_case: None,
+        },
+        Method {
+            name: "languages",
+            return_type: "&'static [(&'static str, &'static str)]",
+            default_case: None,
+        },
+        Method {
+            name: "neighbours",
+            return_type: "&'static [&'static str]",
+            default_case: None,
+        },
+        Method {
+            name: "area_km",
+            return_type: "f64",
+            default_case: None,
+        },
+        Method {
+            name: "emoji",
+            return_type: "&'static str",
+            default_case: None,
+        },
+        Method {
+            name: "population",
+            return_type: "u64",
+            default_case: None,
+        },
+        Method {
+            name: "continents",
+            return_type: "&'static [&'static str]",
+            default_case: None,
+        },
+    ];
+
+    // Static methods that match on a string parameter
+    let string_match_methods = [
+        StringMatchMethod {
+            name: "from_str",
+            return_type: "Option<Self>",
+            match_expr: "s",
+            default_case: "_ => None,",
+        },
+        StringMatchMethod {
+            name: "from_country_code",
+            return_type: "Option<Self>",
+            match_expr: "s",
+            default_case: "_ => None,",
+        },
+        StringMatchMethod {
+            name: "country_code3_from_country_code2",
+            return_type: "Option<&'static str>",
+            match_expr: "s",
+            default_case: "_ => None,",
+        },
+    ];
+
+    // ----- Code generation -----
+
     let mut country_enum = String::from(
         "#![cfg_attr(rustfmt, rustfmt_skip)]\n#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd)]\npub enum Country {\n",
     );
 
     let mut country_impl = String::from("impl Country {\n");
-    let mut from_str_match =
-        String::from("    pub fn from_str(s: &str) -> Option<Self> {\n        match s {\n");
-    let mut from_code_match = String::from(
-        "    pub fn from_country_code(s: &str) -> Option<Self> {\n        match s {\n",
+
+    // The flag implementation goes in a separate file with its own header
+    let mut flag_impl = String::from(
+        "#![cfg_attr(rustfmt, rustfmt_skip)]\n\nuse super::Country;\n\nimpl Country {\n    pub const fn flag(&self) -> &'static str {\n        match self {\n",
     );
-    let mut country_code_match =
-        String::from("    pub fn country_code(&self) -> &'static str {\n        match self {\n");
+
     let mut all_countries = String::from("    pub const ALL_COUNTRIES: &[Self] = &[\n");
 
-    let mut flag_impl = String::from(
-        "#![cfg_attr(rustfmt, rustfmt_skip)]\n\nuse super::Country;\n\nimpl Country {\n    pub fn flag(&self) -> &'static str {\n        match self {\n",
-    );
-
-    // parallel iteration, each thread does heavy computation:
-    // 1. Rendering the SVG into a PNG
-    // 2. Parsing the PNG into an Ascii representation
-    let additions: Vec<_> = svg_files
-        .par_iter()
-        .map(|svg_path| {
-            let file_name = svg_path.file_name().unwrap().to_string_lossy().to_string();
-            let (country_name, country_code) = parse_filename(&file_name);
-            let country_enum_member = country_name.to_pascal_case();
-            let ascii_art = generate_ascii_art(svg_path);
-
+    // Initialize method implementations
+    let mut method_impls = instance_methods
+        .iter()
+        .map(|method| {
             (
+                method,
                 format!(
-                    "            Country::{} => r###\"{}\"###,\n",
-                    country_enum_member, ascii_art
+                    "    pub const fn {}(&self) -> {} {{\n        match self {{\n",
+                    method.name, method.return_type
                 ),
-                format!("    {},\n", country_enum_member),
-                format!(
-                    "            \"{}\" => Some(Country::{}),\n",
-                    country_name, country_enum_member
-                ),
-                format!(
-                    "            \"{}\" => Some(Country::{}),\n",
-                    country_code, country_enum_member
-                ),
-                format!(
-                    "            Country::{} => \"{}\",\n",
-                    country_enum_member, country_code
-                ),
-                format!("        Country::{},\n", country_enum_member),
             )
         })
-        .collect();
+        .collect::<Vec<_>>();
 
-    // Where mutation is required, no parallel iteration
-    for (
-        flag_line,
-        enum_line,
-        from_str_line,
-        from_code_line,
-        country_code_line,
-        all_countries_line,
-    ) in additions
-    {
-        flag_impl.push_str(&flag_line);
-        country_enum.push_str(&enum_line);
-        from_str_match.push_str(&from_str_line);
-        from_code_match.push_str(&from_code_line);
-        country_code_match.push_str(&country_code_line);
-        all_countries.push_str(&all_countries_line);
+    let mut string_method_impls = string_match_methods
+        .iter()
+        .map(|method| {
+            (
+                method,
+                format!(
+                    "    pub fn {}({}: &str) -> {} {{\n        match {} {{\n",
+                    method.name, method.match_expr, method.return_type, method.match_expr
+                ),
+            )
+        })
+        .collect::<Vec<_>>();
+
+    let country_parts: Vec<CountryParts> = futures::future::join_all(
+        countries
+            .par_iter()
+            .map(generate_country_parts)
+            .collect::<Vec<_>>(),
+    )
+    .await;
+
+    // Append all the generated parts to the respective strings
+    for parts in country_parts {
+        // Add to the enum
+        country_enum.push_str(&format!("    {},\n", parts.enum_name));
+
+        // Add to ALL_COUNTRIES
+        all_countries.push_str(&format!("        Country::{},\n", parts.enum_name));
+
+        // Add to flag implementation
+        flag_impl.push_str(&format!(
+            "            Country::{} => r###\"{}\"###,\n",
+            parts.enum_name, parts.flag_ascii
+        ));
+
+        // Add to string match methods
+        for (method, impl_str) in &mut string_method_impls {
+            match method.name {
+                "from_str" => {
+                    impl_str.push_str(&format!(
+                        "            \"{}\" => Some(Country::{}),\n",
+                        parts.deunicoded_name, parts.enum_name
+                    ));
+                }
+                "from_country_code" => {
+                    impl_str.push_str(&format!(
+                        "            \"{}\" => Some(Country::{}),\n",
+                        parts.country_code3, parts.enum_name
+                    ));
+                }
+                "country_code3_from_country_code2" => {
+                    impl_str.push_str(&format!(
+                        "            \"{}\" => Some(\"{}\"),\n",
+                        parts.country_code2, parts.country_code3
+                    ));
+                }
+                _ => panic!("Unknown string match method: {}", method.name),
+            }
+        }
+
+        // Add to instance methods
+        for (method, impl_str) in &mut method_impls {
+            match method.name {
+                "description" => {
+                    impl_str.push_str(&format!(
+                        "            {} => {},\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts
+                            .description
+                            .as_ref()
+                            .map(|d| format!("Some(r###\"{d}\"###)"))
+                            .unwrap_or_else(|| "None".to_string())
+                    ));
+                }
+                "country_name" => {
+                    impl_str.push_str(&format!(
+                        "            {} => r###\"{}\"###,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.country_name
+                    ));
+                }
+                "country_code" => {
+                    impl_str.push_str(&format!(
+                        "            {} => r###\"{}\"###,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.country_code3
+                    ));
+                }
+                "top_level_domain" => {
+                    impl_str.push_str(&format!(
+                        "            {} => &[{}],\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.top_level_domains.join(", ")
+                    ));
+                }
+                "currencies" => {
+                    impl_str.push_str(&format!(
+                        "            {} => &[{}],\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.currencies
+                    ));
+                }
+                "languages" => {
+                    impl_str.push_str(&format!(
+                        "            {} => &[{}],\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.languages
+                    ));
+                }
+                "neighbours" => {
+                    impl_str.push_str(&format!(
+                        "            {} => &[{}],\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.neighbours.join(", ")
+                    ));
+                }
+                "area_km" => {
+                    impl_str.push_str(&format!(
+                        "            {} => {}_f64,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.area_km
+                    ));
+                }
+                "emoji" => {
+                    impl_str.push_str(&format!(
+                        "            {} => r###\"{}\"###,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.emoji
+                    ));
+                }
+                "population" => {
+                    impl_str.push_str(&format!(
+                        "            {} => {}_u64,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.population
+                    ));
+                }
+                "continents" => {
+                    impl_str.push_str(&format!(
+                        "            {} => &[{}],\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.continents.join(", ")
+                    ));
+                }
+                _ => panic!("Unknown method: {}", method.name),
+            }
+        }
     }
 
-    from_str_match.push_str("            _ => None,\n        }\n    }\n");
-    from_code_match.push_str("            _ => None,\n        }\n    }\n");
-    country_code_match.push_str("        }\n    }\n");
+    // Close the enum
+    country_enum.push_str("}\n");
+
+    // Close ALL_COUNTRIES
     all_countries.push_str("    ];\n");
 
-    flag_impl.push_str("        }\n    }\n}");
-    country_enum.push('}');
+    // Close all method implementations and add default cases
+    for (method, impl_str) in &mut method_impls {
+        if let Some(default_case) = method.default_case {
+            impl_str.push_str(&format!("            {}\n", default_case));
+        }
+        impl_str.push_str("        }\n    }\n");
+    }
 
+    // Close string match methods with default cases
+    for (method, impl_str) in &mut string_method_impls {
+        impl_str.push_str(&format!("            {}\n", method.default_case));
+        impl_str.push_str("        }\n    }\n");
+    }
+
+    // Close flag implementation
+    flag_impl.push_str("        }\n    }\n}\n");
+
+    // Combine all method implementations into the country_impl
     country_impl.push_str(&all_countries);
-    country_impl.push_str(&country_code_match);
-    country_impl.push_str(&from_str_match);
-    country_impl.push_str(&from_code_match);
+
+    for (_, impl_str) in method_impls {
+        country_impl.push_str(&impl_str);
+    }
+
+    for (_, impl_str) in string_method_impls {
+        country_impl.push_str(&impl_str);
+    }
+
+    // Close the implementation
     country_impl.push_str("}\n");
 
     (country_enum, country_impl, flag_impl)
 }
 
+/// Represents all the parts needed to generate code for a country
+struct CountryParts {
+    enum_name: String,
+    deunicoded_name: String,
+    country_name: String,
+    country_code2: String,
+    country_code3: String,
+    flag_ascii: String,
+    description: Option<String>,
+    top_level_domains: Vec<String>,
+    currencies: String,
+    languages: String,
+    neighbours: Vec<String>,
+    area_km: f64,
+    emoji: String,
+    population: u64,
+    continents: Vec<String>,
+}
+
+/// Generate all the parts needed for a single country
+async fn generate_country_parts(country: &Country) -> CountryParts {
+    let country_name = country.country_name();
+    let deunicoded_name = deunicode(country_name);
+    let enum_name = deunicoded_name.to_pascal_case();
+
+    let ascii_art = png_url_to_ascii(&country.flag.url).await.unwrap();
+
+    let top_level_domains = country
+        .top_level_domain
+        .iter()
+        .map(|tld| format!("\"{}\"", tld))
+        .collect();
+
+    let currencies = country
+        .currencies
+        .iter()
+        .map(|(id, currency)| {
+            let name = &currency.name;
+            let symbol = &currency.symbol;
+            format!("(\"{id}\", \"{name}\", \"{symbol}\")")
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    let languages = country
+        .languages
+        .iter()
+        .map(|(a, b)| format!("(\"{a}\", \"{b}\")"))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    let neighbours = country
+        .neighbours
+        .iter()
+        .map(|n| format!("\"{}\"", n))
+        .collect();
+
+    let continents = country
+        .continents
+        .iter()
+        .map(|c| format!("\"{}\"", c))
+        .collect();
+
+    CountryParts {
+        enum_name,
+        deunicoded_name,
+        country_name: country_name.to_string(),
+        country_code2: country.country_code2.clone(),
+        country_code3: country.country_code3.clone(),
+        flag_ascii: ascii_art,
+        description: country.flag.description.clone(),
+        top_level_domains,
+        currencies,
+        languages,
+        neighbours,
+        area_km: country.area_km,
+        emoji: country.emoji.clone(),
+        population: country.population,
+        continents,
+    }
+}
 /// Writes generated Rust code to appropriate files.
 fn write_files(paths: &Paths, country_enum: &str, country_impl: &str, flag_impl: &str) {
     create_dir_all(&paths.generated_dir).expect("Failed to create generated directory");
@@ -198,9 +485,12 @@ fn write_files(paths: &Paths, country_enum: &str, country_impl: &str, flag_impl:
         .expect("Failed to write to mod.rs");
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     let paths = Paths::new();
-    let svg_files = read_svg_files(&paths.svg_src_dir);
-    let (country_enum, country_impl, flag_impl) = generate_code(&svg_files);
+    let all_countries = fetch_countries().await?;
+    let (country_enum, country_impl, flag_impl) = generate_code(&all_countries).await;
     write_files(&paths, &country_enum, &country_impl, &flag_impl);
+
+    Ok(())
 }
