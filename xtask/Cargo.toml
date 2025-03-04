@@ -31,3 +31,5 @@ rayon = "1.10"
 countryfetch = { path = "../countryfetch" }
 
 deunicode = "1.6"
+
+color-thief = "0.2"

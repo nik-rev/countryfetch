@@ -1,6 +1,7 @@
 use core::fmt;
-use std::{borrow::BorrowMut, env};
+use std::{borrow::BorrowMut, env, io::Read, path::PathBuf};
 
+use colored::Colorize;
 use countryfetch::{Country, Location};
 use separator::Separatable;
 
@@ -53,6 +54,7 @@ struct CountryOutput<'a> {
     capital: &'a Vec<String>,
     driving_side: &'a str,
     iso_codes: (&'a str, &'a str),
+    palette: &'static [(u8, u8, u8)],
 }
 
 impl fmt::Display for CountryOutput<'_> {
@@ -60,58 +62,88 @@ impl fmt::Display for CountryOutput<'_> {
         let country_name = self.country_name;
         let flag_emoji = self.flag_emoji;
 
+        let dominant_color = self.palette[0];
+        let colored = |s: &str| s.truecolor(dominant_color.0, dominant_color.1, dominant_color.2);
+
         let km = self.area_km.separated_string();
         let mi = self.area_mi.separated_string();
 
-        let population = format!("Population: {} People", self.population.separated_string());
+        let population = format!(
+            "{}: {} People",
+            colored("Population"),
+            self.population.separated_string()
+        );
 
-        let area = format!("Area: {km} km ({mi} mi)");
+        let area = format!("{}: {km} km ({mi} mi)", colored("Area"));
 
         let capital = format!(
-            "Capital{s}: {}",
+            "{}: {}",
+            colored(&format!(
+                "Capital{s}",
+                s = if self.capital.len() == 1 {
+                    ""
+                } else {
+                    " Cities"
+                }
+            )),
             self.capital.join(", "),
-            s = if self.capital.len() == 1 {
-                ""
-            } else {
-                " Cities"
-            }
         );
-        let dialing_code = format!("Dialing code: {}", self.dialing_code);
-        let iso_codes = format!("ISO Codes: {} / {}", self.iso_codes.0, self.iso_codes.1);
-        let driving_side = format!("Driving side: {}", self.driving_side);
+        let dialing_code = format!("{}: {}", colored("Dialing code"), self.dialing_code);
+        let iso_codes = format!(
+            "{}: {} / {}",
+            colored("ISO Codes"),
+            self.iso_codes.0,
+            self.iso_codes.1
+        );
+        let driving_side = format!("{}: {}", colored("Driving side"), self.driving_side);
 
         let currency = match self.currency.0 {
             generated::CurrencyPosition::Left => {
                 format!(
-                    "Currenc{y}: {}",
+                    "{}: {}",
+                    colored(&format!(
+                        "Currenc{y}",
+                        y = if self.currency.1.len() == 1 {
+                            "y"
+                        } else {
+                            "ies"
+                        }
+                    )),
                     self.currency
                         .1
                         .iter()
                         .map(|(id, name, symbol)| format!("{symbol} {id} ({name})"))
                         .collect::<Vec<_>>()
                         .join(", "),
-                    y = if self.currency.1.len() == 1 {
-                        "y"
-                    } else {
-                        "ies"
-                    }
                 )
             }
-            generated::CurrencyPosition::Right => format!(
-                "Currenc{y}: {}",
-                self.currency
-                    .1
-                    .iter()
-                    .map(|(id, name, symbol)| format!("{id} {symbol} ({name})"))
-                    .collect::<Vec<_>>()
-                    .join(", "),
-                y = if self.currency.1.len() == 1 {
-                    "y"
-                } else {
-                    "ies"
-                }
-            ),
+            generated::CurrencyPosition::Right => {
+                format!(
+                    "{}: {}",
+                    colored(&format!(
+                        "Currenc{y}",
+                        y = if self.currency.1.len() == 1 {
+                            "y"
+                        } else {
+                            "ies"
+                        }
+                    )),
+                    self.currency
+                        .1
+                        .iter()
+                        .map(|(id, name, symbol)| format!("{id} {symbol} ({name})"))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                )
+            }
         };
+
+        let palette = self
+            .palette
+            .iter()
+            .map(|color| format!("{}", "   ".on_truecolor(color.0, color.1, color.2)))
+            .collect::<Vec<_>>()
+            .join("");
 
         let neigh = self
             .neighbours
@@ -121,34 +153,46 @@ impl fmt::Display for CountryOutput<'_> {
             .join(", ");
 
         let neighbours = format!(
-            "Neighbour{s}: {}",
+            "{}: {}",
+            colored(&format!(
+                "Neighbour{s}",
+                s = if self.neighbours.len() == 1 { "" } else { "s" }
+            )),
             neigh,
-            s = if self.neighbours.len() == 1 { "" } else { "s" }
         );
 
         let continent = format!(
-            "Continent{s}: {} ({})",
+            "{}: {} ({})",
+            colored(&format!(
+                "Continent{s}",
+                s = if self.continent.len() == 1 { "" } else { "s" }
+            )),
             self.continent.join(", "),
             self.continent_code,
-            s = if self.continent.len() == 1 { "" } else { "s" }
         );
 
-        let established = format!("Established: {}", self.established_date);
+        let established = format!("{}: {}", colored("Established"), self.established_date);
 
         let top_level_domain = format!(
-            "Top level domain{s}: {}",
+            "{}: {}",
+            colored(&format!(
+                "Top Level Domain{s}",
+                s = if self.top_level_domain.len() == 1 {
+                    ""
+                } else {
+                    "s"
+                }
+            )),
             self.top_level_domain.join(", "),
-            s = if self.top_level_domain.len() == 1 {
-                ""
-            } else {
-                "s"
-            }
         );
 
         let language = format!(
-            "Language{s}: {}",
+            "{}: {}",
+            colored(&format!(
+                "Language{s}",
+                s = if self.languages.len() == 1 { "" } else { "s" }
+            )),
             self.languages.join(", "),
-            s = if self.languages.len() == 1 { "" } else { "s" }
         );
 
         let information = format!(
@@ -166,7 +210,8 @@ impl fmt::Display for CountryOutput<'_> {
 {language}
 {established}
 {currency}
-{top_level_domain}"
+{top_level_domain}
+{palette}"
         );
 
         let lines = self
@@ -186,12 +231,25 @@ impl fmt::Display for CountryOutput<'_> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let (location, country) = get_data().await.unwrap();
+    // let (location, country) = get_data().await.unwrap();
 
-    let country_cached_data = generated::Country::from_country_code(&country.country_code3)
-        .expect("All countries have been cached");
+    let mut country_json =
+        std::fs::File::open(PathBuf::from("../../xtask/countries.json")).unwrap();
 
-    let out = CountryOutput {
+    let mut buf = String::new();
+
+    country_json.read_to_string(&mut buf);
+
+    let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
+
+    let country = countries.into_iter().next().unwrap();
+    let country_cached_data =
+        generated::Country::from_country_code(&country.country_code3).unwrap();
+
+    // let country_cached_data = generated::Country::from_country_code(&country.country_code3)
+    //     .expect("All countries have been cached");
+
+    let country_output = CountryOutput {
         flag: if env::var_os("NO_COLOR").is_some() {
             country_cached_data.flag_nocolor()
         } else {
@@ -203,7 +261,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         area_mi: (country.area_km * 0.62137 * 0.01).round() / 0.01,
         country_name: country.country_name(),
         continent: &country.continents,
-        continent_code: &location.continent_code,
+        // continent_code: &location.continent_code,
+        continent_code: "Europe",
         population: country.population,
         top_level_domain: &country.top_level_domain,
         languages: country.languages.values().cloned().collect(),
@@ -223,11 +282,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         driving_side: country.driving_side(),
         capital: &country.capital,
         dialing_code: country.dialing_code(),
+        palette: country_cached_data.palette(),
     };
 
-    println!("{out}");
+    println!("{country_output}");
 
-    dbg!(location, country);
+    // dbg!(location, country);
 
     Ok(())
 }

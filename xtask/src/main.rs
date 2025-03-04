@@ -1,9 +1,10 @@
+use color_thief::get_palette;
 use countryfetch::Country;
 use deunicode::deunicode;
 use heck::ToPascalCase;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::fs::{File, create_dir_all};
-use std::io::Write as _;
+use std::io::{Read, Write as _};
 use std::path::PathBuf;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -38,18 +39,31 @@ impl Paths {
     }
 }
 
-async fn fetch_countries() -> Result<Vec<Country>> {
+async fn fetch_countries() -> Result<serde_json::Value> {
     Ok(reqwest::get("https://restcountries.com/v3.1/all")
         .await?
-        .json::<Vec<Country>>()
+        .json::<serde_json::Value>()
         .await?)
+    // Ok(reqwest::get("https://restcountries.com/v3.1/all")
+    //     .await?
+    //     .json::<Vec<Country>>()
+    //     .await?)
 }
 
 /// Given a URL to a .png file, convert the file into colored Ascii
-async fn png_url_to_ascii(png_url: &str) -> Result<(String, String)> {
-    let bytes: Vec<u8> = reqwest::get(png_url).await?.bytes().await?.to_vec();
+async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<color_thief::Color>)> {
+    let pixels: Vec<u8> = reqwest::get(png_url).await?.bytes().await?.to_vec();
 
-    let image = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png)?;
+    let image = image::load_from_memory_with_format(&pixels, image::ImageFormat::Png)?;
+
+    let colors = color_thief::get_palette(
+        &image.to_rgb8().into_raw().as_slice(),
+        color_thief::ColorFormat::Rgb,
+        1,
+        2,
+    )?;
+
+    // let colors = dominant_color::get_colors(, false);
 
     let mut flag_color = Vec::new();
     let mut flag_nocolor = Vec::new();
@@ -73,6 +87,7 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String)> {
     Ok((
         String::from_utf8(flag_color)?,
         String::from_utf8(flag_nocolor)?,
+        colors,
     ))
 }
 
@@ -137,6 +152,11 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
         Method {
             name: "neighbours",
             return_type: "&'static [&'static str]",
+            default_case: None,
+        },
+        Method {
+            name: "palette",
+            return_type: "&'static [(u8, u8, u8)]",
             default_case: None,
         },
         Method {
@@ -339,6 +359,13 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
                         parts.languages
                     ));
                 }
+                "palette" => {
+                    impl_str.push_str(&format!(
+                        "            {} => {},\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.colors
+                    ));
+                }
                 "neighbours" => {
                     impl_str.push_str(&format!(
                         "            {} => &[{}],\n",
@@ -430,6 +457,7 @@ struct CountryParts {
     country_code3: String,
     flag_color: String,
     flag_nocolor: String,
+    colors: String,
     description: Option<String>,
     top_level_domains: Vec<String>,
     currencies: String,
@@ -447,13 +475,22 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
     let deunicoded_name = deunicode(country_name);
     let enum_name = deunicoded_name.to_pascal_case();
 
-    let (flag_color, flag_nocolor) = png_url_to_ascii(&country.flag.url).await.unwrap();
+    let (flag_color, flag_nocolor, colors) = png_url_to_ascii(&country.flag.url).await.unwrap();
 
     let top_level_domains = country
         .top_level_domain
         .iter()
         .map(|tld| format!("\"{}\"", tld))
         .collect();
+
+    let colors = format!(
+        "&[{}]",
+        colors
+            .into_iter()
+            .map(|color| format!("({}, {}, {})", color.r, color.g, color.b))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
 
     let currencies = country
         .currencies
@@ -493,6 +530,7 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
         country_code3: country.country_code3.clone(),
         flag_color,
         flag_nocolor,
+        colors,
         description: country.flag.description.clone(),
         top_level_domains,
         currencies,
@@ -527,7 +565,20 @@ fn write_files(paths: &Paths, country_enum: &str, country_impl: &str, flag_impl:
 #[tokio::main]
 async fn main() -> Result<()> {
     let paths = Paths::new();
-    let all_countries = fetch_countries().await?;
+    // let all_countries = fetch_countries().await?;
+    let mut all_countries =
+        File::open(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("countries.json")).unwrap();
+    let mut buf = String::new();
+    all_countries.read_to_string(&mut buf).unwrap();
+    let all_countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
+
+    // dbg!(countries);
+
+    // countries
+    //     .write_all(all_countries.to_string().as_bytes())
+    //     .unwrap();
+
+    // write!(countries, all_countries.to_string());
     let (country_enum, country_impl, flag_impl) = generate_code(&all_countries).await;
     write_files(&paths, &country_enum, &country_impl, &flag_impl);
 

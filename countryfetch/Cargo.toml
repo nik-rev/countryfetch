@@ -27,3 +27,6 @@ rascii_art = "0.4.5"
 image = "0.24.9"
 
 separator = "0.3"
+
+# colored strings
+colored = "3.0"
