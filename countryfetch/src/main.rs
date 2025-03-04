@@ -244,37 +244,67 @@ impl fmt::Display for CountryOutput<'_> {
     }
 }
 
-fn format_country(country: Country, location: Option<&Location>) -> String {
-    let count = generated::Country::from_country_code(&country.country_code3).unwrap();
-
+fn format_country(
+    gen_country: generated::Country,
+    country: Option<&Country>,
+    location: Option<&Location>,
+) -> String {
+    let area_km = country.map(|c| c.area_km).unwrap_or(gen_country.area_km());
     CountryOutput {
         flag: if env::var_os("NO_COLOR").is_some() {
-            count.flag_nocolor()
+            gen_country.flag_nocolor()
         } else {
-            count.flag()
+            gen_country.flag()
         },
-        flag_emoji: &country.emoji,
-        area_km: country.area_km,
+        flag_emoji: &country
+            .map(|c| c.emoji)
+            .unwrap_or(gen_country.emoji().to_string()),
+        area_km: country.map(|c| c.area_km).unwrap_or(gen_country.area_km()),
         // rounds to the nearest 100
-        area_mi: (country.area_km * 0.62137 * 0.01).round() / 0.01,
-        country_name: country.country_name(),
+        area_mi: (area_km * 0.62137 * 0.01).round() / 0.01,
+        country_name: country
+            .map(|c| c.country_name())
+            .unwrap_or(&gen_country.country_name()),
         continent: &country.continents,
         continent_code: location.as_deref().map(|l| l.continent_code.clone()),
-        population: country.population,
-        top_level_domain: &country.top_level_domain,
+        population: country
+            .map(|c| c.population)
+            .unwrap_or(gen_country.population()),
+        top_level_domain: &country.map(|c| c.top_level_domain).unwrap_or(
+            gen_country
+                .top_level_domain()
+                .iter()
+                .map(|a| a.to_string())
+                .collect::<Vec<_>>(),
+        ),
         languages: country.languages.values().cloned().collect(),
         currency: (
-            generated::currency_position(count),
+            generated::currency_position(gen_country),
             country
-                .currencies
-                .iter()
-                .map(|(currency_id, currency)| {
-                    (currency_id, currency.name.clone(), currency.symbol.clone())
+                .map(|c| {
+                    c.currencies
+                        .iter()
+                        .map(|(currency_id, currency)| {
+                            (currency_id, currency.name.clone(), currency.symbol.clone())
+                        })
+                        .collect()
                 })
+                .unwrap_or(
+                    gen_country
+                        .currencies()
+                        .iter()
+                        .map(|c| (&c.0.to_string(), c.1.to_string(), c.2.to_string()))
+                        .collect(),
+                ),
+        ),
+        neighbours: &country.map(|c| c.neighbours).unwrap_or(
+            gen_country
+                .neighbours()
+                .iter()
+                .map(|n| n.to_string())
                 .collect(),
         ),
-        neighbours: &country.neighbours,
-        established_date: generated::established_date(count),
+        established_date: generated::established_date(gen_country),
         iso_codes: (&country.country_code2, &country.country_code3),
         driving_side: country.driving_side(),
         capital: &country.capital,
