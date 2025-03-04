@@ -274,6 +274,7 @@ dependencies = [
  "public-ip",
  "rascii_art",
  "reqwest",
+ "separator",
  "serde",
  "serde_json",
  "tokio",
@@ -1717,6 +1718,12 @@ dependencies = [
  "core-foundation-sys",
  "libc",
 ]
+
+[[package]]
+name = "separator"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7acc4d818f952ed02e7911df5da8098c8b00a3c5ba2832e035a750b56e8fc32b"
 
 [[package]]
 name = "serde"
