@@ -87,11 +87,12 @@ impl Country {
         &self.car.side
     }
     pub fn dialing_code(&self) -> String {
-        format!(
-            "{}{}",
-            self.dialing_code.root,
-            self.dialing_code.suffixes.join("")
-        )
+        self.dialing_code
+            .suffixes
+            .iter()
+            .map(|suffix| format!("{root}{suffix}", root = self.dialing_code.root))
+            .collect::<Vec<_>>()
+            .join(", ")
     }
 }
 
