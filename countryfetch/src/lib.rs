@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+mod generated;
 use serde::Deserialize;
 
 /// Information obtained from the user's IP

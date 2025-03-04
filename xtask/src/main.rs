@@ -46,22 +46,34 @@ async fn fetch_countries() -> Result<Vec<Country>> {
 }
 
 /// Given a URL to a .png file, convert the file into colored Ascii
-async fn png_url_to_ascii(png_url: &str) -> Result<String> {
+async fn png_url_to_ascii(png_url: &str) -> Result<(String, String)> {
     let bytes: Vec<u8> = reqwest::get(png_url).await?.bytes().await?.to_vec();
 
     let image = image::load_from_memory_with_format(&bytes, image::ImageFormat::Png)?;
 
-    let mut ascii_buf = Vec::new();
+    let mut flag_color = Vec::new();
+    let mut flag_nocolor = Vec::new();
     rascii_art::render_image(
         &image,
-        &mut ascii_buf,
+        &mut flag_color,
         &rascii_art::RenderOptions::new()
             .width(40)
             .height(17)
             .colored(true),
     )?;
+    rascii_art::render_image(
+        &image,
+        &mut flag_nocolor,
+        &rascii_art::RenderOptions::new()
+            .width(40)
+            .height(17)
+            .colored(false),
+    )?;
 
-    Ok(String::from_utf8(ascii_buf)?)
+    Ok((
+        String::from_utf8(flag_color)?,
+        String::from_utf8(flag_nocolor)?,
+    ))
 }
 
 /// Generates Rust code for country enum and its implementation.
@@ -98,7 +110,12 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
             default_case: None,
         },
         Method {
-            name: "country_code",
+            name: "country_code3",
+            return_type: "&'static str",
+            default_case: None,
+        },
+        Method {
+            name: "country_code2",
             return_type: "&'static str",
             default_case: None,
         },
@@ -179,6 +196,11 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
         "#![cfg_attr(rustfmt, rustfmt_skip)]\n\nuse super::Country;\n\nimpl Country {\n    pub const fn flag(&self) -> &'static str {\n        match self {\n",
     );
 
+    // The flag implementation goes in a separate file with its own header
+    let mut flag_no_color_impl = String::from(
+        "\n\nimpl Country {\n    pub const fn flag_nocolor(&self) -> &'static str {\n        match self {\n",
+    );
+
     let mut all_countries = String::from("    pub const ALL_COUNTRIES: &[Self] = &[\n");
 
     // Initialize method implementations
@@ -227,7 +249,13 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
         // Add to flag implementation
         flag_impl.push_str(&format!(
             "            Country::{} => r###\"{}\"###,\n",
-            parts.enum_name, parts.flag_ascii
+            parts.enum_name, parts.flag_color
+        ));
+
+        // Add to flag implementation
+        flag_no_color_impl.push_str(&format!(
+            "            Country::{} => r###\"{}\"###,\n",
+            parts.enum_name, parts.flag_nocolor
         ));
 
         // Add to string match methods
@@ -276,11 +304,18 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
                         parts.country_name
                     ));
                 }
-                "country_code" => {
+                "country_code3" => {
                     impl_str.push_str(&format!(
                         "            {} => r###\"{}\"###,\n",
                         format_args!("Country::{}", parts.enum_name),
                         parts.country_code3
+                    ));
+                }
+                "country_code2" => {
+                    impl_str.push_str(&format!(
+                        "            {} => r###\"{}\"###,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.country_code2
                     ));
                 }
                 "top_level_domain" => {
@@ -366,6 +401,8 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
 
     // Close flag implementation
     flag_impl.push_str("        }\n    }\n}\n");
+    flag_no_color_impl.push_str("        }\n    }\n}\n");
+    flag_impl.push_str(&flag_no_color_impl);
 
     // Combine all method implementations into the country_impl
     country_impl.push_str(&all_countries);
@@ -391,7 +428,8 @@ struct CountryParts {
     country_name: String,
     country_code2: String,
     country_code3: String,
-    flag_ascii: String,
+    flag_color: String,
+    flag_nocolor: String,
     description: Option<String>,
     top_level_domains: Vec<String>,
     currencies: String,
@@ -409,7 +447,7 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
     let deunicoded_name = deunicode(country_name);
     let enum_name = deunicoded_name.to_pascal_case();
 
-    let ascii_art = png_url_to_ascii(&country.flag.url).await.unwrap();
+    let (flag_color, flag_nocolor) = png_url_to_ascii(&country.flag.url).await.unwrap();
 
     let top_level_domains = country
         .top_level_domain
@@ -453,7 +491,8 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
         country_name: country_name.to_string(),
         country_code2: country.country_code2.clone(),
         country_code3: country.country_code3.clone(),
-        flag_ascii: ascii_art,
+        flag_color,
+        flag_nocolor,
         description: country.flag.description.clone(),
         top_level_domains,
         currencies,

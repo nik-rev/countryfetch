@@ -1,3 +1,5 @@
+use std::env;
+
 use countryfetch::{Country, Location};
 
 mod generated;
@@ -31,8 +33,14 @@ async fn get_data() -> Result<(Location, Country), Box<dyn std::error::Error>> {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (location, country) = get_data().await.unwrap();
 
-    // let country_cached_data = generated::CachedCountry::from_country_code(&country.country_code)
-    //     .expect("All countries have been cached");
+    let country_cached_data = generated::Country::from_country_code(&country.country_code3)
+        .expect("All countries have been cached");
+
+    let flag = if env::var_os("NO_COLOR").is_some() {
+        country_cached_data.flag()
+    } else {
+        country_cached_data.flag_nocolor()
+    };
 
     Ok(())
 }
