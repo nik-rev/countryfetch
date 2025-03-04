@@ -59,11 +59,39 @@ pub struct Country {
     pub continents: Vec<String>,
     #[serde(rename = "flags")]
     pub flag: Flag,
+    pub capital: Vec<String>,
+    car: Car,
+    #[serde(rename = "idd")]
+    dialing_code: Idd,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Idd {
+    root: String,
+    #[serde(default)]
+    suffixes: Vec<String>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Car {
+    side: String,
 }
 
 impl Country {
     pub fn country_name(&self) -> &str {
         &self.country_name.common
+    }
+    pub fn driving_side(&self) -> &str {
+        &self.car.side
+    }
+    pub fn dialing_code(&self) -> String {
+        format!(
+            "{}{}",
+            self.dialing_code.root,
+            self.dialing_code.suffixes.join("")
+        )
     }
 }
 

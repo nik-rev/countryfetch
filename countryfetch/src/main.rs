@@ -48,6 +48,11 @@ struct CountryOutput<'a> {
         Vec<(&'a String, String, String)>,
     ),
     neighbours: &'a Vec<String>,
+    established_date: &'static str,
+    dialing_code: String,
+    capital: &'a Vec<String>,
+    driving_side: &'a str,
+    iso_codes: (&'a str, &'a str),
 }
 
 impl fmt::Display for CountryOutput<'_> {
@@ -61,6 +66,19 @@ impl fmt::Display for CountryOutput<'_> {
         let population = format!("Population: {} People", self.population.separated_string());
 
         let area = format!("Area: {km} km ({mi} mi)");
+
+        let capital = format!(
+            "Capital{s}: {}",
+            self.capital.join(", "),
+            s = if self.capital.len() == 1 {
+                ""
+            } else {
+                " Cities"
+            }
+        );
+        let dialing_code = format!("Dialing code: {}", self.dialing_code);
+        let iso_codes = format!("ISO Codes: {} / {}", self.iso_codes.0, self.iso_codes.1);
+        let driving_side = format!("Driving side: {}", self.driving_side);
 
         let currency = match self.currency.0 {
             generated::CurrencyPosition::Left => {
@@ -115,6 +133,8 @@ impl fmt::Display for CountryOutput<'_> {
             s = if self.continent.len() == 1 { "" } else { "s" }
         );
 
+        let established = format!("Established: {}", self.established_date);
+
         let top_level_domain = format!(
             "Top level domain{s}: {}",
             self.top_level_domain.join(", "),
@@ -139,7 +159,12 @@ impl fmt::Display for CountryOutput<'_> {
 {continent}
 {population}
 {neighbours}
+{capital}
+{iso_codes}
+{driving_side}
+{dialing_code}
 {language}
+{established}
 {currency}
 {top_level_domain}"
         );
@@ -193,6 +218,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .collect(),
         ),
         neighbours: &country.neighbours,
+        established_date: generated::established_date(country_cached_data),
+        iso_codes: (&country.country_code2, &country.country_code3),
+        driving_side: country.driving_side(),
+        capital: &country.capital,
+        dialing_code: country.dialing_code(),
     };
 
     println!("{out}");
