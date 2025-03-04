@@ -59,6 +59,7 @@ pub struct Country {
     pub continents: Vec<String>,
     #[serde(rename = "flags")]
     pub flag: Flag,
+    #[serde(default)]
     pub capital: Vec<String>,
     car: Car,
     #[serde(rename = "idd")]
@@ -68,6 +69,8 @@ pub struct Country {
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Idd {
+    // TODO: Option<String>
+    #[serde(default)]
     root: String,
     #[serde(default)]
     suffixes: Vec<String>,
