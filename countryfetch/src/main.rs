@@ -41,7 +41,7 @@ struct CountryOutput<'a> {
     area_mi: f64,
     population: u64,
     continent: &'a Vec<String>,
-    continent_code: &'a str,
+    continent_code: Option<String>,
     top_level_domain: &'a Vec<String>,
     languages: Vec<String>,
     currency: (
@@ -147,7 +147,7 @@ impl fmt::Display for CountryOutput<'_> {
         let palette = self
             .palette
             .iter()
-            .map(|color| format!("{}", "   ".on_truecolor(color.0, color.1, color.2)))
+            .map(|color| format!("{}", "███".truecolor(color.0, color.1, color.2)))
             .collect::<Vec<_>>()
             .join("");
 
@@ -157,6 +157,11 @@ impl fmt::Display for CountryOutput<'_> {
             .flat_map(|cc3| generated::Country::from_country_code(cc3).map(|a| a.country_name()))
             .collect::<Vec<_>>()
             .join(", ");
+        let neigh = if neigh.is_empty() {
+            "No neighbours"
+        } else {
+            &neigh
+        };
 
         let neighbours = format!(
             "{}: {}",
@@ -168,13 +173,16 @@ impl fmt::Display for CountryOutput<'_> {
         );
 
         let continent = format!(
-            "{}: {} ({})",
+            "{}: {}{}",
             colored(&format!(
                 "Continent{s}",
                 s = if self.continent.len() == 1 { "" } else { "s" }
             )),
             self.continent.join(", "),
-            self.continent_code,
+            self.continent_code
+                .clone()
+                .map(|c| format!(" ({c})"))
+                .unwrap_or_default(),
         );
 
         let established = format!("{}: {}", colored("Established"), self.established_date);
@@ -217,6 +225,7 @@ impl fmt::Display for CountryOutput<'_> {
 {established}
 {currency}
 {top_level_domain}
+
 {palette}"
         );
 
@@ -235,15 +244,14 @@ impl fmt::Display for CountryOutput<'_> {
     }
 }
 
-fn format_country(country: Country) {
-    let country_cached_data =
-        generated::Country::from_country_code(&country.country_code3).unwrap();
+fn format_country(country: Country, location: Option<&Location>) -> String {
+    let count = generated::Country::from_country_code(&country.country_code3).unwrap();
 
-    let country_output = CountryOutput {
+    CountryOutput {
         flag: if env::var_os("NO_COLOR").is_some() {
-            country_cached_data.flag_nocolor()
+            count.flag_nocolor()
         } else {
-            country_cached_data.flag()
+            count.flag()
         },
         flag_emoji: &country.emoji,
         area_km: country.area_km,
@@ -251,13 +259,12 @@ fn format_country(country: Country) {
         area_mi: (country.area_km * 0.62137 * 0.01).round() / 0.01,
         country_name: country.country_name(),
         continent: &country.continents,
-        // continent_code: &location.continent_code,
-        continent_code: "Europe",
+        continent_code: location.as_deref().map(|l| l.continent_code.clone()),
         population: country.population,
         top_level_domain: &country.top_level_domain,
         languages: country.languages.values().cloned().collect(),
         currency: (
-            generated::currency_position(country_cached_data),
+            generated::currency_position(count),
             country
                 .currencies
                 .iter()
@@ -267,16 +274,15 @@ fn format_country(country: Country) {
                 .collect(),
         ),
         neighbours: &country.neighbours,
-        established_date: generated::established_date(country_cached_data),
+        established_date: generated::established_date(count),
         iso_codes: (&country.country_code2, &country.country_code3),
         driving_side: country.driving_side(),
         capital: &country.capital,
         dialing_code: country.dialing_code(),
-        palette: country_cached_data.palette(),
-        brightest_color: country_cached_data.brightest_color(),
-    };
-
-    println!("{country_output}");
+        palette: count.palette(),
+        brightest_color: count.brightest_color(),
+    }
+    .to_string()
 }
 
 #[tokio::main]
@@ -293,7 +299,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
 
     for country in countries {
-        format_country(country);
+        let country = format_country(country, None);
+
+        println!("{country}");
     }
 
     // let country_cached_data = generated::Country::from_country_code(&country.country_code3)

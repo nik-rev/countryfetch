@@ -90,12 +90,24 @@ impl Country {
         &self.car.side
     }
     pub fn dialing_code(&self) -> String {
-        self.dialing_code
+        let codes = self
+            .dialing_code
             .suffixes
             .iter()
+            .take(3)
             .map(|suffix| format!("{root}{suffix}", root = self.dialing_code.root))
-            .collect::<Vec<_>>()
-            .join(", ")
+            .collect::<Vec<_>>();
+        // .join(", ");
+
+        let codes_left = self.dialing_code.suffixes.len() - codes.len();
+
+        let extra_codes = if codes_left == 0 {
+            "".to_string()
+        } else {
+            format!(" (+{codes_left} more...)")
+        };
+
+        format!("{}{extra_codes}", codes.join(", "))
     }
 }
 
