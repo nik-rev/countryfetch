@@ -32,4 +32,6 @@ countryfetch = { path = "../countryfetch" }
 
 deunicode = "1.6"
 
-color-thief = "0.2"
+palette_extract = "0.1"
+# dominant_color = "0.4"
+# color-thief = "0.2"

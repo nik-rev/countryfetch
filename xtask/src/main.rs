@@ -1,4 +1,3 @@
-use color_thief::get_palette;
 use countryfetch::Country;
 use deunicode::deunicode;
 use heck::ToPascalCase;
@@ -50,18 +49,41 @@ async fn fetch_countries() -> Result<serde_json::Value> {
     //     .await?)
 }
 
+fn most_colorful_color(colors: &[palette_extract::Color]) -> palette_extract::Color {
+    *colors
+        .iter()
+        .max_by(|a, b| {
+            // finds the "colorfulness" of the color
+            let colorfulness = |color: palette_extract::Color| {
+                let min = color.r.min(color.r).min(color.b);
+                let max = color.r.max(color.r).max(color.b);
+                ((max as u16 + min as u16) * (max as u16 - min as u16)) / max as u16
+            };
+
+            colorfulness(**a).cmp(&colorfulness(**b))
+        })
+        .expect("There is at least 1 color")
+}
+
 /// Given a URL to a .png file, convert the file into colored Ascii
-async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<color_thief::Color>)> {
+async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_extract::Color>)> {
     let pixels: Vec<u8> = reqwest::get(png_url).await?.bytes().await?.to_vec();
 
     let image = image::load_from_memory_with_format(&pixels, image::ImageFormat::Png)?;
 
-    let colors = color_thief::get_palette(
-        &image.to_rgb8().into_raw().as_slice(),
-        color_thief::ColorFormat::Rgb,
-        1,
-        2,
-    )?;
+    let pixels = image.to_rgb8().into_raw();
+
+    let colors = palette_extract::get_palette_rgb(pixels.as_slice());
+    // let colors = dominant_color::get_colors(, true)
+    //     .chunks_exact(3)
+    //     .map(|a| (a[0], a[1], a[2]))
+    //     .collect();
+    // let colors = color_thief::get_palette(
+    //     ,
+    //     color_thief::ColorFormat::Rgb,
+    //     1,
+    //     16,
+    // )?;
 
     // let colors = dominant_color::get_colors(, false);
 
@@ -167,6 +189,11 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
         Method {
             name: "emoji",
             return_type: "&'static str",
+            default_case: None,
+        },
+        Method {
+            name: "brightest_color",
+            return_type: "(u8, u8, u8)",
             default_case: None,
         },
         Method {
@@ -380,6 +407,13 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
                         parts.area_km
                     ));
                 }
+                "brightest_color" => {
+                    impl_str.push_str(&format!(
+                        "            {} => {},\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.most_colorful
+                    ));
+                }
                 "emoji" => {
                     impl_str.push_str(&format!(
                         "            {} => r###\"{}\"###,\n",
@@ -454,6 +488,7 @@ struct CountryParts {
     deunicoded_name: String,
     country_name: String,
     country_code2: String,
+    most_colorful: String,
     country_code3: String,
     flag_color: String,
     flag_nocolor: String,
@@ -476,6 +511,12 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
     let enum_name = deunicoded_name.to_pascal_case();
 
     let (flag_color, flag_nocolor, colors) = png_url_to_ascii(&country.flag.url).await.unwrap();
+
+    let most_colorful = most_colorful_color(&colors);
+    let most_colorful = format!(
+        "({}, {}, {})",
+        most_colorful.r, most_colorful.g, most_colorful.b
+    );
 
     let top_level_domains = country
         .top_level_domain
@@ -530,6 +571,7 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
         country_code3: country.country_code3.clone(),
         flag_color,
         flag_nocolor,
+        most_colorful,
         colors,
         description: country.flag.description.clone(),
         top_level_domains,

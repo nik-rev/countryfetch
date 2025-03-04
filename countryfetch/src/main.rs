@@ -55,6 +55,7 @@ struct CountryOutput<'a> {
     driving_side: &'a str,
     iso_codes: (&'a str, &'a str),
     palette: &'static [(u8, u8, u8)],
+    brightest_color: (u8, u8, u8),
 }
 
 impl fmt::Display for CountryOutput<'_> {
@@ -62,8 +63,13 @@ impl fmt::Display for CountryOutput<'_> {
         let country_name = self.country_name;
         let flag_emoji = self.flag_emoji;
 
-        let dominant_color = self.palette[0];
-        let colored = |s: &str| s.truecolor(dominant_color.0, dominant_color.1, dominant_color.2);
+        let colored = |s: &str| {
+            s.truecolor(
+                self.brightest_color.0,
+                self.brightest_color.1,
+                self.brightest_color.2,
+            )
+        };
 
         let km = self.area_km.separated_string();
         let mi = self.area_mi.separated_string();
@@ -229,25 +235,9 @@ impl fmt::Display for CountryOutput<'_> {
     }
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let (location, country) = get_data().await.unwrap();
-
-    let mut country_json =
-        std::fs::File::open(PathBuf::from("../../xtask/countries.json")).unwrap();
-
-    let mut buf = String::new();
-
-    country_json.read_to_string(&mut buf);
-
-    let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
-
-    let country = countries.into_iter().next().unwrap();
+fn format_country(country: Country) {
     let country_cached_data =
         generated::Country::from_country_code(&country.country_code3).unwrap();
-
-    // let country_cached_data = generated::Country::from_country_code(&country.country_code3)
-    //     .expect("All countries have been cached");
 
     let country_output = CountryOutput {
         flag: if env::var_os("NO_COLOR").is_some() {
@@ -283,9 +273,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         capital: &country.capital,
         dialing_code: country.dialing_code(),
         palette: country_cached_data.palette(),
+        brightest_color: country_cached_data.brightest_color(),
     };
 
     println!("{country_output}");
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // let (location, country) = get_data().await.unwrap();
+
+    let mut country_json =
+        std::fs::File::open(PathBuf::from("../../xtask/countries.json")).unwrap();
+
+    let mut buf = String::new();
+
+    country_json.read_to_string(&mut buf).unwrap();
+
+    let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
+
+    for country in countries {
+        format_country(country);
+    }
+
+    // let country_cached_data = generated::Country::from_country_code(&country.country_code3)
+    //     .expect("All countries have been cached");
 
     // dbg!(location, country);
 
