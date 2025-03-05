@@ -1,6 +1,9 @@
-use clap::Parser;
+use std::env;
 
-use crate::generated;
+use clap::{Parser, ValueEnum as _};
+use colored::Colorize as _;
+
+use crate::{country_format::format_country, generated};
 
 pub fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
@@ -99,4 +102,46 @@ pub struct Args {
     /// No colored output
     #[arg(long, help_heading = "Config")]
     pub no_color: bool,
+}
+
+/// # Safety
+///
+/// Must run in a single-threaded environment
+pub unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Error>> {
+    if args.no_color {
+        // SAFETY: Caller ensures this runs in a single-threaded environment
+        unsafe {
+            env::set_var("NO_COLOR", "1");
+        }
+    };
+
+    if args.list_countries {
+        println!("`countryfetch` accepts all of the below values as countries");
+        for country in generated::Country::ALL_COUNTRIES {
+            if let Some(value) = country.to_possible_value() {
+                let aliases = value
+                    .get_name_and_aliases()
+                    .collect::<Vec<&str>>()
+                    .join(&" OR ".red().to_string());
+                println!("{} {aliases}", country.emoji());
+            };
+        }
+        return Ok(());
+    } else if args.all_countries {
+        for country in generated::Country::ALL_COUNTRIES {
+            let out = format_country(*country, None, None, &args);
+            println!("{out}");
+        }
+    } else if let Some(countries) = &args.country
+        && !countries.is_empty()
+    {
+        for country in countries {
+            let out = format_country(*country, None, None, &args);
+            println!("{out}");
+        }
+    } else {
+        // get country from user's ip
+    };
+
+    Ok(())
 }

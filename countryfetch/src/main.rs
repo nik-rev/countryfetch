@@ -3,7 +3,10 @@ use std::{env, io::Read, path::PathBuf};
 
 use clap::{Parser, ValueEnum};
 use colored::Colorize;
-use countryfetch::{Country, Location};
+use countryfetch::{
+    Country, Location,
+    args::{self, print_args},
+};
 
 mod country_format;
 mod generated;
@@ -38,29 +41,10 @@ async fn get_data() -> Result<(Location, Country), Box<dyn std::error::Error>> {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = countryfetch::Args::parse();
 
-    if args.list_countries {
-        println!("`countryfetch` accepts all of the below values as countries");
-        for country in generated::Country::ALL_COUNTRIES {
-            if let Some(value) = country.to_possible_value() {
-                let name = value.get_name();
-                let aliases = value
-                    .get_name_and_aliases()
-                    .collect::<Vec<&str>>()
-                    .join(&" OR ".red().to_string());
-                println!("{} {aliases}", country.emoji());
-            };
-        }
-        return Ok(());
+    // SAFETY: Runs in a single-threaded environment
+    unsafe {
+        args::print_args(args);
     }
-
-    if args.no_color {
-        // SAFETY: This runs in a single-threaded environment
-        unsafe {
-            env::set_var("NO_COLOR", "1");
-        }
-    };
-
-    dbg!(args);
 
     // let Some(ip) = public_ip::addr().await else {
     //     todo!()

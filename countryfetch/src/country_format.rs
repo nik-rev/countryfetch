@@ -3,7 +3,6 @@
 
 use colored::Colorize;
 use core::fmt;
-use countryfetch::{Country, Location};
 use separator::Separatable;
 use std::env;
 
@@ -309,9 +308,9 @@ impl fmt::Display for CountryOutput<'_> {
 /// Passing gen_country is required, passing other fields is optional and will further refine the output.
 pub fn format_country(
     gen_country: generated::Country,
-    country: Option<&Country>,
-    location: Option<&Location>,
-    args: &countryfetch::Args,
+    country: Option<&crate::Country>,
+    location: Option<&crate::Location>,
+    args: &crate::Args,
 ) -> String {
     let area_km = country.map(|c| c.area_km).unwrap_or(gen_country.area_km());
 
