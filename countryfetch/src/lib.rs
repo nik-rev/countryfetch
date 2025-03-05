@@ -2,6 +2,7 @@
 #![allow(dead_code)]
 
 pub mod args;
+pub mod cache;
 pub mod country;
 pub mod country_extras;
 pub mod country_format;

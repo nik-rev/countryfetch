@@ -1,12 +1,10 @@
-use std::{
-    env,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use clap::Parser;
+use std::env;
 
-use clap::{Parser, ValueEnum as _};
+use clap::ValueEnum as _;
 use colored::Colorize as _;
 
-use crate::{Country, Location, country_format::format_country, generated};
+use crate::{Country, Location, cache::Cache, country_format::format_country, generated};
 
 pub fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
@@ -107,21 +105,6 @@ pub struct Args {
     pub no_color: bool,
 }
 
-const CACHE_FILE: &str = ".countryfetch";
-const REFRESH_AFTER_SEC: u64 = 86400;
-
-/// Requesting about country data from the API can make our program slow, that's why we should try
-/// not do it that often. This function tells us whether we can re-use the data stored in our cache or if we should refresh
-/// and get the country again.
-fn should_fetch_from_api(mtime: Vec<u8>) -> bool {
-    (SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-        - String::from_utf8(mtime).unwrap().parse::<u64>().unwrap())
-        < REFRESH_AFTER_SEC
-}
-
 /// # Safety
 ///
 /// Must run in a single-threaded environment
@@ -157,15 +140,10 @@ pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Err
             let out = format_country(*country, None, None, &args);
             println!("{out}");
         }
-    } else if let Ok(mtime) = cacache::read(CACHE_FILE, "modified_time").await
-        && should_fetch_from_api(mtime)
-    {
-        let country =
-            String::from_utf8(cacache::read(CACHE_FILE, "country_code3").await.unwrap()).unwrap();
-
+    } else if let Some(cache) = Cache::read() {
         let gen_country = generated::Country::from_country_code(
-            generated::Country::country_code3_from_country_code2(&country)
-                .expect("Always include a 2-letter country code that exists"),
+            generated::Country::country_code3_from_country_code2(&cache.country_code)
+                .expect("Always include a 3-letter country code that exists"),
         )
         .unwrap();
 
@@ -182,17 +160,7 @@ pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Err
         )
         .expect("Generated country code must exist");
 
-        let _ = cacache::write(CACHE_FILE, "country_code3", &location.country_code).await;
-        let _ = cacache::write(
-            CACHE_FILE,
-            "modified_time",
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs()
-                .to_string(),
-        )
-        .await;
+        let _ = Cache::write(location.country_code.clone());
 
         println!(
             "{}",

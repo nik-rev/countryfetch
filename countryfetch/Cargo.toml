@@ -20,21 +20,13 @@ reqwest = { version = "0.12", default-features = false, features = [
   "json",
   "native-tls",
 ] }
-
 # PNG -> ASCII
 rascii_art = "0.4.5"
 # NOTE: This must be the same version as what is required by `rascii_art`
 image = "0.24.9"
-
 separator = "0.3"
-
 # colored strings
 colored = "3.0"
-
 clap = { version = "4.5", features = ["color"] }
-
 anstyle = "1.0"
-
-# We cannot make too many requests to APIs such as the country API otherwise we'll get blocked for a short while
-# To circumvent this, when the user E
-cacache = "13.1"
+directories = "6.0"
