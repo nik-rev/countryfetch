@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{borrow::BorrowMut, env, io::Read, path::PathBuf};
+use std::{env, io::Read, path::PathBuf};
 
 use colored::Colorize;
 use countryfetch::{Country, Location};
@@ -44,16 +44,13 @@ struct CountryOutput<'a> {
     continent_code: Option<String>,
     top_level_domain: &'a Vec<String>,
     languages: Vec<String>,
-    currency: (
-        generated::CurrencyPosition,
-        Vec<(&'a String, String, String)>,
-    ),
+    currency: (generated::CurrencyPosition, Vec<(String, String, String)>),
     neighbours: &'a Vec<String>,
     established_date: &'static str,
     dialing_code: String,
     capital: &'a Vec<String>,
     driving_side: &'a str,
-    iso_codes: (&'a str, &'a str),
+    iso_codes: (String, String),
     palette: &'static [(u8, u8, u8)],
     brightest_color: (u8, u8, u8),
 }
@@ -257,27 +254,41 @@ fn format_country(
             gen_country.flag()
         },
         flag_emoji: &country
-            .map(|c| c.emoji)
+            .map(|c| c.emoji.clone())
             .unwrap_or(gen_country.emoji().to_string()),
         area_km: country.map(|c| c.area_km).unwrap_or(gen_country.area_km()),
         // rounds to the nearest 100
         area_mi: (area_km * 0.62137 * 0.01).round() / 0.01,
         country_name: country
             .map(|c| c.country_name())
-            .unwrap_or(&gen_country.country_name()),
-        continent: &country.continents,
-        continent_code: location.as_deref().map(|l| l.continent_code.clone()),
+            .unwrap_or(gen_country.country_name()),
+        continent: &country.map(|c| c.continents.clone()).unwrap_or(
+            gen_country
+                .continents()
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+        ),
+        continent_code: location.map(|l| l.continent_code.clone()),
         population: country
             .map(|c| c.population)
             .unwrap_or(gen_country.population()),
-        top_level_domain: &country.map(|c| c.top_level_domain).unwrap_or(
+        top_level_domain: &country.map(|c| c.top_level_domain.clone()).unwrap_or(
             gen_country
                 .top_level_domain()
                 .iter()
                 .map(|a| a.to_string())
                 .collect::<Vec<_>>(),
         ),
-        languages: country.languages.values().cloned().collect(),
+        languages: country
+            .map(|c| c.languages.clone().into_values().collect())
+            .unwrap_or(
+                gen_country
+                    .languages()
+                    .iter()
+                    .map(|(_, lang)| lang.to_string())
+                    .collect(),
+            ),
         currency: (
             generated::currency_position(gen_country),
             country
@@ -285,7 +296,11 @@ fn format_country(
                     c.currencies
                         .iter()
                         .map(|(currency_id, currency)| {
-                            (currency_id, currency.name.clone(), currency.symbol.clone())
+                            (
+                                currency_id.to_string(),
+                                currency.name.clone(),
+                                currency.symbol.clone(),
+                            )
                         })
                         .collect()
                 })
@@ -293,11 +308,11 @@ fn format_country(
                     gen_country
                         .currencies()
                         .iter()
-                        .map(|c| (&c.0.to_string(), c.1.to_string(), c.2.to_string()))
+                        .map(|c| (c.0.to_string(), c.1.to_string(), c.2.to_string()))
                         .collect(),
                 ),
         ),
-        neighbours: &country.map(|c| c.neighbours).unwrap_or(
+        neighbours: &country.map(|c| c.neighbours.clone()).unwrap_or(
             gen_country
                 .neighbours()
                 .iter()
@@ -305,12 +320,27 @@ fn format_country(
                 .collect(),
         ),
         established_date: generated::established_date(gen_country),
-        iso_codes: (&country.country_code2, &country.country_code3),
-        driving_side: country.driving_side(),
-        capital: &country.capital,
-        dialing_code: country.dialing_code(),
-        palette: count.palette(),
-        brightest_color: count.brightest_color(),
+        iso_codes: country
+            .map(|c| (c.country_code2.clone(), c.country_code3.clone()))
+            .unwrap_or((
+                gen_country.country_code2().to_string(),
+                gen_country.country_code3().to_string(),
+            )),
+        driving_side: country
+            .map(|c| c.driving_side())
+            .unwrap_or(gen_country.driving_side()),
+        capital: &country.map(|c| c.capital.clone()).unwrap_or(
+            gen_country
+                .capital()
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
+        ),
+        dialing_code: country
+            .map(|c| c.dialing_code())
+            .unwrap_or(gen_country.dialing_code().to_string()),
+        palette: gen_country.palette(),
+        brightest_color: gen_country.brightest_color(),
     }
     .to_string()
 }
@@ -329,7 +359,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
 
     for country in countries {
-        let country = format_country(country, None);
+        let gen_country = generated::Country::from_country_code(&country.country_code3).unwrap();
+        let country = format_country(gen_country, Some(&country), None);
 
         println!("{country}");
     }

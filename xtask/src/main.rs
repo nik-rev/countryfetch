@@ -177,6 +177,11 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
             default_case: None,
         },
         Method {
+            name: "capital",
+            return_type: "&'static [&'static str]",
+            default_case: None,
+        },
+        Method {
             name: "palette",
             return_type: "&'static [(u8, u8, u8)]",
             default_case: None,
@@ -184,6 +189,16 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
         Method {
             name: "area_km",
             return_type: "f64",
+            default_case: None,
+        },
+        Method {
+            name: "dialing_code",
+            return_type: "&'static str",
+            default_case: None,
+        },
+        Method {
+            name: "driving_side",
+            return_type: "&'static str",
             default_case: None,
         },
         Method {
@@ -358,6 +373,20 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
                         parts.country_code3
                     ));
                 }
+                "dialing_code" => {
+                    impl_str.push_str(&format!(
+                        "            {} => r###\"{}\"###,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.dialing_code
+                    ));
+                }
+                "driving_side" => {
+                    impl_str.push_str(&format!(
+                        "            {} => r###\"{}\"###,\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.driving_side
+                    ));
+                }
                 "country_code2" => {
                     impl_str.push_str(&format!(
                         "            {} => r###\"{}\"###,\n",
@@ -384,6 +413,13 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
                         "            {} => &[{}],\n",
                         format_args!("Country::{}", parts.enum_name),
                         parts.languages
+                    ));
+                }
+                "capital" => {
+                    impl_str.push_str(&format!(
+                        "            {} => &[{}],\n",
+                        format_args!("Country::{}", parts.enum_name),
+                        parts.capital.join(", ")
                     ));
                 }
                 "palette" => {
@@ -486,6 +522,9 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
 struct CountryParts {
     enum_name: String,
     deunicoded_name: String,
+    capital: Vec<String>,
+    dialing_code: String,
+    driving_side: String,
     country_name: String,
     country_code2: String,
     most_colorful: String,
@@ -551,6 +590,12 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
         .collect::<Vec<_>>()
         .join(", ");
 
+    let capital = country
+        .capital
+        .iter()
+        .map(|n| format!("\"{}\"", n))
+        .collect();
+
     let neighbours = country
         .neighbours
         .iter()
@@ -573,6 +618,9 @@ async fn generate_country_parts(country: &Country) -> CountryParts {
         flag_nocolor,
         most_colorful,
         colors,
+        driving_side: country.driving_side().to_string(),
+        dialing_code: country.dialing_code(),
+        capital,
         description: country.flag.description.clone(),
         top_level_domains,
         currencies,
