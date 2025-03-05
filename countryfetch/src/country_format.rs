@@ -5,12 +5,13 @@ use core::fmt;
 use separator::Separatable;
 use std::env;
 
+use crate::country_extras::CurrencyPosition;
 use crate::{
     Args,
-    generated::{self, CurrencyPosition},
+    generated::{self},
 };
 
-type Currency = Option<(generated::CurrencyPosition, Vec<(String, String, String)>)>;
+type Currency = Option<(CurrencyPosition, Vec<(String, String, String)>)>;
 
 struct CountryOutput<'a> {
     flag: Option<&'a str>,
@@ -374,7 +375,7 @@ pub fn format_country(
                 ),
         ),
         currency: (!args.no_currency).then_some((
-            generated::currency_position(gen_country),
+            crate::country_extras::currency_position(gen_country),
             country
                 .map(|c| {
                     c.currencies
@@ -406,7 +407,7 @@ pub fn format_country(
             ),
         ),
         established_date: (!args.no_established_date)
-            .then_some(generated::established_date(gen_country)),
+            .then_some(crate::country_extras::established_date(gen_country)),
         iso_codes: (!args.no_iso_codes).then_some(
             country
                 .map(|c| (c.country_code2.clone(), c.country_code3.clone()))

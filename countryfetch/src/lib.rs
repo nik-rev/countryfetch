@@ -1,7 +1,9 @@
 #![feature(let_chains)]
+#![allow(dead_code)]
 
 pub mod args;
 pub mod country;
+pub mod country_extras;
 pub mod country_format;
 pub mod generated;
 pub mod location;

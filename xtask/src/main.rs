@@ -5,7 +5,6 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::fs::{File, create_dir_all};
 use std::io::{Read, Write as _};
 use std::path::PathBuf;
-use std::sync::Arc;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -39,15 +38,32 @@ impl Paths {
     }
 }
 
-async fn fetch_countries() -> Result<serde_json::Value> {
+#[allow(unused)]
+async fn save_countries_to_json() {
+    let value = reqwest::get("https://restcountries.com/v3.1/all")
+        .await
+        .unwrap()
+        .json::<serde_json::Value>()
+        .await
+        .unwrap();
+
+    let paths = Paths::new();
+
+    let mut all_countries =
+        File::open(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("countries.json")).unwrap();
+    let mut buf = String::new();
+    all_countries.read_to_string(&mut buf).unwrap();
+    let all_countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
+    let (country_enum, country_impl, flag_impl) = generate_code(&all_countries).await;
+
+    write_files(&paths, &country_enum, &country_impl, &flag_impl);
+}
+
+async fn fetch_countries() -> Result<Vec<Country>> {
     Ok(reqwest::get("https://restcountries.com/v3.1/all")
         .await?
-        .json::<serde_json::Value>()
+        .json::<Vec<Country>>()
         .await?)
-    // Ok(reqwest::get("https://restcountries.com/v3.1/all")
-    //     .await?
-    //     .json::<Vec<Country>>()
-    //     .await?)
 }
 
 fn most_colorful_color(colors: &[palette_extract::Color]) -> palette_extract::Color {
@@ -245,14 +261,27 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
     // ----- Code generation -----
 
     let mut country_enum = String::from(
-        "#![cfg_attr(rustfmt, rustfmt_skip)]\n#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]\n#[clap(rename_all = \"PascalCase\")]\npub enum Country {\n",
+        "#![cfg_attr(rustfmt, rustfmt_skip)]
+        #![allow(dead_code)]
+        #![allow(clippy::should_implement_trait)]
+        #[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]
+        #[clap(rename_all = \"PascalCase\")]
+        pub enum Country {
+        ",
     );
 
     let mut country_impl = String::from("impl Country {\n");
 
     // The flag implementation goes in a separate file with its own header
     let mut flag_impl = String::from(
-        "#![cfg_attr(rustfmt, rustfmt_skip)]\n\nuse super::Country;\n\nimpl Country {\n    pub const fn flag(&self) -> &'static str {\n        match self {\n",
+        "#![cfg_attr(rustfmt, rustfmt_skip)]
+        #![allow(dead_code)]
+
+        use super::Country;
+
+        impl Country {
+            pub const fn flag(&self) -> &'static str {
+                match self {\n",
     );
 
     // The flag implementation goes in a separate file with its own header
@@ -648,27 +677,15 @@ fn write_files(paths: &Paths, country_enum: &str, country_impl: &str, flag_impl:
 
     File::create(&paths.mod_rs)
         .expect("Failed to create mod.rs")
-        .write_all(b"mod country;\nmod flag;\n\npub use country::*;\npub use flag::*;")
+        .write_all(b"mod country;\nmod flag;\n\npub use country::*;")
         .expect("Failed to write to mod.rs");
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let all_countries = fetch_countries().await?;
     let paths = Paths::new();
-    // let all_countries = fetch_countries().await?;
-    let mut all_countries =
-        File::open(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("countries.json")).unwrap();
-    let mut buf = String::new();
-    all_countries.read_to_string(&mut buf).unwrap();
-    let all_countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
 
-    // dbg!(countries);
-
-    // countries
-    //     .write_all(all_countries.to_string().as_bytes())
-    //     .unwrap();
-
-    // write!(countries, all_countries.to_string());
     let (country_enum, country_impl, flag_impl) = generate_code(&all_countries).await;
     write_files(&paths, &country_enum, &country_impl, &flag_impl);
 

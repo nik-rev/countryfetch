@@ -7,6 +7,8 @@ mod generated;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = countryfetch::Args::parse();
 
+    println!();
+
     // SAFETY: Runs in a single-threaded environment
     unsafe {
         args::print_args(args).await?;

@@ -1,2 +1,3 @@
 [workspace]
 members = ["countryfetch", "xtask"]
+edition = "2024"
