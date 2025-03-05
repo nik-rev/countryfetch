@@ -1,11 +1,11 @@
 use countryfetch::Country;
-use std::io::Write;
+use std::io::Write as _;
 use std::{fs::File, path::PathBuf};
 
 mod codegen;
 mod country_parts;
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type Result<T> = core::result::Result<T, Box<dyn core::error::Error>>;
 
 async fn fetch_countries() -> Result<Vec<Country>> {
     Ok(reqwest::get("https://restcountries.com/v3.1/all")
@@ -22,7 +22,7 @@ fn most_colorful_color(colors: &[palette_extract::Color]) -> palette_extract::Co
             let colorfulness = |color: palette_extract::Color| {
                 let min = color.r.min(color.r).min(color.b);
                 let max = color.r.max(color.r).max(color.b);
-                ((max as u16 + min as u16) * (max as u16 - min as u16)) / max as u16
+                ((u16::from(max) + u16::from(min)) * (u16::from(max) - u16::from(min))) / u16::from(max)
             };
 
             colorfulness(**a).cmp(&colorfulness(**b))
@@ -42,7 +42,7 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_
     colors.sort_unstable_by(|a, b| {
         // finds the "colorfulness" of the color
         let brightness = |color: palette_extract::Color| {
-            color.r as f32 * 0.2126 + color.g as f32 * 0.7152 + color.b as f32 * 0.0722
+            f32::from(color.b).mul_add(0.0722, f32::from(color.r).mul_add(0.2126, f32::from(color.g) * 0.7152))
         } as u16;
 
         brightness(*a).cmp(&brightness(*b))
