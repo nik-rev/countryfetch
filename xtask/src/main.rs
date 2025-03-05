@@ -5,6 +5,7 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::fs::{File, create_dir_all};
 use std::io::{Read, Write as _};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -244,7 +245,7 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
     // ----- Code generation -----
 
     let mut country_enum = String::from(
-        "#![cfg_attr(rustfmt, rustfmt_skip)]\n#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd)]\npub enum Country {\n",
+        "#![cfg_attr(rustfmt, rustfmt_skip)]\n#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]\n#[clap(rename_all = \"PascalCase\")]\npub enum Country {\n",
     );
 
     let mut country_impl = String::from("impl Country {\n");
@@ -299,7 +300,10 @@ async fn generate_code(countries: &[Country]) -> (String, String, String) {
     // Append all the generated parts to the respective strings
     for parts in country_parts {
         // Add to the enum
-        country_enum.push_str(&format!("    {},\n", parts.enum_name));
+        country_enum.push_str(&format!(
+            "    #[clap(alias = \"{}\")]\n    {},\n",
+            parts.country_code2, parts.enum_name
+        ));
 
         // Add to ALL_COUNTRIES
         all_countries.push_str(&format!("        Country::{},\n", parts.enum_name));

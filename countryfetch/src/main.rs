@@ -1,7 +1,8 @@
 use crate::country_format::format_country;
 use std::{env, io::Read, path::PathBuf};
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
+use colored::Colorize;
 use countryfetch::{Country, Location};
 
 mod country_format;
@@ -36,6 +37,22 @@ async fn get_data() -> Result<(Location, Country), Box<dyn std::error::Error>> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = countryfetch::Args::parse();
+
+    if args.list_countries {
+        println!("`countryfetch` accepts all of the below values as countries");
+        for country in generated::Country::ALL_COUNTRIES {
+            if let Some(value) = country.to_possible_value() {
+                let name = value.get_name();
+                let aliases = value
+                    .get_name_and_aliases()
+                    .collect::<Vec<&str>>()
+                    .join(&" OR ".red().to_string());
+                println!("{} {aliases}", country.emoji());
+            };
+        }
+        return Ok(());
+    }
+
     if args.no_color {
         // SAFETY: This runs in a single-threaded environment
         unsafe {
@@ -43,27 +60,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let Some(ip) = public_ip::addr().await else {
-        todo!()
-    };
+    dbg!(args);
 
-    // let (location, country) = get_data().await.unwrap();
+    // let Some(ip) = public_ip::addr().await else {
+    //     todo!()
+    // };
 
-    let mut country_json =
-        std::fs::File::open(PathBuf::from("../../xtask/countries.json")).unwrap();
+    // // let (location, country) = get_data().await.unwrap();
 
-    let mut buf = String::new();
+    // let mut country_json =
+    //     std::fs::File::open(PathBuf::from("../../xtask/countries.json")).unwrap();
 
-    country_json.read_to_string(&mut buf).unwrap();
+    // let mut buf = String::new();
 
-    let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
+    // country_json.read_to_string(&mut buf).unwrap();
 
-    for country in countries {
-        let gen_country = generated::Country::from_country_code(&country.country_code3).unwrap();
-        let country = format_country(gen_country, Some(&country), None, &args);
+    // let countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
 
-        println!("{country}");
-    }
+    // for country in countries {
+    //     let gen_country = generated::Country::from_country_code(&country.country_code3).unwrap();
+    //     let country = format_country(gen_country, Some(&country), None, &args);
+
+    //     println!("{country}");
+    // }
 
     // let country_cached_data = generated::Country::from_country_code(&country.country_code3)
     //     .expect("All countries have been cached");
