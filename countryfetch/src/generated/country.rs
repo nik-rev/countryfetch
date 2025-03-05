@@ -1,10 +1,10 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
-        #![allow(dead_code)]
-        #![allow(clippy::should_implement_trait)]
-        #[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]
-        #[clap(rename_all = "PascalCase")]
-        pub enum Country {
-            #[clap(alias = "GS")]
+#![allow(dead_code)]
+#![allow(clippy::should_implement_trait)]
+#[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]
+#[clap(rename_all = "PascalCase")]
+pub enum Country {
+    #[clap(alias = "GS")]
     SouthGeorgia,
     #[clap(alias = "GD")]
     Grenada,
@@ -759,7 +759,7 @@ impl Country {
         Country::Nicaragua,
         Country::Anguilla,
     ];
-    pub const fn description(&self) -> Option<&'static str> {
+    pub fn description(self: &Self) -> Option<&'static str> {
         match self {
             Country::SouthGeorgia => None,
             Country::Grenada => Some(r###"The flag of Grenada features a large central rectangular area surrounded by a red border, with three five-pointed yellow stars centered on the top and bottom borders. The central rectangle is divided diagonally into four alternating triangular areas of yellow at the top and bottom and green on the hoist and fly sides, and a five-pointed yellow star on a red circle is superimposed at its center. A symbolic nutmeg pod is situated on the green hoist-side triangle."###),
@@ -1013,7 +1013,7 @@ impl Country {
             Country::Anguilla => None,
         }
     }
-    pub const fn country_name(&self) -> &'static str {
+    pub fn country_name(self: &Self) -> &'static str {
         match self {
             Country::SouthGeorgia => r###"South Georgia"###,
             Country::Grenada => r###"Grenada"###,
@@ -1267,7 +1267,7 @@ impl Country {
             Country::Anguilla => r###"Anguilla"###,
         }
     }
-    pub const fn country_code3(&self) -> &'static str {
+    pub fn country_code3(self: &Self) -> &'static str {
         match self {
             Country::SouthGeorgia => r###"SGS"###,
             Country::Grenada => r###"GRD"###,
@@ -1521,7 +1521,7 @@ impl Country {
             Country::Anguilla => r###"AIA"###,
         }
     }
-    pub const fn country_code2(&self) -> &'static str {
+    pub fn country_code2(self: &Self) -> &'static str {
         match self {
             Country::SouthGeorgia => r###"GS"###,
             Country::Grenada => r###"GD"###,
@@ -1775,7 +1775,7 @@ impl Country {
             Country::Anguilla => r###"AI"###,
         }
     }
-    pub const fn top_level_domain(&self) -> &'static [&'static str] {
+    pub fn top_level_domain(self: &Self) -> &'static [&'static str] {
         match self {
             Country::SouthGeorgia => &[".gs"],
             Country::Grenada => &[".gd"],
@@ -2029,7 +2029,7 @@ impl Country {
             Country::Anguilla => &[".ai"],
         }
     }
-    pub const fn currencies(&self) -> &'static [(&'static str, &'static str, &'static str)] {
+    pub fn currencies(self: &Self) -> &'static [(&'static str, &'static str, &'static str)] {
         match self {
             Country::SouthGeorgia => &[("SHP", "Saint Helena pound", "£")],
             Country::Grenada => &[("XCD", "Eastern Caribbean dollar", "$")],
@@ -2070,7 +2070,7 @@ impl Country {
             Country::Egypt => &[("EGP", "Egyptian pound", "£")],
             Country::Senegal => &[("XOF", "West African CFA franc", "Fr")],
             Country::SriLanka => &[("LKR", "Sri Lankan rupee", "Rs  රු")],
-            Country::Palestine => &[("EGP", "Egyptian pound", "E£"), ("JOD", "Jordanian dinar", "JD"), ("ILS", "Israeli new shekel", "₪")],
+            Country::Palestine => &[("ILS", "Israeli new shekel", "₪"), ("JOD", "Jordanian dinar", "JD"), ("EGP", "Egyptian pound", "E£")],
             Country::Bangladesh => &[("BDT", "Bangladeshi taka", "৳")],
             Country::Peru => &[("PEN", "Peruvian sol", "S/ ")],
             Country::Singapore => &[("SGD", "Singapore dollar", "$")],
@@ -2119,12 +2119,12 @@ impl Country {
             Country::India => &[("INR", "Indian rupee", "₹")],
             Country::Syria => &[("SYP", "Syrian pound", "£")],
             Country::Montenegro => &[("EUR", "Euro", "€")],
-            Country::Eswatini => &[("SZL", "Swazi lilangeni", "L"), ("ZAR", "South African rand", "R")],
+            Country::Eswatini => &[("ZAR", "South African rand", "R"), ("SZL", "Swazi lilangeni", "L")],
             Country::Paraguay => &[("PYG", "Paraguayan guaraní", "₲")],
             Country::ElSalvador => &[("USD", "United States dollar", "$")],
             Country::Ukraine => &[("UAH", "Ukrainian hryvnia", "₴")],
-            Country::IsleOfMan => &[("IMP", "Manx pound", "£"), ("GBP", "British pound", "£")],
-            Country::Namibia => &[("NAD", "Namibian dollar", "$"), ("ZAR", "South African rand", "R")],
+            Country::IsleOfMan => &[("GBP", "British pound", "£"), ("IMP", "Manx pound", "£")],
+            Country::Namibia => &[("ZAR", "South African rand", "R"), ("NAD", "Namibian dollar", "$")],
             Country::UnitedArabEmirates => &[("AED", "United Arab Emirates dirham", "د.إ")],
             Country::Bulgaria => &[("BGN", "Bulgarian lev", "лв")],
             Country::Greenland => &[("DKK", "krone", "kr.")],
@@ -2150,7 +2150,7 @@ impl Country {
             Country::SaintPierreAndMiquelon => &[("EUR", "Euro", "€")],
             Country::Macau => &[("MOP", "Macanese pataca", "P")],
             Country::SanMarino => &[("EUR", "Euro", "€")],
-            Country::Lesotho => &[("LSL", "Lesotho loti", "L"), ("ZAR", "South African rand", "R")],
+            Country::Lesotho => &[("ZAR", "South African rand", "R"), ("LSL", "Lesotho loti", "L")],
             Country::MarshallIslands => &[("USD", "United States dollar", "$")],
             Country::SintMaarten => &[("ANG", "Netherlands Antillean guilder", "ƒ")],
             Country::Iceland => &[("ISK", "Icelandic króna", "kr")],
@@ -2159,7 +2159,7 @@ impl Country {
             Country::TurksAndCaicosIslands => &[("USD", "United States dollar", "$")],
             Country::Nauru => &[("AUD", "Australian dollar", "$")],
             Country::CocosKeelingIslands => &[("AUD", "Australian dollar", "$")],
-            Country::WesternSahara => &[("MAD", "Moroccan dirham", "DH"), ("MRU", "Mauritanian ouguiya", "UM"), ("DZD", "Algerian dinar", "دج")],
+            Country::WesternSahara => &[("DZD", "Algerian dinar", "دج"), ("MAD", "Moroccan dirham", "DH"), ("MRU", "Mauritanian ouguiya", "UM")],
             Country::Dominica => &[("XCD", "Eastern Caribbean dollar", "$")],
             Country::CostaRica => &[("CRC", "Costa Rican colón", "₡")],
             Country::Australia => &[("AUD", "Australian dollar", "$")],
@@ -2186,7 +2186,7 @@ impl Country {
             Country::Czechia => &[("CZK", "Czech koruna", "Kč")],
             Country::NewCaledonia => &[("XPF", "CFP franc", "₣")],
             Country::Vanuatu => &[("VUV", "Vanuatu vatu", "Vt")],
-            Country::SaintHelenaAscensionAndTristanDaCunha => &[("SHP", "Saint Helena pound", "£"), ("GBP", "Pound sterling", "£")],
+            Country::SaintHelenaAscensionAndTristanDaCunha => &[("GBP", "Pound sterling", "£"), ("SHP", "Saint Helena pound", "£")],
             Country::Togo => &[("XOF", "West African CFA franc", "Fr")],
             Country::BritishVirginIslands => &[("USD", "United States dollar", "$")],
             Country::Kenya => &[("KES", "Kenyan shilling", "Sh")],
@@ -2283,11 +2283,11 @@ impl Country {
             Country::Anguilla => &[("XCD", "Eastern Caribbean dollar", "$")],
         }
     }
-    pub const fn languages(&self) -> &'static [(&'static str, &'static str)] {
+    pub fn languages(self: &Self) -> &'static [(&'static str, &'static str)] {
         match self {
             Country::SouthGeorgia => &[("eng", "English")],
             Country::Grenada => &[("eng", "English")],
-            Country::Switzerland => &[("ita", "Italian"), ("gsw", "Swiss German"), ("fra", "French"), ("roh", "Romansh")],
+            Country::Switzerland => &[("gsw", "Swiss German"), ("ita", "Italian"), ("fra", "French"), ("roh", "Romansh")],
             Country::SierraLeone => &[("eng", "English")],
             Country::Hungary => &[("hun", "Hungarian")],
             Country::Taiwan => &[("zho", "Chinese")],
@@ -2302,48 +2302,48 @@ impl Country {
             Country::CapeVerde => &[("por", "Portuguese")],
             Country::SaintKittsAndNevis => &[("eng", "English")],
             Country::Laos => &[("lao", "Lao")],
-            Country::CaribbeanNetherlands => &[("eng", "English"), ("nld", "Dutch"), ("pap", "Papiamento")],
-            Country::Uganda => &[("eng", "English"), ("swa", "Swahili")],
+            Country::CaribbeanNetherlands => &[("pap", "Papiamento"), ("eng", "English"), ("nld", "Dutch")],
+            Country::Uganda => &[("swa", "Swahili"), ("eng", "English")],
             Country::Andorra => &[("cat", "Catalan")],
-            Country::Burundi => &[("run", "Kirundi"), ("fra", "French")],
-            Country::SouthAfrica => &[("ven", "Venda"), ("xho", "Xhosa"), ("afr", "Afrikaans"), ("sot", "Southern Sotho"), ("tsn", "Tswana"), ("ssw", "Swazi"), ("tso", "Tsonga"), ("nso", "Northern Sotho"), ("zul", "Zulu"), ("nbl", "Southern Ndebele"), ("eng", "English")],
+            Country::Burundi => &[("fra", "French"), ("run", "Kirundi")],
+            Country::SouthAfrica => &[("zul", "Zulu"), ("sot", "Southern Sotho"), ("tsn", "Tswana"), ("afr", "Afrikaans"), ("eng", "English"), ("nbl", "Southern Ndebele"), ("nso", "Northern Sotho"), ("ven", "Venda"), ("tso", "Tsonga"), ("xho", "Xhosa"), ("ssw", "Swazi")],
             Country::France => &[("fra", "French")],
             Country::Libya => &[("ara", "Arabic")],
             Country::Mexico => &[("spa", "Spanish")],
             Country::Gabon => &[("fra", "French")],
-            Country::NorthernMarianaIslands => &[("cha", "Chamorro"), ("cal", "Carolinian"), ("eng", "English")],
+            Country::NorthernMarianaIslands => &[("cal", "Carolinian"), ("cha", "Chamorro"), ("eng", "English")],
             Country::NorthMacedonia => &[("mkd", "Macedonian")],
             Country::China => &[("zho", "Chinese")],
             Country::Yemen => &[("ara", "Arabic")],
             Country::SaintBarthelemy => &[("fra", "French")],
-            Country::Guernsey => &[("fra", "French"), ("eng", "English"), ("nfr", "Guernésiais")],
+            Country::Guernsey => &[("nfr", "Guernésiais"), ("eng", "English"), ("fra", "French")],
             Country::SolomonIslands => &[("eng", "English")],
             Country::SvalbardAndJanMayen => &[("nor", "Norwegian")],
-            Country::FaroeIslands => &[("fao", "Faroese"), ("dan", "Danish")],
+            Country::FaroeIslands => &[("dan", "Danish"), ("fao", "Faroese")],
             Country::Uzbekistan => &[("rus", "Russian"), ("uzb", "Uzbek")],
             Country::Egypt => &[("ara", "Arabic")],
             Country::Senegal => &[("fra", "French")],
             Country::SriLanka => &[("sin", "Sinhala"), ("tam", "Tamil")],
             Country::Palestine => &[("ara", "Arabic")],
             Country::Bangladesh => &[("ben", "Bengali")],
-            Country::Peru => &[("que", "Quechua"), ("aym", "Aymara"), ("spa", "Spanish")],
-            Country::Singapore => &[("eng", "English"), ("msa", "Malay"), ("zho", "Chinese"), ("tam", "Tamil")],
+            Country::Peru => &[("aym", "Aymara"), ("que", "Quechua"), ("spa", "Spanish")],
+            Country::Singapore => &[("zho", "Chinese"), ("eng", "English"), ("tam", "Tamil"), ("msa", "Malay")],
             Country::Turkey => &[("tur", "Turkish")],
             Country::Afghanistan => &[("tuk", "Turkmen"), ("pus", "Pashto"), ("prs", "Dari")],
             Country::Aruba => &[("nld", "Dutch"), ("pap", "Papiamento")],
-            Country::CookIslands => &[("rar", "Cook Islands Māori"), ("eng", "English")],
+            Country::CookIslands => &[("eng", "English"), ("rar", "Cook Islands Māori")],
             Country::UnitedKingdom => &[("eng", "English")],
             Country::Zambia => &[("eng", "English")],
             Country::Finland => &[("swe", "Swedish"), ("fin", "Finnish")],
             Country::Niger => &[("fra", "French")],
             Country::ChristmasIsland => &[("eng", "English")],
-            Country::Tokelau => &[("smo", "Samoan"), ("tkl", "Tokelauan"), ("eng", "English")],
-            Country::GuineaBissau => &[("pov", "Upper Guinea Creole"), ("por", "Portuguese")],
+            Country::Tokelau => &[("eng", "English"), ("smo", "Samoan"), ("tkl", "Tokelauan")],
+            Country::GuineaBissau => &[("por", "Portuguese"), ("pov", "Upper Guinea Creole")],
             Country::Azerbaijan => &[("aze", "Azerbaijani")],
             Country::Reunion => &[("fra", "French")],
-            Country::Djibouti => &[("ara", "Arabic"), ("fra", "French")],
+            Country::Djibouti => &[("fra", "French"), ("ara", "Arabic")],
             Country::NorthKorea => &[("kor", "Korean")],
-            Country::Mauritius => &[("mfe", "Mauritian Creole"), ("eng", "English"), ("fra", "French")],
+            Country::Mauritius => &[("fra", "French"), ("mfe", "Mauritian Creole"), ("eng", "English")],
             Country::Montserrat => &[("eng", "English")],
             Country::UnitedStatesVirginIslands => &[("eng", "English")],
             Country::Colombia => &[("spa", "Spanish")],
@@ -2354,51 +2354,51 @@ impl Country {
             Country::Antarctica => &[],
             Country::Netherlands => &[("nld", "Dutch")],
             Country::Sudan => &[("ara", "Arabic"), ("eng", "English")],
-            Country::Fiji => &[("eng", "English"), ("fij", "Fijian"), ("hif", "Fiji Hindi")],
+            Country::Fiji => &[("fij", "Fijian"), ("hif", "Fiji Hindi"), ("eng", "English")],
             Country::Liechtenstein => &[("deu", "German")],
             Country::Nepal => &[("nep", "Nepali")],
             Country::PuertoRico => &[("eng", "English"), ("spa", "Spanish")],
             Country::Georgia => &[("kat", "Georgian")],
             Country::Pakistan => &[("urd", "Urdu"), ("eng", "English")],
             Country::Monaco => &[("fra", "French")],
-            Country::Botswana => &[("eng", "English"), ("tsn", "Tswana")],
+            Country::Botswana => &[("tsn", "Tswana"), ("eng", "English")],
             Country::Lebanon => &[("ara", "Arabic"), ("fra", "French")],
-            Country::PapuaNewGuinea => &[("hmo", "Hiri Motu"), ("eng", "English"), ("tpi", "Tok Pisin")],
+            Country::PapuaNewGuinea => &[("eng", "English"), ("hmo", "Hiri Motu"), ("tpi", "Tok Pisin")],
             Country::Mayotte => &[("fra", "French")],
             Country::DominicanRepublic => &[("spa", "Spanish")],
             Country::NorfolkIsland => &[("eng", "English"), ("pih", "Norfuk")],
             Country::BouvetIsland => &[("nor", "Norwegian")],
             Country::Qatar => &[("ara", "Arabic")],
-            Country::Madagascar => &[("mlg", "Malagasy"), ("fra", "French")],
-            Country::India => &[("eng", "English"), ("tam", "Tamil"), ("hin", "Hindi")],
+            Country::Madagascar => &[("fra", "French"), ("mlg", "Malagasy")],
+            Country::India => &[("hin", "Hindi"), ("tam", "Tamil"), ("eng", "English")],
             Country::Syria => &[("ara", "Arabic")],
             Country::Montenegro => &[("cnr", "Montenegrin")],
-            Country::Eswatini => &[("eng", "English"), ("ssw", "Swazi")],
-            Country::Paraguay => &[("grn", "Guaraní"), ("spa", "Spanish")],
+            Country::Eswatini => &[("ssw", "Swazi"), ("eng", "English")],
+            Country::Paraguay => &[("spa", "Spanish"), ("grn", "Guaraní")],
             Country::ElSalvador => &[("spa", "Spanish")],
             Country::Ukraine => &[("ukr", "Ukrainian")],
-            Country::IsleOfMan => &[("eng", "English"), ("glv", "Manx")],
-            Country::Namibia => &[("kwn", "Kwangali"), ("her", "Herero"), ("loz", "Lozi"), ("afr", "Afrikaans"), ("tsn", "Tswana"), ("ndo", "Ndonga"), ("eng", "English"), ("hgm", "Khoekhoe"), ("deu", "German")],
+            Country::IsleOfMan => &[("glv", "Manx"), ("eng", "English")],
+            Country::Namibia => &[("eng", "English"), ("hgm", "Khoekhoe"), ("ndo", "Ndonga"), ("her", "Herero"), ("tsn", "Tswana"), ("afr", "Afrikaans"), ("loz", "Lozi"), ("kwn", "Kwangali"), ("deu", "German")],
             Country::UnitedArabEmirates => &[("ara", "Arabic")],
             Country::Bulgaria => &[("bul", "Bulgarian")],
             Country::Greenland => &[("kal", "Greenlandic")],
             Country::Germany => &[("deu", "German")],
             Country::Cambodia => &[("khm", "Khmer")],
-            Country::Iraq => &[("arc", "Aramaic"), ("ckb", "Sorani"), ("ara", "Arabic")],
+            Country::Iraq => &[("ara", "Arabic"), ("ckb", "Sorani"), ("arc", "Aramaic")],
             Country::FrenchSouthernAndAntarcticLands => &[("fra", "French")],
             Country::Sweden => &[("swe", "Swedish")],
             Country::Cuba => &[("spa", "Spanish")],
-            Country::Kyrgyzstan => &[("rus", "Russian"), ("kir", "Kyrgyz")],
+            Country::Kyrgyzstan => &[("kir", "Kyrgyz"), ("rus", "Russian")],
             Country::Russia => &[("rus", "Russian")],
             Country::Malaysia => &[("msa", "Malay"), ("eng", "English")],
             Country::SaoTomeAndPrincipe => &[("por", "Portuguese")],
-            Country::Cyprus => &[("tur", "Turkish"), ("ell", "Greek")],
-            Country::Canada => &[("eng", "English"), ("fra", "French")],
+            Country::Cyprus => &[("ell", "Greek"), ("tur", "Turkish")],
+            Country::Canada => &[("fra", "French"), ("eng", "English")],
             Country::Malawi => &[("eng", "English"), ("nya", "Chewa")],
             Country::SaudiArabia => &[("ara", "Arabic")],
-            Country::BosniaAndHerzegovina => &[("srp", "Serbian"), ("bos", "Bosnian"), ("hrv", "Croatian")],
+            Country::BosniaAndHerzegovina => &[("hrv", "Croatian"), ("srp", "Serbian"), ("bos", "Bosnian")],
             Country::Ethiopia => &[("amh", "Amharic")],
-            Country::Spain => &[("spa", "Spanish"), ("glc", "Galician"), ("eus", "Basque"), ("cat", "Catalan")],
+            Country::Spain => &[("spa", "Spanish"), ("cat", "Catalan"), ("glc", "Galician"), ("eus", "Basque")],
             Country::Slovenia => &[("slv", "Slovene")],
             Country::Oman => &[("ara", "Arabic")],
             Country::SaintPierreAndMiquelon => &[("fra", "French")],
@@ -2406,36 +2406,36 @@ impl Country {
             Country::SanMarino => &[("ita", "Italian")],
             Country::Lesotho => &[("sot", "Sotho"), ("eng", "English")],
             Country::MarshallIslands => &[("mah", "Marshallese"), ("eng", "English")],
-            Country::SintMaarten => &[("nld", "Dutch"), ("eng", "English"), ("fra", "French")],
+            Country::SintMaarten => &[("nld", "Dutch"), ("fra", "French"), ("eng", "English")],
             Country::Iceland => &[("isl", "Icelandic")],
             Country::Luxembourg => &[("ltz", "Luxembourgish"), ("deu", "German"), ("fra", "French")],
             Country::Argentina => &[("grn", "Guaraní"), ("spa", "Spanish")],
             Country::TurksAndCaicosIslands => &[("eng", "English")],
-            Country::Nauru => &[("eng", "English"), ("nau", "Nauru")],
+            Country::Nauru => &[("nau", "Nauru"), ("eng", "English")],
             Country::CocosKeelingIslands => &[("eng", "English")],
-            Country::WesternSahara => &[("ber", "Berber"), ("mey", "Hassaniya"), ("spa", "Spanish")],
+            Country::WesternSahara => &[("mey", "Hassaniya"), ("spa", "Spanish"), ("ber", "Berber")],
             Country::Dominica => &[("eng", "English")],
             Country::CostaRica => &[("spa", "Spanish")],
             Country::Australia => &[("eng", "English")],
             Country::Thailand => &[("tha", "Thai")],
             Country::Haiti => &[("fra", "French"), ("hat", "Haitian Creole")],
-            Country::Tuvalu => &[("eng", "English"), ("tvl", "Tuvaluan")],
+            Country::Tuvalu => &[("tvl", "Tuvaluan"), ("eng", "English")],
             Country::Honduras => &[("spa", "Spanish")],
-            Country::EquatorialGuinea => &[("por", "Portuguese"), ("fra", "French"), ("spa", "Spanish")],
+            Country::EquatorialGuinea => &[("por", "Portuguese"), ("spa", "Spanish"), ("fra", "French")],
             Country::SaintLucia => &[("eng", "English")],
             Country::FrenchPolynesia => &[("fra", "French")],
             Country::Belarus => &[("bel", "Belarusian"), ("rus", "Russian")],
             Country::Latvia => &[("lav", "Latvian")],
-            Country::Palau => &[("eng", "English"), ("pau", "Palauan")],
+            Country::Palau => &[("pau", "Palauan"), ("eng", "English")],
             Country::Guadeloupe => &[("fra", "French")],
             Country::Philippines => &[("eng", "English"), ("fil", "Filipino")],
             Country::Gibraltar => &[("eng", "English")],
             Country::Denmark => &[("dan", "Danish")],
-            Country::Cameroon => &[("fra", "French"), ("eng", "English")],
+            Country::Cameroon => &[("eng", "English"), ("fra", "French")],
             Country::Guinea => &[("fra", "French")],
             Country::Bahrain => &[("ara", "Arabic")],
             Country::Suriname => &[("nld", "Dutch")],
-            Country::DrCongo => &[("lua", "Tshiluba"), ("swa", "Swahili"), ("kon", "Kikongo"), ("fra", "French"), ("lin", "Lingala")],
+            Country::DrCongo => &[("fra", "French"), ("lin", "Lingala"), ("kon", "Kikongo"), ("swa", "Swahili"), ("lua", "Tshiluba")],
             Country::Somalia => &[("ara", "Arabic"), ("som", "Somali")],
             Country::Czechia => &[("slk", "Slovak"), ("ces", "Czech")],
             Country::NewCaledonia => &[("fra", "French")],
@@ -2443,33 +2443,33 @@ impl Country {
             Country::SaintHelenaAscensionAndTristanDaCunha => &[("eng", "English")],
             Country::Togo => &[("fra", "French")],
             Country::BritishVirginIslands => &[("eng", "English")],
-            Country::Kenya => &[("swa", "Swahili"), ("eng", "English")],
+            Country::Kenya => &[("eng", "English"), ("swa", "Swahili")],
             Country::Niue => &[("eng", "English"), ("niu", "Niuean")],
             Country::HeardIslandAndMcDonaldIslands => &[("eng", "English")],
-            Country::Rwanda => &[("eng", "English"), ("kin", "Kinyarwanda"), ("fra", "French")],
+            Country::Rwanda => &[("fra", "French"), ("kin", "Kinyarwanda"), ("eng", "English")],
             Country::Estonia => &[("est", "Estonian")],
             Country::Romania => &[("ron", "Romanian")],
             Country::TrinidadAndTobago => &[("eng", "English")],
             Country::Guyana => &[("eng", "English")],
-            Country::TimorLeste => &[("por", "Portuguese"), ("tet", "Tetum")],
+            Country::TimorLeste => &[("tet", "Tetum"), ("por", "Portuguese")],
             Country::Vietnam => &[("vie", "Vietnamese")],
             Country::Uruguay => &[("spa", "Spanish")],
-            Country::VaticanCity => &[("ita", "Italian"), ("lat", "Latin")],
+            Country::VaticanCity => &[("lat", "Latin"), ("ita", "Italian")],
             Country::HongKong => &[("zho", "Chinese"), ("eng", "English")],
             Country::Austria => &[("de", "German")],
             Country::AntiguaAndBarbuda => &[("eng", "English")],
-            Country::Turkmenistan => &[("tuk", "Turkmen"), ("rus", "Russian")],
+            Country::Turkmenistan => &[("rus", "Russian"), ("tuk", "Turkmen")],
             Country::Mozambique => &[("por", "Portuguese")],
             Country::Panama => &[("spa", "Spanish")],
             Country::Micronesia => &[("eng", "English")],
-            Country::Ireland => &[("eng", "English"), ("gle", "Irish")],
-            Country::Curacao => &[("nld", "Dutch"), ("pap", "Papiamento"), ("eng", "English")],
+            Country::Ireland => &[("gle", "Irish"), ("eng", "English")],
+            Country::Curacao => &[("eng", "English"), ("nld", "Dutch"), ("pap", "Papiamento")],
             Country::FrenchGuiana => &[("fra", "French")],
-            Country::Norway => &[("smi", "Sami"), ("nno", "Norwegian Nynorsk"), ("nob", "Norwegian Bokmål")],
+            Country::Norway => &[("smi", "Sami"), ("nob", "Norwegian Bokmål"), ("nno", "Norwegian Nynorsk")],
             Country::AlandIslands => &[("swe", "Swedish")],
-            Country::CentralAfricanRepublic => &[("sag", "Sango"), ("fra", "French")],
+            Country::CentralAfricanRepublic => &[("fra", "French"), ("sag", "Sango")],
             Country::BurkinaFaso => &[("fra", "French")],
-            Country::Eritrea => &[("tir", "Tigrinya"), ("ara", "Arabic"), ("eng", "English")],
+            Country::Eritrea => &[("ara", "Arabic"), ("eng", "English"), ("tir", "Tigrinya")],
             Country::Tanzania => &[("eng", "English"), ("swa", "Swahili")],
             Country::SouthKorea => &[("kor", "Korean")],
             Country::Jordan => &[("ara", "Arabic")],
@@ -2478,25 +2478,25 @@ impl Country {
             Country::UnitedStatesMinorOutlyingIslands => &[("eng", "English")],
             Country::Slovakia => &[("slk", "Slovak")],
             Country::Angola => &[("por", "Portuguese")],
-            Country::Kazakhstan => &[("rus", "Russian"), ("kaz", "Kazakh")],
+            Country::Kazakhstan => &[("kaz", "Kazakh"), ("rus", "Russian")],
             Country::Moldova => &[("ron", "Romanian")],
             Country::Mali => &[("fra", "French")],
             Country::FalklandIslands => &[("eng", "English")],
             Country::Armenia => &[("hye", "Armenian")],
             Country::Samoa => &[("eng", "English"), ("smo", "Samoan")],
-            Country::Jersey => &[("eng", "English"), ("fra", "French"), ("nrf", "Jèrriais")],
+            Country::Jersey => &[("eng", "English"), ("nrf", "Jèrriais"), ("fra", "French")],
             Country::Japan => &[("jpn", "Japanese")],
             Country::Bolivia => &[("spa", "Spanish"), ("grn", "Guaraní"), ("aym", "Aymara"), ("que", "Quechua")],
             Country::Chile => &[("spa", "Spanish")],
             Country::UnitedStates => &[("eng", "English")],
             Country::SaintVincentAndTheGrenadines => &[("eng", "English")],
             Country::Bermuda => &[("eng", "English")],
-            Country::Seychelles => &[("fra", "French"), ("crs", "Seychellois Creole"), ("eng", "English")],
+            Country::Seychelles => &[("fra", "French"), ("eng", "English"), ("crs", "Seychellois Creole")],
             Country::BritishIndianOceanTerritory => &[("eng", "English")],
             Country::Guatemala => &[("spa", "Spanish")],
             Country::Ecuador => &[("spa", "Spanish")],
             Country::Martinique => &[("fra", "French")],
-            Country::Tajikistan => &[("tgk", "Tajik"), ("rus", "Russian")],
+            Country::Tajikistan => &[("rus", "Russian"), ("tgk", "Tajik")],
             Country::Malta => &[("eng", "English"), ("mlt", "Maltese")],
             Country::Gambia => &[("eng", "English")],
             Country::Nigeria => &[("eng", "English")],
@@ -2509,7 +2509,7 @@ impl Country {
             Country::Albania => &[("sqi", "Albanian")],
             Country::Brazil => &[("por", "Portuguese")],
             Country::Serbia => &[("srp", "Serbian")],
-            Country::Belize => &[("spa", "Spanish"), ("bjz", "Belizean Creole"), ("eng", "English")],
+            Country::Belize => &[("eng", "English"), ("spa", "Spanish"), ("bjz", "Belizean Creole")],
             Country::Myanmar => &[("mya", "Burmese")],
             Country::Bhutan => &[("dzo", "Dzongkha")],
             Country::Venezuela => &[("spa", "Spanish")],
@@ -2518,26 +2518,26 @@ impl Country {
             Country::Poland => &[("pol", "Polish")],
             Country::CaymanIslands => &[("eng", "English")],
             Country::Brunei => &[("msa", "Malay")],
-            Country::Comoros => &[("ara", "Arabic"), ("fra", "French"), ("zdj", "Comorian")],
-            Country::Guam => &[("eng", "English"), ("spa", "Spanish"), ("cha", "Chamorro")],
-            Country::Tonga => &[("eng", "English"), ("ton", "Tongan")],
-            Country::Kiribati => &[("gil", "Gilbertese"), ("eng", "English")],
+            Country::Comoros => &[("fra", "French"), ("ara", "Arabic"), ("zdj", "Comorian")],
+            Country::Guam => &[("eng", "English"), ("cha", "Chamorro"), ("spa", "Spanish")],
+            Country::Tonga => &[("ton", "Tongan"), ("eng", "English")],
+            Country::Kiribati => &[("eng", "English"), ("gil", "Gilbertese")],
             Country::Ghana => &[("eng", "English")],
-            Country::Chad => &[("fra", "French"), ("ara", "Arabic")],
-            Country::Zimbabwe => &[("bwg", "Chibarwe"), ("ndc", "Ndau"), ("nde", "Northern Ndebele"), ("nya", "Chewa"), ("xho", "Xhosa"), ("kck", "Kalanga"), ("sot", "Sotho"), ("khi", "Khoisan"), ("toi", "Tonga"), ("zib", "Zimbabwean Sign Language"), ("ven", "Venda"), ("sna", "Shona"), ("tso", "Tsonga"), ("eng", "English"), ("tsn", "Tswana")],
+            Country::Chad => &[("ara", "Arabic"), ("fra", "French")],
+            Country::Zimbabwe => &[("nde", "Northern Ndebele"), ("khi", "Khoisan"), ("ndc", "Ndau"), ("nya", "Chewa"), ("sot", "Sotho"), ("tsn", "Tswana"), ("bwg", "Chibarwe"), ("toi", "Tonga"), ("zib", "Zimbabwean Sign Language"), ("eng", "English"), ("xho", "Xhosa"), ("ven", "Venda"), ("tso", "Tsonga"), ("kck", "Kalanga"), ("sna", "Shona")],
             Country::SaintMartin => &[("fra", "French")],
             Country::Mongolia => &[("mon", "Mongolian")],
             Country::Portugal => &[("por", "Portuguese")],
             Country::AmericanSamoa => &[("eng", "English"), ("smo", "Samoan")],
-            Country::RepublicOfTheCongo => &[("kon", "Kikongo"), ("fra", "French"), ("lin", "Lingala")],
-            Country::Belgium => &[("nld", "Dutch"), ("deu", "German"), ("fra", "French")],
+            Country::RepublicOfTheCongo => &[("lin", "Lingala"), ("kon", "Kikongo"), ("fra", "French")],
+            Country::Belgium => &[("deu", "German"), ("fra", "French"), ("nld", "Dutch")],
             Country::Israel => &[("ara", "Arabic"), ("heb", "Hebrew")],
-            Country::NewZealand => &[("mri", "Māori"), ("nzs", "New Zealand Sign Language"), ("eng", "English")],
+            Country::NewZealand => &[("eng", "English"), ("mri", "Māori"), ("nzs", "New Zealand Sign Language")],
             Country::Nicaragua => &[("spa", "Spanish")],
             Country::Anguilla => &[("eng", "English")],
         }
     }
-    pub const fn neighbours(&self) -> &'static [&'static str] {
+    pub fn neighbours(self: &Self) -> &'static [&'static str] {
         match self {
             Country::SouthGeorgia => &[],
             Country::Grenada => &[],
@@ -2791,7 +2791,7 @@ impl Country {
             Country::Anguilla => &[],
         }
     }
-    pub const fn capital(&self) -> &'static [&'static str] {
+    pub fn capital(self: &Self) -> &'static [&'static str] {
         match self {
             Country::SouthGeorgia => &["King Edward Point"],
             Country::Grenada => &["St. George's"],
@@ -3045,7 +3045,7 @@ impl Country {
             Country::Anguilla => &["The Valley"],
         }
     }
-    pub const fn palette(&self) -> &'static [(u8, u8, u8)] {
+    pub fn palette(self: &Self) -> &'static [(u8, u8, u8)] {
         match self {
             Country::SouthGeorgia => &[(4, 4, 240), (4, 36, 107), (51, 48, 23), (201, 21, 42), (22, 64, 152), (78, 73, 78), (75, 105, 123), (92, 140, 4), (236, 225, 209)],
             Country::Grenada => &[(204, 20, 36), (180, 28, 44), (132, 52, 60), (220, 44, 68), (84, 92, 68), (4, 124, 91), (220, 68, 36), (228, 108, 28), (250, 210, 20)],
@@ -3299,7 +3299,7 @@ impl Country {
             Country::Anguilla => &[(4, 36, 107), (44, 76, 132), (52, 76, 140), (212, 52, 40), (68, 92, 140), (92, 92, 68), (76, 100, 148), (116, 132, 172), (242, 243, 245)],
         }
     }
-    pub const fn area_km(&self) -> f64 {
+    pub fn area_km(self: &Self) -> f64 {
         match self {
             Country::SouthGeorgia => 3903_f64,
             Country::Grenada => 344_f64,
@@ -3553,7 +3553,7 @@ impl Country {
             Country::Anguilla => 91_f64,
         }
     }
-    pub const fn dialing_code(&self) -> &'static str {
+    pub fn dialing_code(self: &Self) -> &'static str {
         match self {
             Country::SouthGeorgia => r###"+500"###,
             Country::Grenada => r###"+1473"###,
@@ -3807,7 +3807,7 @@ impl Country {
             Country::Anguilla => r###"+1264"###,
         }
     }
-    pub const fn driving_side(&self) -> &'static str {
+    pub fn driving_side(self: &Self) -> &'static str {
         match self {
             Country::SouthGeorgia => r###"right"###,
             Country::Grenada => r###"left"###,
@@ -4061,7 +4061,7 @@ impl Country {
             Country::Anguilla => r###"left"###,
         }
     }
-    pub const fn emoji(&self) -> &'static str {
+    pub fn emoji(self: &Self) -> &'static str {
         match self {
             Country::SouthGeorgia => r###"🇬🇸"###,
             Country::Grenada => r###"🇬🇩"###,
@@ -4315,7 +4315,7 @@ impl Country {
             Country::Anguilla => r###"🇦🇮"###,
         }
     }
-    pub const fn brightest_color(&self) -> (u8, u8, u8) {
+    pub fn brightest_color(self: &Self) -> (u8, u8, u8) {
         match self {
             Country::SouthGeorgia => (4, 4, 240),
             Country::Grenada => (250, 210, 20),
@@ -4569,7 +4569,7 @@ impl Country {
             Country::Anguilla => (212, 52, 40),
         }
     }
-    pub const fn population(&self) -> u64 {
+    pub fn population(self: &Self) -> u64 {
         match self {
             Country::SouthGeorgia => 30_u64,
             Country::Grenada => 112519_u64,
@@ -4823,7 +4823,7 @@ impl Country {
             Country::Anguilla => 13452_u64,
         }
     }
-    pub const fn continents(&self) -> &'static [&'static str] {
+    pub fn continents(self: &Self) -> &'static [&'static str] {
         match self {
             Country::SouthGeorgia => &["Antarctica"],
             Country::Grenada => &["North America"],
@@ -5329,7 +5329,7 @@ impl Country {
             "New Zealand" => Some(Country::NewZealand),
             "Nicaragua" => Some(Country::Nicaragua),
             "Anguilla" => Some(Country::Anguilla),
-            _ => None,
+            _ => None
         }
     }
     pub fn from_country_code(s: &str) -> Option<Self> {
@@ -5584,7 +5584,7 @@ impl Country {
             "NZL" => Some(Country::NewZealand),
             "NIC" => Some(Country::Nicaragua),
             "AIA" => Some(Country::Anguilla),
-            _ => None,
+            _ => None
         }
     }
     pub fn country_code3_from_country_code2(s: &str) -> Option<&'static str> {
@@ -5839,7 +5839,7 @@ impl Country {
             "NZ" => Some("NZL"),
             "NI" => Some("NIC"),
             "AI" => Some("AIA"),
-            _ => None,
+            _ => None
         }
     }
 }
