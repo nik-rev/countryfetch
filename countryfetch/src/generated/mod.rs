@@ -4,6 +4,7 @@ mod flag;
 
 pub use country::*;
 
+#[derive(PartialEq, PartialOrd, Ord, Clone, Copy, Eq)]
 pub enum CurrencyPosition {
     Left,
     Right,
