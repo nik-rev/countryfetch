@@ -1,11 +1,10 @@
 use std::{
     env,
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use clap::{Parser, ValueEnum as _};
 use colored::Colorize as _;
-use image::EncodableLayout;
 
 use crate::{Country, Location, country_format::format_country, generated};
 
@@ -164,7 +163,11 @@ pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Err
         let country =
             String::from_utf8(cacache::read(CACHE_FILE, "country_code3").await.unwrap()).unwrap();
 
-        let gen_country = generated::Country::from_country_code(&country).unwrap();
+        let gen_country = generated::Country::from_country_code(
+            generated::Country::country_code3_from_country_code2(&country)
+                .expect("Always include a 2-letter country code that exists"),
+        )
+        .unwrap();
 
         println!("{}", format_country(gen_country, None, None, &args));
     } else {
@@ -173,11 +176,13 @@ pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Err
             .ok_or("Error: Unable to retrieve your public IP.")?;
 
         let location = Location::from_ip(ip).await?;
-        let country = Country::from_cc2(&location.country_code).await?;
-        let gen_country = generated::Country::from_country_code(&country.country_code3)
-            .expect("Generated country code must exist");
-        // UPDATE it.
-        let _ = cacache::write(CACHE_FILE, "country_code3", &country.country_code3).await;
+        let country = Country::from_cc2(&location.country_code).await.ok();
+        let gen_country = generated::Country::from_country_code(
+            generated::Country::country_code3_from_country_code2(&location.country_code).expect("Location's country_code will always be valid 2 letter country code that can be converted into a 3 letter country code because we generate it"),
+        )
+        .expect("Generated country code must exist");
+
+        let _ = cacache::write(CACHE_FILE, "country_code3", &location.country_code).await;
         let _ = cacache::write(
             CACHE_FILE,
             "modified_time",
@@ -191,7 +196,7 @@ pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Err
 
         println!(
             "{}",
-            format_country(gen_country, Some(&country), Some(&location), &args)
+            format_country(gen_country, country.as_ref(), Some(&location), &args)
         );
     };
 
