@@ -3,8 +3,8 @@ name = "xtask"
 version = "0.1.0"
 edition = "2024"
 
-# [lints]
-# workspace = true
+[lints]
+workspace = true
 
 [dependencies]
 # SVG -> PNG

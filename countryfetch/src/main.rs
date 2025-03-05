@@ -6,8 +6,6 @@ mod generated;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let lol = std::sync::Arc::new(4);
-
     let args = countryfetch::Args::parse();
 
     if args.no_color {

@@ -9,7 +9,7 @@ use strum::IntoEnumIterator;
 
 #[derive(strum::EnumIter, strum::Display)]
 #[strum(serialize_all = "snake_case")]
-enum MethodName {
+enum CountryMethod {
     // takes &self
     Description,
     CountryName,
@@ -36,58 +36,58 @@ enum MethodName {
     CountryCode3FromCountryCode2,
 }
 
-impl MethodName {
+impl CountryMethod {
     pub fn param(&self) -> (&'static str, &'static str) {
         match self {
-            MethodName::Description
-            | MethodName::CountryName
-            | MethodName::CountryCode3
-            | MethodName::CountryCode2
-            | MethodName::TopLevelDomain
-            | MethodName::Currencies
-            | MethodName::Languages
-            | MethodName::Neighbours
-            | MethodName::Capital
-            | MethodName::Palette
-            | MethodName::AreaKm
-            | MethodName::DialingCode
-            | MethodName::DrivingSide
-            | MethodName::Emoji
-            | MethodName::BrightestColor
-            | MethodName::Population
-            | MethodName::Flag
-            | MethodName::FlagNoColor
-            | MethodName::Continents => ("self", "&Self"),
-            MethodName::FromStr
-            | MethodName::FromCountryCode
-            | MethodName::CountryCode3FromCountryCode2 => ("s", "&str"),
+            CountryMethod::Description
+            | CountryMethod::CountryName
+            | CountryMethod::CountryCode3
+            | CountryMethod::CountryCode2
+            | CountryMethod::TopLevelDomain
+            | CountryMethod::Currencies
+            | CountryMethod::Languages
+            | CountryMethod::Neighbours
+            | CountryMethod::Capital
+            | CountryMethod::Palette
+            | CountryMethod::AreaKm
+            | CountryMethod::DialingCode
+            | CountryMethod::DrivingSide
+            | CountryMethod::Emoji
+            | CountryMethod::BrightestColor
+            | CountryMethod::Population
+            | CountryMethod::Flag
+            | CountryMethod::FlagNoColor
+            | CountryMethod::Continents => ("self", "&Self"),
+            CountryMethod::FromStr
+            | CountryMethod::FromCountryCode
+            | CountryMethod::CountryCode3FromCountryCode2 => ("s", "&str"),
         }
     }
 
     pub fn end_part(&self) -> &'static str {
         match self {
-            MethodName::Description
-            | MethodName::CountryName
-            | MethodName::CountryCode3
-            | MethodName::CountryCode2
-            | MethodName::TopLevelDomain
-            | MethodName::Currencies
-            | MethodName::Languages
-            | MethodName::Neighbours
-            | MethodName::Capital
-            | MethodName::Palette
-            | MethodName::AreaKm
-            | MethodName::DialingCode
-            | MethodName::DrivingSide
-            | MethodName::Emoji
-            | MethodName::BrightestColor
-            | MethodName::Population
-            | MethodName::Flag
-            | MethodName::FlagNoColor
-            | MethodName::Continents => "        }\n    }\n",
-            MethodName::FromStr
-            | MethodName::FromCountryCode
-            | MethodName::CountryCode3FromCountryCode2 => {
+            CountryMethod::Description
+            | CountryMethod::CountryName
+            | CountryMethod::CountryCode3
+            | CountryMethod::CountryCode2
+            | CountryMethod::TopLevelDomain
+            | CountryMethod::Currencies
+            | CountryMethod::Languages
+            | CountryMethod::Neighbours
+            | CountryMethod::Capital
+            | CountryMethod::Palette
+            | CountryMethod::AreaKm
+            | CountryMethod::DialingCode
+            | CountryMethod::DrivingSide
+            | CountryMethod::Emoji
+            | CountryMethod::BrightestColor
+            | CountryMethod::Population
+            | CountryMethod::Flag
+            | CountryMethod::FlagNoColor
+            | CountryMethod::Continents => "        }\n    }\n",
+            CountryMethod::FromStr
+            | CountryMethod::FromCountryCode
+            | CountryMethod::CountryCode3FromCountryCode2 => {
                 "            _ => None\n        }\n    }\n"
             }
         }
@@ -95,7 +95,7 @@ impl MethodName {
 
     fn format_part(&self, parts: &CountryParts) -> String {
         match self {
-            MethodName::Description => {
+            CountryMethod::Description => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
@@ -106,141 +106,141 @@ impl MethodName {
                         .unwrap_or_else(|| "None".to_string())
                 )
             }
-            MethodName::CountryName => {
+            CountryMethod::CountryName => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_name
                 )
             }
-            MethodName::CountryCode3 => {
+            CountryMethod::CountryCode3 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_code3
                 )
             }
-            MethodName::DialingCode => {
+            CountryMethod::DialingCode => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.dialing_code
                 )
             }
-            MethodName::DrivingSide => {
+            CountryMethod::DrivingSide => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.driving_side
                 )
             }
-            MethodName::CountryCode2 => {
+            CountryMethod::CountryCode2 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_code2
                 )
             }
-            MethodName::TopLevelDomain => {
+            CountryMethod::TopLevelDomain => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.top_level_domains.join(", ")
                 )
             }
-            MethodName::Currencies => {
+            CountryMethod::Currencies => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.currencies
                 )
             }
-            MethodName::Languages => {
+            CountryMethod::Languages => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.languages
                 )
             }
-            MethodName::Capital => {
+            CountryMethod::Capital => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.capital.join(", ")
                 )
             }
-            MethodName::Palette => {
+            CountryMethod::Palette => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.colors
                 )
             }
-            MethodName::Neighbours => {
+            CountryMethod::Neighbours => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.neighbours.join(", ")
                 )
             }
-            MethodName::AreaKm => {
+            CountryMethod::AreaKm => {
                 format!(
                     "            {} => {}_f64,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.area_km
                 )
             }
-            MethodName::BrightestColor => {
+            CountryMethod::BrightestColor => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.most_colorful
                 )
             }
-            MethodName::Emoji => {
+            CountryMethod::Emoji => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.emoji
                 )
             }
-            MethodName::Population => {
+            CountryMethod::Population => {
                 format!(
                     "            {} => {}_u64,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.population
                 )
             }
-            MethodName::Continents => {
+            CountryMethod::Continents => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.continents.join(", ")
                 )
             }
-            MethodName::FromStr => {
+            CountryMethod::FromStr => {
                 format!(
                     "            \"{}\" => Some(Self::{}),\n",
                     parts.deunicoded_name, parts.enum_name
                 )
             }
-            MethodName::FromCountryCode => {
+            CountryMethod::FromCountryCode => {
                 format!(
                     "            \"{}\" => Some(Self::{}),\n",
                     parts.country_code3, parts.enum_name
                 )
             }
-            MethodName::CountryCode3FromCountryCode2 => {
+            CountryMethod::CountryCode3FromCountryCode2 => {
                 format!(
                     "            \"{}\" => Some(\"{}\"),\n",
                     parts.country_code2, parts.country_code3
                 )
             }
-            MethodName::Flag => format!(
+            CountryMethod::Flag => format!(
                 "            Country::{} => r###\"{}\"###,\n",
                 parts.enum_name, parts.flag_color
             ),
-            MethodName::FlagNoColor => format!(
+            CountryMethod::FlagNoColor => format!(
                 "            Country::{} => r###\"{}\"###,\n",
                 parts.enum_name, parts.flag_nocolor
             ),
@@ -248,28 +248,28 @@ impl MethodName {
     }
     pub fn return_type(&self) -> &'static str {
         match self {
-            MethodName::Description => "Option<&'static str>",
-            MethodName::CountryName => "&'static str",
-            MethodName::CountryCode3 => "&'static str",
-            MethodName::CountryCode2 => "&'static str",
-            MethodName::TopLevelDomain => "&'static [&'static str]",
-            MethodName::Currencies => "&'static [(&'static str, &'static str, &'static str)]",
-            MethodName::Languages => "&'static [(&'static str, &'static str)]",
-            MethodName::Neighbours => "&'static [&'static str]",
-            MethodName::Capital => "&'static [&'static str]",
-            MethodName::Palette => "&'static [(u8, u8, u8)]",
-            MethodName::AreaKm => "f64",
-            MethodName::DialingCode => "&'static str",
-            MethodName::DrivingSide => "&'static str",
-            MethodName::Flag => "&'static str",
-            MethodName::FlagNoColor => "&'static str",
-            MethodName::Emoji => "&'static str",
-            MethodName::BrightestColor => "(u8, u8, u8)",
-            MethodName::Population => "u64",
-            MethodName::Continents => "&'static [&'static str]",
-            MethodName::FromStr => "Option<Self>",
-            MethodName::FromCountryCode => "Option<Self>",
-            MethodName::CountryCode3FromCountryCode2 => "Option<&'static str>",
+            CountryMethod::Description => "Option<&'static str>",
+            CountryMethod::CountryName => "&'static str",
+            CountryMethod::CountryCode3 => "&'static str",
+            CountryMethod::CountryCode2 => "&'static str",
+            CountryMethod::TopLevelDomain => "&'static [&'static str]",
+            CountryMethod::Currencies => "&'static [(&'static str, &'static str, &'static str)]",
+            CountryMethod::Languages => "&'static [(&'static str, &'static str)]",
+            CountryMethod::Neighbours => "&'static [&'static str]",
+            CountryMethod::Capital => "&'static [&'static str]",
+            CountryMethod::Palette => "&'static [(u8, u8, u8)]",
+            CountryMethod::AreaKm => "f64",
+            CountryMethod::DialingCode => "&'static str",
+            CountryMethod::DrivingSide => "&'static str",
+            CountryMethod::Flag => "&'static str",
+            CountryMethod::FlagNoColor => "&'static str",
+            CountryMethod::Emoji => "&'static str",
+            CountryMethod::BrightestColor => "(u8, u8, u8)",
+            CountryMethod::Population => "u64",
+            CountryMethod::Continents => "&'static [&'static str]",
+            CountryMethod::FromStr => "Option<Self>",
+            CountryMethod::FromCountryCode => "Option<Self>",
+            CountryMethod::CountryCode3FromCountryCode2 => "Option<&'static str>",
         }
     }
 }
@@ -332,7 +332,7 @@ pub enum Country {
         end: "    ];\n".to_owned(),
     };
 
-    let mut method_impls: Vec<Codegen> = MethodName::iter()
+    let mut method_impls: Vec<Codegen> = CountryMethod::iter()
         .map(|method| {
             let (arg, ty) = method.param();
 
