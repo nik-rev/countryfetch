@@ -1,5 +1,4 @@
 use clap::Parser;
-use std::env;
 
 use clap::ValueEnum as _;
 use colored::Colorize as _;
@@ -105,68 +104,60 @@ pub struct Args {
     pub no_color: bool,
 }
 
-/// # Safety
-///
-/// Must run in a single-threaded environment
-pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Error>> {
-    if args.no_color {
-        // SAFETY: Caller ensures this runs in a single-threaded environment
-        unsafe {
-            env::set_var("NO_COLOR", "1");
-        }
-    };
+impl Args {
+    pub async fn print(self) -> Result<(), Box<dyn std::error::Error>> {
+        if self.list_countries {
+            println!("`countryfetch` accepts all of the below values as countries");
+            for country in generated::Country::ALL_COUNTRIES {
+                if let Some(value) = country.to_possible_value() {
+                    let aliases = value
+                        .get_name_and_aliases()
+                        .collect::<Vec<&str>>()
+                        .join(&" OR ".red().to_string());
+                    println!("{} {aliases}", country.emoji());
+                };
+            }
+            return Ok(());
+        } else if self.all_countries {
+            for country in generated::Country::ALL_COUNTRIES {
+                let out = format_country(*country, None, None, &self);
+                println!("{out}");
+            }
+        } else if let Some(countries) = &self.country
+            && !countries.is_empty()
+        {
+            for country in countries {
+                let out = format_country(*country, None, None, &self);
+                println!("{out}");
+            }
+        } else if let Some(cache) = Cache::read() {
+            let gen_country = generated::Country::from_country_code(
+                generated::Country::country_code3_from_country_code2(&cache.country_code)
+                    .expect("Always include a 3-letter country code that exists"),
+            )
+            .unwrap();
 
-    if args.list_countries {
-        println!("`countryfetch` accepts all of the below values as countries");
-        for country in generated::Country::ALL_COUNTRIES {
-            if let Some(value) = country.to_possible_value() {
-                let aliases = value
-                    .get_name_and_aliases()
-                    .collect::<Vec<&str>>()
-                    .join(&" OR ".red().to_string());
-                println!("{} {aliases}", country.emoji());
-            };
-        }
-        return Ok(());
-    } else if args.all_countries {
-        for country in generated::Country::ALL_COUNTRIES {
-            let out = format_country(*country, None, None, &args);
-            println!("{out}");
-        }
-    } else if let Some(countries) = &args.country
-        && !countries.is_empty()
-    {
-        for country in countries {
-            let out = format_country(*country, None, None, &args);
-            println!("{out}");
-        }
-    } else if let Some(cache) = Cache::read() {
-        let gen_country = generated::Country::from_country_code(
-            generated::Country::country_code3_from_country_code2(&cache.country_code)
-                .expect("Always include a 3-letter country code that exists"),
-        )
-        .unwrap();
+            println!("{}", format_country(gen_country, None, None, &self));
+        } else {
+            let ip = public_ip::addr()
+                .await
+                .ok_or("Error: Unable to retrieve your public IP.")?;
 
-        println!("{}", format_country(gen_country, None, None, &args));
-    } else {
-        let ip = public_ip::addr()
-            .await
-            .ok_or("Error: Unable to retrieve your public IP.")?;
-
-        let location = Location::from_ip(ip).await?;
-        let country = Country::from_cc2(&location.country_code).await.ok();
-        let gen_country = generated::Country::from_country_code(
+            let location = Location::from_ip(ip).await?;
+            let country = Country::from_cc2(&location.country_code).await.ok();
+            let gen_country = generated::Country::from_country_code(
             generated::Country::country_code3_from_country_code2(&location.country_code).expect("Location's country_code will always be valid 2 letter country code that can be converted into a 3 letter country code because we generate it"),
         )
         .expect("Generated country code must exist");
 
-        let _ = Cache::write(location.country_code.clone());
+            let _ = Cache::write(location.country_code.clone());
 
-        println!(
-            "{}",
-            format_country(gen_country, country.as_ref(), Some(&location), &args)
-        );
-    };
+            println!(
+                "{}",
+                format_country(gen_country, country.as_ref(), Some(&location), &self)
+            );
+        };
 
-    Ok(())
+        Ok(())
+    }
 }

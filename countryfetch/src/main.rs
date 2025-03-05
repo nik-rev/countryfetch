@@ -1,5 +1,6 @@
+use std::env;
+
 use clap::Parser;
-use countryfetch::args;
 
 mod generated;
 
@@ -7,12 +8,16 @@ mod generated;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = countryfetch::Args::parse();
 
+    if args.no_color {
+        // SAFETY: Caller ensures this runs in a single-threaded environment
+        unsafe {
+            env::set_var("NO_COLOR", "1");
+        }
+    };
+
     println!();
 
-    // SAFETY: Runs in a single-threaded environment
-    unsafe {
-        args::print_args(args).await?;
-    }
+    args.print().await?;
 
     Ok(())
 }
