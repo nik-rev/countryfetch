@@ -17,7 +17,7 @@ pub struct Cache {
 impl Cache {
     /// If the cache has not been written to for this amount of seconds,
     /// it will make another networkr request to the country API to get the user's current country
-    const REFRESH_AFTER_SEC: u64 = 18 * 60;
+    const REFRESH_AFTER_SEC: u64 = 30 * 60;
     const CACHE_FILE: &str = "countryfetch.json";
 
     fn is_outdated(&self) -> bool {
