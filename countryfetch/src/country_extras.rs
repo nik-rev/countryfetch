@@ -1,4 +1,5 @@
-//! Extra methods for `generated::Country` that are not from the API, but rather manually written.
+//! Extra methods for `generated::Country` that are not from the API, but rather
+//! manually written.
 
 use crate::generated;
 

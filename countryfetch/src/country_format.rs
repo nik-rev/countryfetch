@@ -1,5 +1,5 @@
-//! This module is responsible for taking the data that we have in our app, and converting that into
-//! a String ready to be printed to the terminal.
+//! This module is responsible for taking the data that we have in our app, and
+//! converting that into a String ready to be printed to the terminal.
 use colored::Colorize;
 use core::fmt;
 use separator::Separatable;
@@ -308,7 +308,8 @@ impl fmt::Display for CountryOutput<'_> {
     }
 }
 
-/// Passing gen_country is required, passing other fields is optional and will further refine the output.
+/// Passing gen_country is required, passing other fields is optional and will
+/// further refine the output.
 pub fn format_country(
     gen_country: generated::Country,
     country: Option<&crate::Country>,
@@ -317,10 +318,11 @@ pub fn format_country(
 ) -> String {
     let area_km = country.map(|c| c.area_km).unwrap_or(gen_country.area_km());
 
-    // TODO: We don't need to clone and to_string everything, CountryOutput should be able to just be a struct with no owned values.
+    // TODO: We don't need to clone and to_string everything, CountryOutput should
+    // be able to just be a struct with no owned values.
     CountryOutput {
         flag: (!args.no_flag).then_some(if env::var_os("NO_COLOR").is_some() {
-            gen_country.flag_nocolor()
+            gen_country.flag_no_color()
         } else {
             gen_country.flag()
         }),

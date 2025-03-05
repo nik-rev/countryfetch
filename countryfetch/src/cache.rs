@@ -6,8 +6,9 @@ use std::path::PathBuf;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
-/// Cache allows us to make less network request at the cost of inacurracy if the
-/// user moves to another country within the [`Cache::REFRESH_AFTER_SEC`] period
+/// Cache allows us to make less network request at the cost of inacurracy if
+/// the user moves to another country within the [`Cache::REFRESH_AFTER_SEC`]
+/// period
 #[derive(Serialize, Deserialize)]
 pub struct Cache {
     modified_time: u64,
@@ -16,7 +17,8 @@ pub struct Cache {
 
 impl Cache {
     /// If the cache has not been written to for this amount of seconds,
-    /// it will make another networkr request to the country API to get the user's current country
+    /// it will make another networkr request to the country API to get the
+    /// user's current country
     const REFRESH_AFTER_SEC: u64 = 30 * 60;
     const CACHE_FILE: &str = "countryfetch.json";
 

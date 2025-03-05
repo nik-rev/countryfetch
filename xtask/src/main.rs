@@ -1,66 +1,11 @@
 use countryfetch::Country;
-use std::{
-    fs::File,
-    io::{Read as _, Write as _},
-    path::PathBuf,
-};
+use std::io::Write;
+use std::{fs::File, path::PathBuf};
 
 mod codegen;
 mod country_parts;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-struct Paths {
-    // Path where generated code lives.
-    generated_dir: PathBuf,
-    // Re-exports of generated code for ease of use.
-    mod_rs: PathBuf,
-    // country.rs: Contains implementations of all methods for the Country enum.
-    country_rs: PathBuf,
-    // flag.rs: Contains a single implementation of the Country::flag method.
-    // Impl is in a separate file due to the huge size of this file.
-    flag_rs: PathBuf,
-}
-
-impl Paths {
-    fn new() -> Self {
-        let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let generated_dir = manifest_dir
-            .join("..")
-            .join("countryfetch")
-            .join("src")
-            .join("generated");
-
-        Self {
-            generated_dir: generated_dir.clone(),
-            mod_rs: generated_dir.join("mod.rs"),
-            country_rs: generated_dir.join("country.rs"),
-            flag_rs: generated_dir.join("flag.rs"),
-        }
-    }
-}
-
-#[allow(unused)]
-async fn save_countries_to_json() {
-    let value = reqwest::get("https://restcountries.com/v3.1/all")
-        .await
-        .unwrap()
-        .json::<serde_json::Value>()
-        .await
-        .unwrap();
-
-    let paths = Paths::new();
-
-    let mut all_countries =
-        File::open(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("countries.json")).unwrap();
-
-    let mut buf = String::new();
-    all_countries.read_to_string(&mut buf).unwrap();
-    let all_countries = serde_json::de::from_str::<Vec<Country>>(&buf).unwrap();
-    let (country_enum, country_impl, flag_impl) = codegen::generate_code(&all_countries).await;
-
-    write_files(&paths, &country_enum, &country_impl, &flag_impl);
-}
 
 async fn fetch_countries() -> Result<Vec<Country>> {
     Ok(reqwest::get("https://restcountries.com/v3.1/all")
@@ -131,33 +76,22 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_
     ))
 }
 
-/// Writes generated Rust code to appropriate files.
-fn write_files(paths: &Paths, country_enum: &str, country_impl: &str, flag_impl: &str) {
-    std::fs::create_dir_all(&paths.generated_dir).expect("Failed to create generated directory");
-
-    File::create(&paths.country_rs)
-        .expect("Failed to create country.rs")
-        .write_all(format!("{}\n{}", country_enum, country_impl).as_bytes())
-        .expect("Failed to write to country.rs");
-
-    File::create(&paths.flag_rs)
-        .expect("Failed to create flag.rs")
-        .write_all(flag_impl.as_bytes())
-        .expect("Failed to write to flag.rs");
-
-    File::create(&paths.mod_rs)
-        .expect("Failed to create mod.rs")
-        .write_all(b"mod country;\nmod flag;\n\npub use country::*;")
-        .expect("Failed to write to mod.rs");
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let all_countries = fetch_countries().await?;
-    let paths = Paths::new();
 
-    let (country_enum, country_impl, flag_impl) = codegen::generate_code(&all_countries).await;
-    write_files(&paths, &country_enum, &country_impl, &flag_impl);
+    let (country_enum, country_impl) = codegen::generate_code(&all_countries).await;
+
+    File::create(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("countryfetch")
+            .join("src")
+            .join("generated.rs"),
+    )
+    .expect("Failed to create country.rs")
+    .write_all(format!("{}\n{}", country_enum, country_impl).as_bytes())
+    .expect("Failed to write to country.rs");
 
     Ok(())
 }

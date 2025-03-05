@@ -28,6 +28,8 @@ enum MethodName {
     BrightestColor,
     Population,
     Continents,
+    Flag,
+    FlagNoColor,
     // takes &str
     FromStr,
     FromCountryCode,
@@ -53,6 +55,8 @@ impl MethodName {
             | MethodName::Emoji
             | MethodName::BrightestColor
             | MethodName::Population
+            | MethodName::Flag
+            | MethodName::FlagNoColor
             | MethodName::Continents => ("self", "&Self"),
             MethodName::FromStr
             | MethodName::FromCountryCode
@@ -78,6 +82,8 @@ impl MethodName {
             | MethodName::Emoji
             | MethodName::BrightestColor
             | MethodName::Population
+            | MethodName::Flag
+            | MethodName::FlagNoColor
             | MethodName::Continents => "        }\n    }\n",
             MethodName::FromStr
             | MethodName::FromCountryCode
@@ -92,7 +98,7 @@ impl MethodName {
             MethodName::Description => {
                 format!(
                     "            {} => {},\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts
                         .description
                         .as_ref()
@@ -103,124 +109,124 @@ impl MethodName {
             MethodName::CountryName => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.country_name
                 )
             }
             MethodName::CountryCode3 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.country_code3
                 )
             }
             MethodName::DialingCode => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.dialing_code
                 )
             }
             MethodName::DrivingSide => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.driving_side
                 )
             }
             MethodName::CountryCode2 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.country_code2
                 )
             }
             MethodName::TopLevelDomain => {
                 format!(
                     "            {} => &[{}],\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.top_level_domains.join(", ")
                 )
             }
             MethodName::Currencies => {
                 format!(
                     "            {} => &[{}],\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.currencies
                 )
             }
             MethodName::Languages => {
                 format!(
                     "            {} => &[{}],\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.languages
                 )
             }
             MethodName::Capital => {
                 format!(
                     "            {} => &[{}],\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.capital.join(", ")
                 )
             }
             MethodName::Palette => {
                 format!(
                     "            {} => {},\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.colors
                 )
             }
             MethodName::Neighbours => {
                 format!(
                     "            {} => &[{}],\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.neighbours.join(", ")
                 )
             }
             MethodName::AreaKm => {
                 format!(
                     "            {} => {}_f64,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.area_km
                 )
             }
             MethodName::BrightestColor => {
                 format!(
                     "            {} => {},\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.most_colorful
                 )
             }
             MethodName::Emoji => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.emoji
                 )
             }
             MethodName::Population => {
                 format!(
                     "            {} => {}_u64,\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.population
                 )
             }
             MethodName::Continents => {
                 format!(
                     "            {} => &[{}],\n",
-                    format_args!("Country::{}", parts.enum_name),
+                    format_args!("Self::{}", parts.enum_name),
                     parts.continents.join(", ")
                 )
             }
             MethodName::FromStr => {
                 format!(
-                    "            \"{}\" => Some(Country::{}),\n",
+                    "            \"{}\" => Some(Self::{}),\n",
                     parts.deunicoded_name, parts.enum_name
                 )
             }
             MethodName::FromCountryCode => {
                 format!(
-                    "            \"{}\" => Some(Country::{}),\n",
+                    "            \"{}\" => Some(Self::{}),\n",
                     parts.country_code3, parts.enum_name
                 )
             }
@@ -230,6 +236,14 @@ impl MethodName {
                     parts.country_code2, parts.country_code3
                 )
             }
+            MethodName::Flag => format!(
+                "            Country::{} => r###\"{}\"###,\n",
+                parts.enum_name, parts.flag_color
+            ),
+            MethodName::FlagNoColor => format!(
+                "            Country::{} => r###\"{}\"###,\n",
+                parts.enum_name, parts.flag_nocolor
+            ),
         }
     }
     pub fn return_type(&self) -> &'static str {
@@ -247,6 +261,8 @@ impl MethodName {
             MethodName::AreaKm => "f64",
             MethodName::DialingCode => "&'static str",
             MethodName::DrivingSide => "&'static str",
+            MethodName::Flag => "&'static str",
+            MethodName::FlagNoColor => "&'static str",
             MethodName::Emoji => "&'static str",
             MethodName::BrightestColor => "(u8, u8, u8)",
             MethodName::Population => "u64",
@@ -281,12 +297,13 @@ impl fmt::Display for Codegen {
 }
 
 /// Generates Rust code for country enum and its implementation.
-pub async fn generate_code(countries: &[Country]) -> (String, String, String) {
+pub async fn generate_code(countries: &[Country]) -> (String, String) {
     let mut country_enum_ = Codegen {
         start: String::from(
             "#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(dead_code)]
 #![allow(clippy::should_implement_trait)]
+#![allow(clippy::needless_arbitrary_self_type)]
 #[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]
 #[clap(rename_all = \"PascalCase\")]
 pub enum Country {
@@ -315,41 +332,6 @@ pub enum Country {
         end: "    ];\n".to_owned(),
     };
 
-    let mut flag_impl_ = Codegen {
-        start: String::from(
-            "#![cfg_attr(rustfmt, rustfmt_skip)]
-#![allow(dead_code)]
-
-use super::Country;
-
-impl Country {
-    pub const fn flag(&self) -> &'static str {
-        match self {\n",
-        ),
-        item: Box::new(|parts| {
-            format!(
-                "            Country::{} => r###\"{}\"###,\n",
-                parts.enum_name, parts.flag_color
-            )
-        }),
-        end: "        }\n    }\n}\n".to_owned(),
-    };
-
-    let mut flag_no_color_impl_ = Codegen {
-        start: String::from(
-            "\nimpl Country {
-    pub const fn flag_nocolor(&self) -> &'static str {
-        match self {\n",
-        ),
-        item: Box::new(|parts| {
-            format!(
-                "            Country::{} => r###\"{}\"###,\n",
-                parts.enum_name, parts.flag_nocolor
-            )
-        }),
-        end: "        }\n    }\n}\n".to_owned(),
-    };
-
     let mut method_impls: Vec<Codegen> = MethodName::iter()
         .map(|method| {
             let (arg, ty) = method.param();
@@ -365,7 +347,8 @@ impl Country {
         })
         .collect();
 
-    // Generate all country parts in parallel because it is an expensive operation that also makes network requests
+    // Generate all country parts in parallel because it is an expensive operation
+    // that also makes network requests
     let country_parts: Vec<CountryParts> = futures::future::join_all(
         countries
             .par_iter()
@@ -378,8 +361,6 @@ impl Country {
     for parts in country_parts {
         country_enum_.codegen(&parts);
         all_countries_.codegen(&parts);
-        flag_impl_.codegen(&parts);
-        flag_no_color_impl_.codegen(&parts);
 
         for method_impl in &mut method_impls {
             method_impl.codegen(&parts);
@@ -400,9 +381,5 @@ impl Country {
 
     country_impl.push_str(&country_impl_.end);
 
-    // Build flag implementation
-    let mut flag_impl = flag_impl_.to_string();
-    flag_impl.push_str(&flag_no_color_impl_.to_string());
-
-    (country_enum, country_impl, flag_impl)
+    (country_enum, country_impl)
 }

@@ -44,7 +44,7 @@ pub fn get_styles() -> clap::builder::Styles {
 }
 
 #[derive(Parser, Debug)]
-#[command(version, version = "Nik Revenco", about, long_about = None, styles=get_styles())]
+#[command(version, author = "Nik Revenco", about, long_about = None, styles=get_styles())]
 pub struct Args {
     #[clap(hide_possible_values = true, ignore_case = true)]
     pub country: Option<Vec<generated::Country>>,
@@ -131,11 +131,10 @@ impl Args {
                 println!("{out}");
             }
         } else if let Some(cache) = Cache::read() {
-            let gen_country = generated::Country::from_country_code(
+            let gen_country =
                 generated::Country::country_code3_from_country_code2(&cache.country_code)
-                    .expect("Always include a 3-letter country code that exists"),
-            )
-            .unwrap();
+                    .and_then(generated::Country::from_country_code)
+                    .expect("Stored a valid 2 letter country code in cache");
 
             println!("{}", format_country(gen_country, None, None, &self));
         } else {
@@ -146,9 +145,13 @@ impl Args {
             let location = Location::from_ip(ip).await?;
             let country = Country::from_cc2(&location.country_code).await.ok();
             let gen_country = generated::Country::from_country_code(
-            generated::Country::country_code3_from_country_code2(&location.country_code).expect("Location's country_code will always be valid 2 letter country code that can be converted into a 3 letter country code because we generate it"),
-        )
-        .expect("Generated country code must exist");
+                generated::Country::country_code3_from_country_code2(&location.country_code)
+                    .expect(
+                        "Location's country_code will always be valid 2 letter countrycode that \
+                         can be converted into a 3 letter country code",
+                    ),
+            )
+            .expect("Generated country code must exist");
 
             let _ = Cache::write(location.country_code.clone());
 

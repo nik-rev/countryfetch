@@ -1,3 +1,126 @@
 [workspace]
 members = ["countryfetch", "xtask"]
 edition = "2024"
+
+[workspace.lints.clippy]
+# enable all lints (other than restriction: https://rust-lang.github.io/rust-clippy/master/index.html?groups=restriction#blanket_clippy_restriction_lints), then selectively disable
+pedantic = { priority = -1, level = "warn" }
+nursery = { priority = -1, level = "warn" }
+cargo = { priority = -1, level = "warn" }
+
+# sometimes it can be more readable not to inline format!() args
+uninlined_format_args = "allow"
+# we don't want to mark everything with #[must_use]
+must_use_candidate = "allow"
+# if we mark functions with "const", we're limiting what changes
+# we can make to the function without breaking the "const" contract
+# we may not always want to do that
+missing_const_for_fn = "allow"
+# we're not a crate: documenting all errors is not necessary
+missing_errors_doc = "allow"
+# placing an arbitrary limit on how many lines we can have is unnecessary
+too_many_lines = "allow"
+# it can't detect if the code has a condition to stop the iterator
+maybe_infinite_iter = "allow"
+
+# === Restrictions ===
+# == safety ==
+
+# Each 'unsafe' block should always contain exactly 1 unsafe operation
+# with clear documentation why the invariants are upheld.
+undocumented_unsafe_blocks = "deny"
+unnecessary_safety_comment = "deny"
+unnecessary_safety_doc = "deny"
+multiple_unsafe_ops_per_block = "deny"
+# not specifying representation may cause undefined behaviour
+default_union_representation = "deny"
+
+# == correctness ==
+# Program may behave unexpectedly
+
+create_dir = "deny"
+filetype_is_file = "deny"
+# may cause memory leaks
+mem_forget = "deny"
+assertions_on_result_states = "deny"
+# The conversion might include a dangerous cast that might go undetected due to the type being inferred.
+as_pointer_underscore = "deny"
+as_underscore = "deny"
+# bloats the binary size with unneeded files
+doc_include_without_cfg = "deny"
+# casting a function to a pointer is likely a mistake
+fn_to_numeric_cast_any = "deny"
+# integer division discards the remainder and is likely a mistake
+integer_division = "deny"
+lossy_float_literal = "deny"
+wildcard_enum_match_arm = "deny"
+
+# == performance ==
+
+# .to_string() is problematic because it does through the whole Display pipeline
+str_to_string = "warn"
+non_zero_suggestions = "warn"
+mutex_atomic = "warn"
+rc_mutex = "warn"
+rc_buffer = "warn"
+# prefer using pattern matching
+string_lit_chars_any = "warn"
+missing_asserts_for_indexing = "warn"
+pathbuf_init_then_push = "warn"
+
+# == readabilty ==
+
+unseparated_literal_suffix = "warn"
+unneeded_field_pattern = "warn"
+unnecessary_self_imports = "warn"
+try_err = "warn"
+map_with_unused_argument_over_ranges = "warn"
+# better be explicit with .clone()
+string_to_string = "warn"
+# no need to be extra verbose, and makes code easier to modify as well
+redundant_type_annotations = "warn"
+# having multiple layout styles can be confusing
+self_named_module_files = "warn"
+# having an explicit, even if just containing a comment,
+# "else" branch improves readability
+else_if_without_else = "warn"
+# explicit annotation of ! for functions that never return
+# due to having infinite loops
+infinite_loop = "warn"
+semicolon_outside_block = "warn"
+tests_outside_test_module = "warn"
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+needless_raw_strings = "warn"
+mixed_read_write_in_expression = "warn"
+missing_assert_message = "warn"
+get_unwrap = "warn"
+if_then_some_else_none = "warn"
+impl_trait_in_params = "warn"
+map_err_ignore = "warn"
+# explicit imports
+alloc_instead_of_core = "warn"
+std_instead_of_alloc = "warn"
+std_instead_of_core = "warn"
+# may give the impression that we have more test coverage than what we have in reality
+cfg_not_test = "warn"
+# Rc::clone($expr) is way better than $expr.clone(), when we see `.clone()`
+# we instantly might think "expensive". But cloning a pointer isn't. It's
+# good to be explicit
+clone_on_ref_ptr = "warn"
+decimal_literal_representation = "warn"
+empty_enum_variants_with_brackets = "warn"
+empty_structs_with_brackets = "warn"
+error_impl_error = "warn"
+inline_asm_x86_att_syntax = "warn"
+multiple_inherent_impl = "warn"
+pub_without_shorthand = "warn"
+renamed_function_params = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+# same name from a trait and one not from a trait can be confusing
+same_name_method = "warn"
+# more explicit and avoids polluting the scope
+unused_trait_names = "warn"
+absolute_paths = "warn"
+deref_by_slicing = "warn"
+verbose_file_reads = "warn"
