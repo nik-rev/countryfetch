@@ -1,12 +1,14 @@
 //! This module is responsible for taking the data that we have in our app, and converting that into
 //! a String ready to be printed to the terminal.
-
 use colored::Colorize;
 use core::fmt;
 use separator::Separatable;
 use std::env;
 
-use crate::generated::{self, CurrencyPosition};
+use crate::{
+    Args,
+    generated::{self, CurrencyPosition},
+};
 
 type Currency = Option<(generated::CurrencyPosition, Vec<(String, String, String)>)>;
 
@@ -310,7 +312,7 @@ pub fn format_country(
     gen_country: generated::Country,
     country: Option<&crate::Country>,
     location: Option<&crate::Location>,
-    args: &crate::Args,
+    args: &Args,
 ) -> String {
     let area_km = country.map(|c| c.area_km).unwrap_or(gen_country.area_km());
 

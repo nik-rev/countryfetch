@@ -56,6 +56,7 @@ pub struct Car {
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Name {
+    // #[serde(default)]
     pub common: String,
 }
 
@@ -78,12 +79,15 @@ pub struct Currency {
 impl Country {
     /// Fetch a single country from the API
     pub async fn from_cc2(country_code2: &str) -> Result<Self, reqwest::Error> {
-        reqwest::get(format!(
+        Ok(reqwest::get(format!(
             "https://restcountries.com/v3.1/alpha/{country_code2}"
         ))
         .await?
-        .json::<Self>()
-        .await
+        .json::<Vec<Self>>()
+        .await?
+        .into_iter()
+        .next()
+        .expect("API always returns an array of 1 Country when fetching for a specific country"))
     }
 
     /// Fetch all countries from the API

@@ -3,7 +3,7 @@ use std::env;
 use clap::{Parser, ValueEnum as _};
 use colored::Colorize as _;
 
-use crate::{country_format::format_country, generated};
+use crate::{Country, Location, country_format::format_country, generated};
 
 pub fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
@@ -107,7 +107,7 @@ pub struct Args {
 /// # Safety
 ///
 /// Must run in a single-threaded environment
-pub unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Error>> {
+pub async unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Error>> {
     if args.no_color {
         // SAFETY: Caller ensures this runs in a single-threaded environment
         unsafe {
@@ -140,7 +140,17 @@ pub unsafe fn print_args(args: Args) -> Result<(), Box<dyn std::error::Error>> {
             println!("{out}");
         }
     } else {
-        // get country from user's ip
+        let ip = public_ip::addr()
+            .await
+            .ok_or("Error: Unable to retrieve your public IP.")?;
+
+        let location = Location::from_ip(ip).await?;
+        let country = Country::from_cc2(&location.country_code).await?;
+        let gen_country = generated::Country::from_country_code(&country.country_code3)
+            .expect("Generated country code must exist");
+
+        let out = format_country(gen_country, Some(&country), Some(&location), &args);
+        println!("{out}");
     };
 
     Ok(())
