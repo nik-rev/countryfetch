@@ -15,7 +15,9 @@ pub struct Cache {
 }
 
 impl Cache {
-    const REFRESH_AFTER_SEC: u64 = 86400;
+    /// If the cache has not been written to for this amount of seconds,
+    /// it will make another networkr request to the country API to get the user's current country
+    const REFRESH_AFTER_SEC: u64 = 18 * 60;
     const CACHE_FILE: &str = "countryfetch.json";
 
     fn is_outdated(&self) -> bool {
@@ -23,7 +25,7 @@ impl Cache {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs()
-            - self.modified_time)
+            .saturating_sub(self.modified_time))
             < Self::REFRESH_AFTER_SEC
     }
 
