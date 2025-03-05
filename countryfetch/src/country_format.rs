@@ -43,7 +43,7 @@ impl CountryOutput<'_> {
         )
     }
 
-    fn format_area(&self) -> String {
+    fn area(&self) -> String {
         if let (Some(area_km), Some(area_mi)) = (self.area_km, self.area_mi) {
             let km = area_km.separated_string();
             let mi = area_mi.separated_string();
@@ -53,7 +53,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_population(&self) -> String {
+    fn population(&self) -> String {
         if let Some(population) = self.population {
             format!(
                 "{}: {} People\n",
@@ -65,7 +65,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_capital(&self) -> String {
+    fn capital(&self) -> String {
         if let Some(capital) = self.capital {
             format!(
                 "{}: {}\n",
@@ -80,7 +80,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_dialing_code(&self) -> String {
+    fn dialing_code(&self) -> String {
         if let Some(dialing_code) = &self.dialing_code {
             format!("{}: {}\n", self.colored("Dialing code"), dialing_code)
         } else {
@@ -88,7 +88,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_iso_codes(&self) -> String {
+    fn iso_codes(&self) -> String {
         if let Some(iso_codes) = &self.iso_codes {
             format!(
                 "{}: {} / {}\n",
@@ -101,7 +101,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_driving_side(&self) -> String {
+    fn driving_side(&self) -> String {
         if let Some(driving_side) = self.driving_side {
             format!("{}: {}\n", self.colored("Driving side"), driving_side)
         } else {
@@ -109,7 +109,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_currency(&self) -> String {
+    fn currency(&self) -> String {
         if let Some((currency_position, currencies)) = &self.currency {
             let currency_label = self.colored(&format!(
                 "Currenc{y}",
@@ -145,10 +145,10 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_palette(&self) -> String {
+    fn palette(&self) -> String {
         if let Some(palette) = self.palette {
             format!(
-                "{}\n",
+                "\n{}\n",
                 palette
                     .iter()
                     .map(|color| format!("{}", "███".truecolor(color.0, color.1, color.2)))
@@ -160,7 +160,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_neighbours(&self) -> String {
+    fn neighbours(&self) -> String {
         if let Some(neighbours) = self.neighbours {
             let neigh = neighbours
                 .iter()
@@ -189,7 +189,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_continent(&self) -> String {
+    fn continent(&self) -> String {
         if let (Some(continent), continent_code) = (self.continent, self.continent_code) {
             format!(
                 "{}: {}{}\n",
@@ -207,7 +207,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_established(&self) -> String {
+    fn established_date(&self) -> String {
         if let Some(established_date) = self.established_date {
             format!("{}: {}\n", self.colored("Established"), established_date)
         } else {
@@ -215,7 +215,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_top_level_domain(&self) -> String {
+    fn top_level_domain(&self) -> String {
         if let Some(top_level_domain) = self.top_level_domain {
             format!(
                 "{}: {}\n",
@@ -230,7 +230,7 @@ impl CountryOutput<'_> {
         }
     }
 
-    fn format_languages(&self) -> String {
+    fn languages(&self) -> String {
         if let Some(languages) = &self.languages {
             format!(
                 "{}: {}\n",
@@ -245,31 +245,40 @@ impl CountryOutput<'_> {
         }
     }
 
+    fn flag(&self) -> String {
+        self.flag_emoji
+            .map(|flag| format!(" {flag}"))
+            .unwrap_or_default()
+    }
+
+    fn separator() -> &'static str {
+        "\n-------\n"
+    }
+
     /// Generates the complete country information text
     fn generate_information(&self) -> String {
-        let country_name = self.country_name;
-        let flag_emoji = self
-            .flag_emoji
-            .map(|flag| format!(" {flag}"))
-            .unwrap_or_default();
+        let mut output = String::new();
 
-        let mut output = format!("{country_name}{flag_emoji}\n-------\n");
-
-        output.push_str(&self.format_area());
-        output.push_str(&self.format_area());
-        output.push_str(&self.format_continent());
-        output.push_str(&self.format_population());
-        output.push_str(&self.format_neighbours());
-        output.push_str(&self.format_capital());
-        output.push_str(&self.format_iso_codes());
-        output.push_str(&self.format_driving_side());
-        output.push_str(&self.format_dialing_code());
-        output.push_str(&self.format_languages());
-        output.push_str(&self.format_established());
-        output.push_str(&self.format_currency());
-        output.push_str(&self.format_top_level_domain());
-        output.push('\n');
-        output.push_str(&self.format_palette());
+        for part in [
+            self.country_name,
+            &self.flag(),
+            Self::separator(),
+            &self.area(),
+            &self.continent(),
+            &self.population(),
+            &self.neighbours(),
+            &self.capital(),
+            &self.iso_codes(),
+            &self.driving_side(),
+            &self.dialing_code(),
+            &self.languages(),
+            &self.established_date(),
+            &self.currency(),
+            &self.top_level_domain(),
+            &self.palette(),
+        ] {
+            output.push_str(part);
+        }
 
         output
     }
@@ -302,29 +311,31 @@ pub fn format_country(
     gen_country: generated::Country,
     country: Option<&Country>,
     location: Option<&Location>,
+    args: &countryfetch::Args,
 ) -> String {
     let area_km = country.map(|c| c.area_km).unwrap_or(gen_country.area_km());
 
     // TODO: We don't need to clone and to_string everything, CountryOutput should be able to just be a struct with no owned values.
     CountryOutput {
-        flag: true.then_some(if env::var_os("NO_COLOR").is_some() {
+        flag: (!args.no_flag).then_some(if env::var_os("NO_COLOR").is_some() {
             gen_country.flag_nocolor()
         } else {
             gen_country.flag()
         }),
-        flag_emoji: true.then_some(
+        flag_emoji: (!args.no_emoji).then_some(
             country
                 .map(|c| c.emoji.as_str())
                 .unwrap_or(gen_country.emoji()),
         ),
-        area_km: true.then_some(country.map(|c| c.area_km).unwrap_or(gen_country.area_km())),
+        area_km: (!args.no_area)
+            .then_some(country.map(|c| c.area_km).unwrap_or(gen_country.area_km())),
         // rounds to the nearest 100
-        area_mi: true.then_some((area_km * 0.62137 * 0.01).round() / 0.01),
+        area_mi: (!args.no_area).then_some((area_km * 0.62137 * 0.01).round() / 0.01),
         country_name: country
             .map(|c| c.country_name())
             .unwrap_or(gen_country.country_name()),
 
-        continent: true.then_some(
+        continent: (!args.no_continent).then_some(
             &country.map(|c| c.continents.clone()).unwrap_or(
                 gen_country
                     .continents()
@@ -333,13 +344,15 @@ pub fn format_country(
                     .collect(),
             ),
         ),
-        continent_code: location.map(|l| l.continent_code.as_str()).filter(|_| true),
-        population: true.then_some(
+        continent_code: location
+            .map(|l| l.continent_code.as_str())
+            .filter(|_| (!args.no_continent)),
+        population: (!args.no_population).then_some(
             country
                 .map(|c| c.population)
                 .unwrap_or(gen_country.population()),
         ),
-        top_level_domain: true.then_some(
+        top_level_domain: (!args.no_tld).then_some(
             &country.map(|c| c.top_level_domain.clone()).unwrap_or(
                 gen_country
                     .top_level_domain()
@@ -348,7 +361,7 @@ pub fn format_country(
                     .collect::<Vec<_>>(),
             ),
         ),
-        languages: true.then_some(
+        languages: (!args.no_languages).then_some(
             country
                 .map(|c| c.languages.clone().into_values().collect())
                 .unwrap_or(
@@ -359,7 +372,7 @@ pub fn format_country(
                         .collect(),
                 ),
         ),
-        currency: true.then_some((
+        currency: (!args.no_currency).then_some((
             generated::currency_position(gen_country),
             country
                 .map(|c| {
@@ -382,7 +395,7 @@ pub fn format_country(
                         .collect(),
                 ),
         )),
-        neighbours: true.then_some(
+        neighbours: (!args.no_neighbours).then_some(
             &country.map(|c| c.neighbours.clone()).unwrap_or(
                 gen_country
                     .neighbours()
@@ -391,8 +404,9 @@ pub fn format_country(
                     .collect(),
             ),
         ),
-        established_date: true.then_some(generated::established_date(gen_country)),
-        iso_codes: true.then_some(
+        established_date: (!args.no_established_date)
+            .then_some(generated::established_date(gen_country)),
+        iso_codes: (!args.no_iso_codes).then_some(
             country
                 .map(|c| (c.country_code2.clone(), c.country_code3.clone()))
                 .unwrap_or((
@@ -400,12 +414,12 @@ pub fn format_country(
                     gen_country.country_code3().to_string(),
                 )),
         ),
-        driving_side: true.then_some(
+        driving_side: (!args.no_driving_side).then_some(
             country
                 .map(|c| c.driving_side())
                 .unwrap_or(gen_country.driving_side()),
         ),
-        capital: true.then_some(
+        capital: (!args.no_capital).then_some(
             &country.map(|c| c.capital.clone()).unwrap_or(
                 gen_country
                     .capital()
@@ -414,12 +428,12 @@ pub fn format_country(
                     .collect(),
             ),
         ),
-        dialing_code: true.then_some(
+        dialing_code: (!args.no_dialing_code).then_some(
             country
                 .map(|c| c.dialing_code())
                 .unwrap_or(gen_country.dialing_code().to_owned()),
         ),
-        palette: true.then_some(gen_country.palette()),
+        palette: (!args.no_palette).then_some(gen_country.palette()),
         brightest_color: gen_country.brightest_color(),
     }
     .to_string()

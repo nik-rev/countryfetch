@@ -279,6 +279,8 @@ dependencies = [
 name = "countryfetch"
 version = "0.1.0"
 dependencies = [
+ "anstyle",
+ "clap",
  "colored",
  "image",
  "public-ip",

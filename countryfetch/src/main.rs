@@ -1,6 +1,7 @@
 use crate::country_format::format_country;
-use std::{io::Read, path::PathBuf};
+use std::{env, io::Read, path::PathBuf};
 
+use clap::Parser;
 use countryfetch::{Country, Location};
 
 mod country_format;
@@ -34,6 +35,18 @@ async fn get_data() -> Result<(Location, Country), Box<dyn std::error::Error>> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = countryfetch::Args::parse();
+    if args.no_color {
+        // SAFETY: This runs in a single-threaded environment
+        unsafe {
+            env::set_var("NO_COLOR", "1");
+        }
+    };
+
+    let Some(ip) = public_ip::addr().await else {
+        todo!()
+    };
+
     // let (location, country) = get_data().await.unwrap();
 
     let mut country_json =
@@ -47,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for country in countries {
         let gen_country = generated::Country::from_country_code(&country.country_code3).unwrap();
-        let country = format_country(gen_country, Some(&country), None);
+        let country = format_country(gen_country, Some(&country), None, &args);
 
         println!("{country}");
     }

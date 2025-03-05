@@ -73,19 +73,15 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_
 
     let pixels = image.to_rgb8().into_raw();
 
-    let colors = palette_extract::get_palette_rgb(pixels.as_slice());
-    // let colors = dominant_color::get_colors(, true)
-    //     .chunks_exact(3)
-    //     .map(|a| (a[0], a[1], a[2]))
-    //     .collect();
-    // let colors = color_thief::get_palette(
-    //     ,
-    //     color_thief::ColorFormat::Rgb,
-    //     1,
-    //     16,
-    // )?;
+    let mut colors = palette_extract::get_palette_rgb(pixels.as_slice());
+    colors.sort_unstable_by(|a, b| {
+        // finds the "colorfulness" of the color
+        let brightness = |color: palette_extract::Color| {
+            color.r as f32 * 0.2126 + color.g as f32 * 0.7152 + color.b as f32 * 0.0722
+        } as u16;
 
-    // let colors = dominant_color::get_colors(, false);
+        brightness(*a).cmp(&brightness(*b))
+    });
 
     let mut flag_color = Vec::new();
     let mut flag_nocolor = Vec::new();
