@@ -315,7 +315,7 @@ pub fn format_country(
             .then_some(country.map_or(gen_country.emoji(), |c| c.emoji.as_str())),
         area_km: (!args.no_area).then_some(country.map_or(gen_country.area_km(), |c| c.area_km)),
         // rounds to the nearest 100
-        area_mi: (!args.no_area).then_some((area_km * 0.62137 * 0.01).round() / 0.01),
+        area_mi: (!args.no_area).then_some((area_km * (0.62137_f64.powi(2)) * 0.01).round() / 0.01),
         country_name: country.map_or(
             gen_country.country_name(),
             super::country::Country::country_name,
