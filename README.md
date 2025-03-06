@@ -2,11 +2,14 @@
 
 Countryfetch is a [neofetch](https://github.com/dylanaraps/neofetch)-like tool for fetching information about your country.
 
-![united kingdom](https://github.com/user-attachments/assets/4fea8218-37e6-41cb-9dee-f88d1e9407af)
+![united kingdom](https://github.com/user-attachments/assets/4da5565b-76a2-408a-9342-4af2cb012f78)
 
-![japan](https://github.com/user-attachments/assets/49ed2991-c290-4859-b93a-07a068e23afa)
+![japan](https://github.com/user-attachments/assets/f36f1a77-4241-49e8-9179-0728e74217e2)
 
-![united states](https://github.com/user-attachments/assets/b142255e-9d0d-4326-8a6a-9ab549bea861)
+
+![united states](https://github.com/user-attachments/assets/63e15b08-7560-47d4-8d15-3f4f9962375d)
+
+
 
 ## Usage
 
