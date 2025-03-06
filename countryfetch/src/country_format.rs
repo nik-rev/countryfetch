@@ -47,7 +47,7 @@ impl CountryOutput<'_> {
         if let (Some(area_km), Some(area_mi)) = (self.area_km, self.area_mi) {
             let km = area_km.separated_string();
             let mi = area_mi.separated_string();
-            format!("{}: {km} km ({mi} miles)\n", self.colored("Area"))
+            format!("{}: {km} km² ({mi} miles²)\n", self.colored("Area"))
         } else {
             String::new()
         }
