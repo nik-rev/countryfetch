@@ -5,6 +5,7 @@ edition = "2024"
 repository = "https://github.com/nik-rev/countryfetch"
 homepage = "https://github.com/nik-rev/countryfetch"
 description = "A Command-line tool similar to Neofetch for obtaining information about your country"
+license = "MIT"
 
 [lib]
 name = "countryfetch"
@@ -18,8 +19,8 @@ path = "src/main.rs"
 workspace = true
 
 [dependencies]
+gen_country = { path = "../gen_country", version = "0.1.0" }
 public-ip = "0.2"
-gen_country = { path = "../gen_country" }
 tokio = { version = "1.43", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
