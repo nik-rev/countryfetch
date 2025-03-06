@@ -59,6 +59,18 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/nik-rev/countryfet
 
 ### Windows / MacOS / Linux (Cargo)
 
+Note: You will need at least **Cargo 1.85** to build from source, using this method.
+
 ```sh
 cargo install countryfetch
 ```
+
+## Troubleshooting
+
+If you have an error message like this:
+
+```
+countryfetch: error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory
+```
+
+Try installing the `openssl` package using your package manager. It can also be sometimes called `libssl-dev` depending on your package manager.
