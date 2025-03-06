@@ -33,3 +33,23 @@ List all countries:
 ```sh
 countryfetch --list-countries
 ```
+
+## Installation
+
+### Linux
+
+```sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nik-rev/countryfetch/releases/download/v0.1.5/countryfetch-installer.sh | sh
+```
+
+### MacOS
+
+```sh
+brew install nik-rev/tap/countryfetch
+```
+
+### Windows
+
+```sh
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/nik-rev/countryfetch/releases/download/v0.1.5/countryfetch-installer.ps1 | iex"
+```
