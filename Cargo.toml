@@ -1,6 +1,11 @@
 [workspace]
-members = ["countryfetch", "gen_country", "xtask"]
+members = ["countryfetch", "xtask", "gen_country"]
+default-members = ["countryfetch"]
 resolver = "1"
+
+[workspace.package]
+repository = "https://github.com/nik-rev/countryfetch"
+
 
 [workspace.lints.clippy]
 # enable all lints (other than restriction: https://rust-lang.github.io/rust-clippy/master/index.html?groups=restriction#blanket_clippy_restriction_lints), then selectively disable
@@ -123,3 +128,8 @@ same_name_method = "warn"
 unused_trait_names = "warn"
 deref_by_slicing = "warn"
 verbose_file_reads = "warn"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

@@ -2,9 +2,9 @@
 name = "countryfetch"
 version = "0.1.0"
 edition = "2024"
-
-[lints]
-workspace = true
+repository = "https://github.com/nik-rev/countryfetch"
+homepage = "https://github.com/nik-rev/countryfetch"
+description = "A Command-line tool similar to Neofetch for obtaining information about your country"
 
 [lib]
 name = "countryfetch"
@@ -13,6 +13,9 @@ path = "src/lib.rs"
 [[bin]]
 name = "countryfetch"
 path = "src/main.rs"
+
+[lints]
+workspace = true
 
 [dependencies]
 public-ip = "0.2"
