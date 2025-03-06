@@ -36,20 +36,26 @@ countryfetch --list-countries
 
 ## Installation
 
-### Linux
+### Linux / MacOS
 
 ```sh
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nik-rev/countryfetch/releases/download/v0.1.5/countryfetch-installer.sh | sh
 ```
 
-### MacOS
+### Linux / MacOS (Homebrew)
 
 ```sh
 brew install nik-rev/tap/countryfetch
 ```
 
-### Windows
+### Windows / MacOS / Linux (Powershell)
 
 ```sh
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/nik-rev/countryfetch/releases/download/v0.1.5/countryfetch-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/nik-rev/countryfetch/releases/latest/download/countryfetch-installer.ps1 | iex"
+```
+
+### Windows / MacOS / Linux (Cargo)
+
+```sh
+cargo install countryfetch
 ```
