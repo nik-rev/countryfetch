@@ -1,3 +1,7 @@
+# v0.1.8 - Thu, 6 March 2025
+
+- Remove dependency on system-installed open ssl
+
 # v0.1.7 - Thu, 6 March 2025
 
 - Fix calculation for area in miles

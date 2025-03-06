@@ -1,6 +1,6 @@
 [package]
 name = "countryfetch"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2024"
 repository = "https://github.com/nik-rev/countryfetch"
 homepage = "https://github.com/nik-rev/countryfetch"
@@ -40,3 +40,5 @@ anstyle = "1.0"
 directories = "6.0"
 
 textwrap = "0.16"
+
+openssl = { version = "0.10", features = ["vendored"] }
