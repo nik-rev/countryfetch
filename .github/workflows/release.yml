@@ -59,6 +59,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      # install openssl
+      - uses: knicknic/os-specific-run@v1.0.3
+        with:
+          macos: brew install openssl@1.1
+          linux: sudo apt-get install libssl-dev
+          windows: choco install openssl
       - name: Install dist
         # we specify bash to get pipefail; it guards against the `curl` command
         # failing. otherwise `sh` won't catch that `curl` returned non-0
