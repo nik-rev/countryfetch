@@ -1,6 +1,6 @@
 # Contributing
 
-Countryfetch uses `cargo xtask` as a build script. It fetches data about every country as a JSON Array of Countries then generates Rust code in `countryfetch/generated` from that. This allows `countryfetch` to be used when there is no internet connection, as well as other perks (such as increased performance).
+Countryfetch uses `cargo xtask` as a build script. It fetches data about every country as a JSON Array of Countries then generates Rust code in `gen_country` from that. This allows `countryfetch` to be used when there is no internet connection, as well as other perks (such as increased performance).
 
 Run:
 
