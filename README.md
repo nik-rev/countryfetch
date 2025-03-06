@@ -67,3 +67,11 @@ Note: You will need at least **Cargo 1.85** to build from source, using this met
 ```sh
 cargo install countryfetch
 ```
+
+### AUR
+
+Available for the Arch Linux repository, thanks to @bemxio.
+
+```sh
+yay -S countryfetch
+```
