@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use serde::Serialize;
 use std::fs::{self, File};
-use std::io::Read;
+use std::io::Read as _;
 use std::path::PathBuf;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
@@ -42,13 +42,17 @@ impl Cache {
             .ok()?
             .read_to_end(&mut cache)
             .ok()?;
-        serde_json::de::from_slice::<Cache>(&cache)
+        serde_json::de::from_slice::<Self>(&cache)
             .ok()
-            .filter(|cache| cache.is_outdated())
+            .filter(Self::is_outdated)
     }
 
     /// Read the cache file if we can find it
-    pub fn write(country_code: String) -> Result<(), Box<dyn std::error::Error>> {
+    ///
+    /// # Panics
+    ///
+    /// If the system clock is set to earier than [`std::time::UNIX_EPOCH`]
+    pub fn write(country_code: String) -> Result<(), Box<dyn core::error::Error>> {
         let serialized = serde_json::ser::to_vec(&Self {
             modified_time: SystemTime::now()
                 .duration_since(UNIX_EPOCH)

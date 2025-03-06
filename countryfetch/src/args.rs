@@ -1,9 +1,11 @@
+use core::error;
+
 use clap::Parser;
 
 use clap::ValueEnum as _;
 use colored::Colorize as _;
 
-use crate::{Country, Location, cache::Cache, country_format::format_country, generated};
+use crate::{Country, Location, cache::Cache, country_format::format_country};
 
 pub fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
@@ -45,9 +47,13 @@ pub fn get_styles() -> clap::builder::Styles {
 
 #[derive(Parser, Debug)]
 #[command(version, author = "Nik Revenco", about, long_about = None, styles=get_styles())]
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "Clap is expected to have many command line arguments"
+)]
 pub struct Args {
     #[clap(hide_possible_values = true, ignore_case = true)]
-    pub country: Option<Vec<generated::Country>>,
+    pub country: Option<Vec<gen_country::Country>>,
     /// Print information about all countries
     #[arg(long)]
     pub all_countries: bool,
@@ -105,21 +111,24 @@ pub struct Args {
 }
 
 impl Args {
-    pub async fn print(self) -> Result<(), Box<dyn std::error::Error>> {
+    /// # Panics
+    ///
+    /// - Stored invalid 2 letter country code in the cache file
+    pub async fn print(self) -> Result<(), Box<dyn error::Error>> {
         if self.list_countries {
             println!("`countryfetch` accepts all of the below values as countries");
-            for country in generated::Country::ALL_COUNTRIES {
+            for country in gen_country::Country::ALL_COUNTRIES {
                 if let Some(value) = country.to_possible_value() {
                     let aliases = value
                         .get_name_and_aliases()
                         .collect::<Vec<&str>>()
                         .join(&" OR ".red().to_string());
                     println!("{} {aliases}", country.emoji());
-                };
+                }
             }
             return Ok(());
         } else if self.all_countries {
-            for country in generated::Country::ALL_COUNTRIES {
+            for country in gen_country::Country::ALL_COUNTRIES {
                 let out = format_country(*country, None, None, &self);
                 println!("{out}");
             }
@@ -132,8 +141,8 @@ impl Args {
             }
         } else if let Some(cache) = Cache::read() {
             let gen_country =
-                generated::Country::country_code3_from_country_code2(&cache.country_code)
-                    .and_then(generated::Country::from_country_code)
+                gen_country::Country::country_code3_from_country_code2(&cache.country_code)
+                    .and_then(gen_country::Country::from_country_code)
                     .expect("Stored a valid 2 letter country code in cache");
 
             println!("{}", format_country(gen_country, None, None, &self));
@@ -144,8 +153,8 @@ impl Args {
 
             let location = Location::from_ip(ip).await?;
             let country = Country::from_cc2(&location.country_code).await.ok();
-            let gen_country = generated::Country::from_country_code(
-                generated::Country::country_code3_from_country_code2(&location.country_code)
+            let gen_country = gen_country::Country::from_country_code(
+                gen_country::Country::country_code3_from_country_code2(&location.country_code)
                     .expect(
                         "Location's country_code will always be valid 2 letter countrycode that \
                          can be converted into a 3 letter country code",
@@ -159,7 +168,7 @@ impl Args {
                 "{}",
                 format_country(gen_country, country.as_ref(), Some(&location), &self)
             );
-        };
+        }
 
         Ok(())
     }

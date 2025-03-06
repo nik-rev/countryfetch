@@ -1,11 +1,12 @@
+#![allow(clippy::cargo_common_metadata, reason = "idk")]
+#![allow(clippy::multiple_crate_versions, reason = "idk")]
+
 use std::env;
 
-use clap::Parser;
-
-mod generated;
+use clap::Parser as _;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn core::error::Error>> {
     let args = countryfetch::Args::parse();
 
     if args.no_color {
@@ -13,7 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         unsafe {
             env::set_var("NO_COLOR", "1");
         }
-    };
+    }
 
     println!();
 

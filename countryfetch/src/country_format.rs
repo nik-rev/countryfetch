@@ -1,15 +1,12 @@
 //! This module is responsible for taking the data that we have in our app, and
 //! converting that into a String ready to be printed to the terminal.
-use colored::Colorize;
+use colored::Colorize as _;
 use core::fmt;
-use separator::Separatable;
+use separator::Separatable as _;
 use std::env;
 
-use crate::country_extras::CurrencyPosition;
-use crate::{
-    Args,
-    generated::{self},
-};
+use crate::Args;
+use gen_country::CurrencyPosition;
 
 type Currency = Option<(CurrencyPosition, Vec<(String, String, String)>)>;
 
@@ -51,20 +48,18 @@ impl CountryOutput<'_> {
             let mi = area_mi.separated_string();
             format!("{}: {km} km ({mi} miles)\n", self.colored("Area"))
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
     fn population(&self) -> String {
-        if let Some(population) = self.population {
+        self.population.map_or_else(String::new, |population| {
             format!(
                 "{}: {} People\n",
                 self.colored("Population"),
                 population.separated_string()
             )
-        } else {
-            "".to_owned()
-        }
+        })
     }
 
     fn capital(&self) -> String {
@@ -78,7 +73,7 @@ impl CountryOutput<'_> {
                 capital.join(", ")
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -86,7 +81,7 @@ impl CountryOutput<'_> {
         if let Some(dialing_code) = &self.dialing_code {
             format!("{}: {}\n", self.colored("Dialing code"), dialing_code)
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -99,7 +94,7 @@ impl CountryOutput<'_> {
                 iso_codes.1
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -107,7 +102,7 @@ impl CountryOutput<'_> {
         if let Some(driving_side) = self.driving_side {
             format!("{}: {}\n", self.colored("Driving side"), driving_side)
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -143,7 +138,7 @@ impl CountryOutput<'_> {
                 }
             }
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -154,11 +149,10 @@ impl CountryOutput<'_> {
                 palette
                     .iter()
                     .map(|color| format!("{}", "███".truecolor(color.0, color.1, color.2)))
-                    .collect::<Vec<_>>()
-                    .join("")
+                    .collect::<String>()
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -166,8 +160,8 @@ impl CountryOutput<'_> {
         if let Some(neighbours) = self.neighbours {
             let neigh = neighbours
                 .iter()
-                .flat_map(|cc3| {
-                    generated::Country::from_country_code(cc3).map(|a| a.country_name())
+                .filter_map(|cc3| {
+                    gen_country::Country::from_country_code(cc3).map(|a| a.country_name())
                 })
                 .collect::<Vec<_>>()
                 .join(", ");
@@ -187,7 +181,7 @@ impl CountryOutput<'_> {
                 neigh_text
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -205,7 +199,7 @@ impl CountryOutput<'_> {
                     .unwrap_or_default()
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -213,7 +207,7 @@ impl CountryOutput<'_> {
         if let Some(established_date) = self.established_date {
             format!("{}: {}\n", self.colored("Established"), established_date)
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -228,7 +222,7 @@ impl CountryOutput<'_> {
                 top_level_domain.join(", ")
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -243,7 +237,7 @@ impl CountryOutput<'_> {
                 languages.join(", ")
             )
         } else {
-            "".to_owned()
+            String::new()
         }
     }
 
@@ -287,14 +281,14 @@ impl CountryOutput<'_> {
 }
 
 impl fmt::Display for CountryOutput<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let information = self.generate_information();
 
         if let Some(flag) = self.flag {
             let lines = flag
                 .lines()
                 .map(|line| format!("  {line}"))
-                .zip(information.lines().chain(std::iter::repeat("")));
+                .zip(information.lines().chain(core::iter::repeat("")));
 
             for (flag_part, info_part) in lines {
                 let extra_space = if info_part.is_empty() { "" } else { "  " };
@@ -308,15 +302,15 @@ impl fmt::Display for CountryOutput<'_> {
     }
 }
 
-/// Passing gen_country is required, passing other fields is optional and will
+/// Passing `gen_country` is required, passing other fields is optional and will
 /// further refine the output.
 pub fn format_country(
-    gen_country: generated::Country,
+    gen_country: gen_country::Country,
     country: Option<&crate::Country>,
     location: Option<&crate::Location>,
     args: &Args,
 ) -> String {
-    let area_km = country.map(|c| c.area_km).unwrap_or(gen_country.area_km());
+    let area_km = country.map_or(gen_country.area_km(), |c| c.area_km);
 
     // TODO: We don't need to clone and to_string everything, CountryOutput should
     // be able to just be a struct with no owned values.
@@ -326,42 +320,36 @@ pub fn format_country(
         } else {
             gen_country.flag()
         }),
-        flag_emoji: (!args.no_emoji).then_some(
-            country
-                .map(|c| c.emoji.as_str())
-                .unwrap_or(gen_country.emoji()),
-        ),
-        area_km: (!args.no_area)
-            .then_some(country.map(|c| c.area_km).unwrap_or(gen_country.area_km())),
+        flag_emoji: (!args.no_emoji)
+            .then_some(country.map_or(gen_country.emoji(), |c| c.emoji.as_str())),
+        area_km: (!args.no_area).then_some(country.map_or(gen_country.area_km(), |c| c.area_km)),
         // rounds to the nearest 100
         area_mi: (!args.no_area).then_some((area_km * 0.62137 * 0.01).round() / 0.01),
-        country_name: country
-            .map(|c| c.country_name())
-            .unwrap_or(gen_country.country_name()),
+        country_name: country.map_or(
+            gen_country.country_name(),
+            super::country::Country::country_name,
+        ),
 
         continent: (!args.no_continent).then_some(
             &country.map(|c| c.continents.clone()).unwrap_or(
                 gen_country
                     .continents()
                     .iter()
-                    .map(|s| s.to_string())
+                    .map(|s| (*s).to_owned())
                     .collect(),
             ),
         ),
         continent_code: location
             .map(|l| l.continent_code.as_str())
             .filter(|_| (!args.no_continent)),
-        population: (!args.no_population).then_some(
-            country
-                .map(|c| c.population)
-                .unwrap_or(gen_country.population()),
-        ),
+        population: (!args.no_population)
+            .then_some(country.map_or(gen_country.population(), |c| c.population)),
         top_level_domain: (!args.no_tld).then_some(
             &country.map(|c| c.top_level_domain.clone()).unwrap_or(
                 gen_country
                     .top_level_domain()
                     .iter()
-                    .map(|a| a.to_string())
+                    .map(|a| (*a).to_owned())
                     .collect::<Vec<_>>(),
             ),
         ),
@@ -372,12 +360,12 @@ pub fn format_country(
                     gen_country
                         .languages()
                         .iter()
-                        .map(|(_, lang)| lang.to_string())
+                        .map(|(_, lang)| (*lang).to_owned())
                         .collect(),
                 ),
         ),
         currency: (!args.no_currency).then_some((
-            crate::country_extras::currency_position(gen_country),
+            gen_country::currency_position(gen_country),
             country
                 .map(|c| {
                     c.currencies
@@ -395,7 +383,7 @@ pub fn format_country(
                     gen_country
                         .currencies()
                         .iter()
-                        .map(|c| (c.0.to_string(), c.1.to_string(), c.2.to_string()))
+                        .map(|c| (c.0.to_owned(), c.1.to_owned(), c.2.to_owned()))
                         .collect(),
                 ),
         )),
@@ -404,37 +392,36 @@ pub fn format_country(
                 gen_country
                     .neighbours()
                     .iter()
-                    .map(|n| n.to_string())
+                    .map(|n| (*n).to_owned())
                     .collect(),
             ),
         ),
         established_date: (!args.no_established_date)
-            .then_some(crate::country_extras::established_date(gen_country)),
+            .then_some(gen_country::established_date(gen_country)),
         iso_codes: (!args.no_iso_codes).then_some(
             country
                 .map(|c| (c.country_code2.clone(), c.country_code3.clone()))
                 .unwrap_or((
-                    gen_country.country_code2().to_string(),
-                    gen_country.country_code3().to_string(),
+                    gen_country.country_code2().to_owned(),
+                    gen_country.country_code3().to_owned(),
                 )),
         ),
-        driving_side: (!args.no_driving_side).then_some(
-            country
-                .map(|c| c.driving_side())
-                .unwrap_or(gen_country.driving_side()),
-        ),
+        driving_side: (!args.no_driving_side).then_some(country.map_or(
+            gen_country.driving_side(),
+            super::country::Country::driving_side,
+        )),
         capital: (!args.no_capital).then_some(
             &country.map(|c| c.capital.clone()).unwrap_or(
                 gen_country
                     .capital()
                     .iter()
-                    .map(|s| s.to_string())
+                    .map(|s| (*s).to_owned())
                     .collect(),
             ),
         ),
         dialing_code: (!args.no_dialing_code).then_some(
             country
-                .map(|c| c.dialing_code())
+                .map(super::country::Country::dialing_code)
                 .unwrap_or(gen_country.dialing_code().to_owned()),
         ),
         palette: (!args.no_palette).then_some(gen_country.palette()),

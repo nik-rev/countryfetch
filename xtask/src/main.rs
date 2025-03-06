@@ -22,7 +22,8 @@ fn most_colorful_color(colors: &[palette_extract::Color]) -> palette_extract::Co
             let colorfulness = |color: palette_extract::Color| {
                 let min = color.r.min(color.r).min(color.b);
                 let max = color.r.max(color.r).max(color.b);
-                ((u16::from(max) + u16::from(min)) * (u16::from(max) - u16::from(min))) / u16::from(max)
+                ((u16::from(max) + u16::from(min)) * (u16::from(max) - u16::from(min)))
+                    / u16::from(max)
             };
 
             colorfulness(**a).cmp(&colorfulness(**b))
@@ -42,7 +43,10 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_
     colors.sort_unstable_by(|a, b| {
         // finds the "colorfulness" of the color
         let brightness = |color: palette_extract::Color| {
-            f32::from(color.b).mul_add(0.0722, f32::from(color.r).mul_add(0.2126, f32::from(color.g) * 0.7152))
+            f32::from(color.b).mul_add(
+                0.0722,
+                f32::from(color.r).mul_add(0.2126, f32::from(color.g) * 0.7152),
+            )
         } as u16;
 
         brightness(*a).cmp(&brightness(*b))
@@ -85,9 +89,9 @@ async fn main() -> Result<()> {
     File::create(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
-            .join("countryfetch")
+            .join("gen_country")
             .join("src")
-            .join("generated.rs"),
+            .join("lib.rs"),
     )
     .expect("Failed to create country.rs")
     .write_all(format!("{}\n{}", country_enum, country_impl).as_bytes())

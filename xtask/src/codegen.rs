@@ -58,9 +58,9 @@ impl CountryMethod {
             | Self::Flag
             | Self::FlagNoColor
             | Self::Continents => ("self", "&Self"),
-            Self::FromStr
-            | Self::FromCountryCode
-            | Self::CountryCode3FromCountryCode2 => ("s", "&str"),
+            Self::FromStr | Self::FromCountryCode | Self::CountryCode3FromCountryCode2 => {
+                ("s", "&str")
+            }
         }
     }
 
@@ -85,9 +85,7 @@ impl CountryMethod {
             | Self::Flag
             | Self::FlagNoColor
             | Self::Continents => "        }\n    }\n",
-            Self::FromStr
-            | Self::FromCountryCode
-            | Self::CountryCode3FromCountryCode2 => {
+            Self::FromStr | Self::FromCountryCode | Self::CountryCode3FromCountryCode2 => {
                 "            _ => None\n        }\n    }\n"
             }
         }
@@ -101,7 +99,8 @@ impl CountryMethod {
                     format_args!("Self::{}", parts.enum_name),
                     parts
                         .description
-                        .as_ref().map_or_else(|| "None".to_owned(), |d| format!("Some(r###\"{d}\"###)"))
+                        .as_ref()
+                        .map_or_else(|| "None".to_owned(), |d| format!("Some(r###\"{d}\"###)"))
                 )
             }
             Self::CountryName => {
@@ -298,10 +297,15 @@ impl fmt::Display for Codegen {
 pub async fn generate_code(countries: &[Country]) -> (String, String) {
     let mut country_enum_ = Codegen {
         start: String::from(
-            "#![cfg_attr(rustfmt, rustfmt_skip)]
-#![allow(dead_code)]
+            "// @generated
+#![allow(clippy::all)]
+#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(clippy::should_implement_trait)]
 #![allow(clippy::needless_arbitrary_self_type)]
+
+pub mod extras;
+pub use extras::*;
+
 #[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]
 #[clap(rename_all = \"PascalCase\")]
 pub enum Country {

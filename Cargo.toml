@@ -1,5 +1,5 @@
 [workspace]
-members = ["countryfetch", "xtask"]
+members = ["countryfetch", "gen_country", "xtask"]
 edition = "2024"
 
 [workspace.lints.clippy]
@@ -121,6 +121,5 @@ rest_pat_in_fully_bound_structs = "warn"
 same_name_method = "warn"
 # more explicit and avoids polluting the scope
 unused_trait_names = "warn"
-absolute_paths = "warn"
 deref_by_slicing = "warn"
 verbose_file_reads = "warn"

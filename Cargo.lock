@@ -283,6 +283,7 @@ dependencies = [
  "clap",
  "colored",
  "directories",
+ "gen_country",
  "image",
  "public-ip",
  "rascii_art",
@@ -684,6 +685,13 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
+]
+
+[[package]]
+name = "gen_country"
+version = "0.1.0"
+dependencies = [
+ "clap",
 ]
 
 [[package]]

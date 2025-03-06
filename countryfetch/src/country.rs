@@ -37,7 +37,7 @@ pub struct Country {
     dialing_code: Idd,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Idd {
     // TODO: Option<String>
@@ -47,20 +47,20 @@ pub struct Idd {
     suffixes: Vec<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Car {
     side: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Name {
     // #[serde(default)]
     pub common: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Flag {
     #[serde(rename = "png")]
@@ -69,7 +69,7 @@ pub struct Flag {
     pub description: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Currency {
     pub name: String,
@@ -78,6 +78,10 @@ pub struct Currency {
 
 impl Country {
     /// Fetch a single country from the API
+    ///
+    /// # Panics
+    ///
+    /// When the API returns an empty array
     pub async fn from_cc2(country_code2: &str) -> Result<Self, reqwest::Error> {
         Ok(reqwest::get(format!(
             "https://restcountries.com/v3.1/alpha/{country_code2}"
@@ -117,7 +121,7 @@ impl Country {
         let codes_left = self.dialing_code.suffixes.len() - codes.len();
 
         let extra_codes = if codes_left == 0 {
-            "".to_string()
+            String::new()
         } else {
             format!(" (+{codes_left} more...)")
         };
