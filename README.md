@@ -34,6 +34,12 @@ List all countries:
 countryfetch --list-countries
 ```
 
+Show information about all countries:
+
+```sh
+countryfetch --all-countries
+```
+
 ## Installation
 
 ### Linux / MacOS
