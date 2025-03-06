@@ -267,7 +267,7 @@ impl CountryOutput<'_> {
             output.push_str(part);
         }
 
-        output
+        textwrap::wrap(&output, 40).join("\n")
     }
 }
 
@@ -303,7 +303,7 @@ pub fn format_country(
 ) -> String {
     let area_km = country.map_or(gen_country.area_km(), |c| c.area_km);
 
-    // TODO: We don't need to clone and to_string everything, CountryOutput should
+    // PERF: We don't need to clone and to_string everything, CountryOutput should
     // be able to just be a struct with no owned values.
     CountryOutput {
         flag: (!args.no_flag).then_some(if env::var_os("NO_COLOR").is_some() {
