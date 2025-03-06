@@ -245,28 +245,25 @@ impl CountryMethod {
     }
     pub fn return_type(&self) -> &'static str {
         match self {
-            Self::Description => "Option<&'static str>",
-            Self::CountryName => "&'static str",
-            Self::CountryCode3 => "&'static str",
-            Self::CountryCode2 => "&'static str",
-            Self::TopLevelDomain => "&'static [&'static str]",
             Self::Currencies => "&'static [(&'static str, &'static str, &'static str)]",
             Self::Languages => "&'static [(&'static str, &'static str)]",
-            Self::Neighbours => "&'static [&'static str]",
-            Self::Capital => "&'static [&'static str]",
             Self::Palette => "&'static [(u8, u8, u8)]",
             Self::AreaKm => "f64",
-            Self::DialingCode => "&'static str",
-            Self::DrivingSide => "&'static str",
-            Self::Flag => "&'static str",
-            Self::FlagNoColor => "&'static str",
-            Self::Emoji => "&'static str",
+            Self::DialingCode
+            | Self::DrivingSide
+            | Self::Emoji
+            | Self::CountryCode3
+            | Self::FlagNoColor
+            | Self::Flag
+            | Self::CountryCode2
+            | Self::CountryName => "&'static str",
             Self::BrightestColor => "(u8, u8, u8)",
             Self::Population => "u64",
-            Self::Continents => "&'static [&'static str]",
-            Self::FromStr => "Option<Self>",
-            Self::FromCountryCode => "Option<Self>",
-            Self::CountryCode3FromCountryCode2 => "Option<&'static str>",
+            Self::Continents | Self::TopLevelDomain | Self::Neighbours | Self::Capital => {
+                "&'static [&'static str]"
+            }
+            Self::FromStr | Self::FromCountryCode => "Option<Self>",
+            Self::CountryCode3FromCountryCode2 | Self::Description => "Option<&'static str>",
         }
     }
 }
@@ -294,6 +291,7 @@ impl fmt::Display for Codegen {
 }
 
 /// Generates Rust code for country enum and its implementation.
+#[expect(clippy::future_not_send, reason = "TODO")]
 pub async fn generate_code(countries: &[Country]) -> (String, String) {
     let mut country_enum_ = Codegen {
         start: String::from(

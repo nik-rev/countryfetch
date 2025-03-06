@@ -1,6 +1,6 @@
 [workspace]
 members = ["countryfetch", "gen_country", "xtask"]
-edition = "2024"
+resolver = "1"
 
 [workspace.lints.clippy]
 # enable all lints (other than restriction: https://rust-lang.github.io/rust-clippy/master/index.html?groups=restriction#blanket_clippy_restriction_lints), then selectively disable

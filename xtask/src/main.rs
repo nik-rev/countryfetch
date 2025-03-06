@@ -1,3 +1,5 @@
+#![allow(clippy::cargo_common_metadata, reason = "TODO")]
+#![allow(clippy::multiple_crate_versions, reason = "TODO")]
 use countryfetch::Country;
 use std::io::Write as _;
 use std::{fs::File, path::PathBuf};
@@ -14,6 +16,7 @@ async fn fetch_countries() -> Result<Vec<Country>> {
         .await?)
 }
 
+#[expect(clippy::integer_division, reason = "Cannot compare floats")]
 fn most_colorful_color(colors: &[palette_extract::Color]) -> palette_extract::Color {
     *colors
         .iter()
@@ -42,6 +45,8 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_
     let mut colors = palette_extract::get_palette_rgb(pixels.as_slice());
     colors.sort_unstable_by(|a, b| {
         // finds the "colorfulness" of the color
+        #[expect(clippy::cast_possible_truncation, reason = "number will be positive")]
+        #[expect(clippy::cast_sign_loss, reason = "same as above")]
         let brightness = |color: palette_extract::Color| {
             f32::from(color.b).mul_add(
                 0.0722,
