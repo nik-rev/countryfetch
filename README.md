@@ -6,10 +6,7 @@ Countryfetch is a [neofetch](https://github.com/dylanaraps/neofetch)-like tool f
 
 ![japan](https://github.com/user-attachments/assets/f36f1a77-4241-49e8-9179-0728e74217e2)
 
-
 ![united states](https://github.com/user-attachments/assets/63e15b08-7560-47d4-8d15-3f4f9962375d)
-
-
 
 ## Usage
 
@@ -42,7 +39,7 @@ countryfetch --list-countries
 ### Linux / MacOS
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nik-rev/countryfetch/releases/download/v0.1.5/countryfetch-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nik-rev/countryfetch/releases/latest/download/countryfetch-installer.sh | sh
 ```
 
 ### Linux / MacOS (Homebrew)
