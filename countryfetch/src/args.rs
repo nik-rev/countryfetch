@@ -122,7 +122,7 @@ impl Args {
                     let aliases = value
                         .get_name_and_aliases()
                         .collect::<Vec<&str>>()
-                        .join(&" OR ".red().to_string());
+                        .join(", ");
                     println!("{} {aliases}", country.emoji());
                 }
             }
