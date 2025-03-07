@@ -1,6 +1,7 @@
 #![allow(clippy::cargo_common_metadata, reason = "TODO")]
 #![allow(clippy::multiple_crate_versions, reason = "TODO")]
 use countryfetch::Country;
+use icu_collator::Collator;
 use std::io::Write as _;
 use std::{fs::File, path::PathBuf};
 
@@ -87,7 +88,13 @@ async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let all_countries = fetch_countries().await?;
+    let mut all_countries = fetch_countries().await?;
+
+    // sort the countries in lexical order
+    let mut collator_options = icu_collator::CollatorOptions::new();
+    collator_options.strength = Some(icu_collator::Strength::Secondary);
+    let collator = Collator::try_new(Default::default(), collator_options).unwrap();
+    all_countries.sort_unstable_by(|a, b| collator.compare(a.country_name(), b.country_name()));
 
     let (country_enum, country_impl) = codegen::generate_code(&all_countries).await;
 

@@ -3,7 +3,6 @@ use core::error;
 use clap::Parser;
 
 use clap::ValueEnum as _;
-use colored::Colorize as _;
 
 use crate::{Country, Location, cache::Cache, country_format::format_country};
 
@@ -116,7 +115,10 @@ impl Args {
     /// - Stored invalid 2 letter country code in the cache file
     pub async fn print(self) -> Result<(), Box<dyn error::Error>> {
         if self.list_countries {
-            println!("`countryfetch` accepts all of the below values as countries");
+            println!(
+                "`countryfetch` accepts any of the below values as an input.
+You can either use the country name, or the 2-letter country code. Case-insensitive."
+            );
             for country in gen_country::Country::ALL_COUNTRIES {
                 if let Some(value) = country.to_possible_value() {
                     let aliases = value
