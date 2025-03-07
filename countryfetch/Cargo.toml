@@ -19,7 +19,7 @@ path = "src/main.rs"
 workspace = true
 
 [dependencies]
-gen_country = { path = "../gen_country", version = "0.1.0" }
+gen_country = { path = "../gen_country", version = "0.2.0" }
 public-ip = "0.2"
 tokio = { version = "1.43", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
