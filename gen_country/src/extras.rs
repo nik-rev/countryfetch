@@ -170,7 +170,7 @@ pub fn established_date(country: Country) -> &'static str {
         Country::Gabon => "August 17, 1960",
         Country::Gambia => "February 18, 1965",
         Country::Georgia => "April 9, 1991",
-        Country::Germany => "October 3, 1990",
+        Country::Germany => "May 23, 1949",
         Country::Ghana => "March 6, 1957",
         Country::Gibraltar => "August 4, 1704",
         Country::Greece => "March 25, 1821",
