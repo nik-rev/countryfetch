@@ -74,23 +74,23 @@ pub struct Args {
     /// Exclude population
     #[arg(long, help_heading = "Config")]
     pub no_population: bool,
-    /// Exclude top-level domain
-    #[arg(long, help_heading = "Config")]
-    pub no_tld: bool,
+    /// Exclude top-level domains
+    #[arg(long, help_heading = "Config", alias = "no-tld")]
+    pub no_tlds: bool,
     /// Exclude languages
-    #[arg(long, help_heading = "Config")]
+    #[arg(long, help_heading = "Config", alias = "no-language")]
     pub no_languages: bool,
-    /// Exclude currency
-    #[arg(long, help_heading = "Config")]
-    pub no_currency: bool,
+    /// Exclude currencies
+    #[arg(long, help_heading = "Config", alias = "no-currency")]
+    pub no_currencies: bool,
     /// Exclude neighbours
-    #[arg(long, help_heading = "Config")]
+    #[arg(long, help_heading = "Config", aliases = ["no-neighbour", "no-neighbors", "no-neighbor"])]
     pub no_neighbours: bool,
     /// Exclude established date
     #[arg(long, help_heading = "Config")]
     pub no_established_date: bool,
     /// Exclude iso codes
-    #[arg(long, help_heading = "Config")]
+    #[arg(long, help_heading = "Config", alias = "no-iso-code")]
     pub no_iso_codes: bool,
     /// Exclude driving side
     #[arg(long, help_heading = "Config")]

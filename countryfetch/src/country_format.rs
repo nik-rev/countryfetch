@@ -336,7 +336,7 @@ pub fn format_country(
             .filter(|_| (!args.no_continent)),
         population: (!args.no_population)
             .then_some(country.map_or(gen_country.population(), |c| c.population)),
-        top_level_domain: (!args.no_tld).then_some(&country.map_or_else(
+        top_level_domain: (!args.no_tlds).then_some(&country.map_or_else(
             || {
                 gen_country
                     .top_level_domain()
@@ -356,7 +356,7 @@ pub fn format_country(
             },
             |c| c.languages.clone().into_values().collect(),
         )),
-        currency: (!args.no_currency).then_some((
+        currency: (!args.no_currencies).then_some((
             gen_country::currency_position(gen_country),
             country.map_or_else(
                 || {
