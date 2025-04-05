@@ -3797,7 +3797,7 @@ impl Country {
             Self::Ukraine => r###"+380"###,
             Self::UnitedArabEmirates => r###"+971"###,
             Self::UnitedKingdom => r###"+44"###,
-            Self::UnitedStates => r###"+1201, +1202, +1203 (+314 more...)"###,
+            Self::UnitedStates => r###"+1"###,
             Self::UnitedStatesMinorOutlyingIslands => r###"+268"###,
             Self::UnitedStatesVirginIslands => r###"+1340"###,
             Self::Uruguay => r###"+598"###,
