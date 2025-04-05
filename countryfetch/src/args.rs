@@ -134,10 +134,12 @@ You can either use the country name, or the 2-letter country code. Case-insensit
                 let out = format_country(*country, None, None, &self);
                 println!("{out}");
             }
-        } else if let Some(countries) = &self.country
-            && !countries.is_empty()
+        } else if let Some(countries) = &self
+            .country
+            .as_ref()
+            .and_then(|v| (!v.is_empty()).then_some(v))
         {
-            for country in countries {
+            for country in *countries {
                 let out = format_country(*country, None, None, &self);
                 println!("{out}");
             }
