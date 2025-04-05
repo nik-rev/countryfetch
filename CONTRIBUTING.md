@@ -16,3 +16,10 @@ This has 2 advantages:
 
 - Improved performance when running `countryfetch` for subsequent invocations
 - Allows `countryfetch` to use the Cache as a fallback when there is no internet connection
+
+## Building
+
+The crate ships a `vendored` Open SSL. To build this you may need these (which are usually available on most distros out of the box):
+
+- `perl-FindBin`
+- `perl-IPC-Cmd`
