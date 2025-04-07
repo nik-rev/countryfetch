@@ -1,2 +1,2 @@
-[toolchain]
-channel = "stable"
+toolchain.channel = "stable"
+toolchain.components = ["rust-analyzer"]

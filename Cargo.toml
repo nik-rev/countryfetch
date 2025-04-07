@@ -2,18 +2,32 @@
 members = ["countryfetch", "xtask", "gen_country"]
 default-members = ["countryfetch"]
 resolver = "1"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [workspace.package]
 repository = "https://github.com/nik-rev/countryfetch"
 
+# LINTS
+
+[workspace.lints.rustdoc]
+# it is usually sufficient to include the README
+missing_crate_level_docs = "warn"
+unescaped_backticks = "warn"
 
 [workspace.lints.clippy]
-# enable all lints (other than restriction: https://rust-lang.github.io/rust-clippy/master/index.html?groups=restriction#blanket_clippy_restriction_lints), then selectively disable
+# enable all lints but:
+# - selectively *enable* rules from `restriction`
+# - selectively *disable* other rules that are annoying
+
 pedantic = { priority = -1, level = "warn" }
 nursery = { priority = -1, level = "warn" }
 cargo = { priority = -1, level = "warn" }
 
+## ENABLED
+
+# Rust Analyzer's "fill match arms" code action is bugged and will not use "Self",
+# so temporarily turn it off until that issue gets resolved
+use_self = "allow"
 # sometimes it can be more readable not to inline format!() args
 uninlined_format_args = "allow"
 # we don't want to mark everything with #[must_use]
@@ -25,67 +39,83 @@ missing_const_for_fn = "allow"
 # we're not a crate: documenting all errors is not necessary
 missing_errors_doc = "allow"
 # placing an arbitrary limit on how many lines we can have is unnecessary
+# if we have a function that's 300 lines long we should probably split it, right?
+# but what if there's not really a good place to split it. Placing a piece of code
+# into a function creates an extra abstraction. Each abstraction has a mental cost.
 too_many_lines = "allow"
 # it can't detect if the code has a condition to stop the iterator
 maybe_infinite_iter = "allow"
 
+## DISABLED
+
 # === Restrictions ===
 # == safety ==
 
-# Each 'unsafe' block should always contain exactly 1 unsafe operation
-# with clear documentation why the invariants are upheld.
-undocumented_unsafe_blocks = "deny"
-unnecessary_safety_comment = "deny"
-unnecessary_safety_doc = "deny"
-multiple_unsafe_ops_per_block = "deny"
-# not specifying representation may cause undefined behaviour
-default_union_representation = "deny"
+# unsafe blocks need to have their invariants upheld
+undocumented_unsafe_blocks = "warn"
+unnecessary_safety_comment = "warn"
+unnecessary_safety_doc = "warn"
+# each `unsafe` block must just have 1 unsafe operation
+multiple_unsafe_ops_per_block = "warn"
+# not specifying representation may cause UB
+default_union_representation = "warn"
 
 # == correctness ==
 # Program may behave unexpectedly
 
-create_dir = "deny"
-filetype_is_file = "deny"
+# usually creating a directory including all of its parents is the desired behaviour
+create_dir = "warn"
+# is_file doesn't cover special file types nor symlinks
+filetype_is_file = "warn"
 # may cause memory leaks
-mem_forget = "deny"
-assertions_on_result_states = "deny"
+mem_forget = "warn"
+# removes valuable information
+assertions_on_result_states = "warn"
 # The conversion might include a dangerous cast that might go undetected due to the type being inferred.
-as_pointer_underscore = "deny"
-as_underscore = "deny"
+as_pointer_underscore = "warn"
+# its better to be specific
+as_underscore = "warn"
 # bloats the binary size with unneeded files
-doc_include_without_cfg = "deny"
+doc_include_without_cfg = "warn"
 # casting a function to a pointer is likely a mistake
-fn_to_numeric_cast_any = "deny"
-# integer division discards the remainder and is likely a mistake
-integer_division = "deny"
-lossy_float_literal = "deny"
-wildcard_enum_match_arm = "deny"
+fn_to_numeric_cast_any = "warn"
+# "exact" float value that cannot be represented
+lossy_float_literal = "warn"
+# new enum variants added by the library updates can be missed
+wildcard_enum_match_arm = "warn"
 
 # == performance ==
 
-# .to_string() is problematic because it does through the whole Display pipeline
-str_to_string = "warn"
+# type information is valuable, lets not lose it
 non_zero_suggestions = "warn"
 mutex_atomic = "warn"
 rc_mutex = "warn"
 rc_buffer = "warn"
 # prefer using pattern matching
 string_lit_chars_any = "warn"
-missing_asserts_for_indexing = "warn"
+
+# == readability ==
+
+# functional path composition is nice
 pathbuf_init_then_push = "warn"
-
-# == readabilty ==
-
+# must use e.g. 123_i32 instead of 123i32
 unseparated_literal_suffix = "warn"
+# Foo { a: _, b, c: _ } => Foo { b, .. }
 unneeded_field_pattern = "warn"
+# use std::io::{self} => use std::io
 unnecessary_self_imports = "warn"
+# Err(x)? => return Err(x)
 try_err = "warn"
+# (0..3).map(|_| x) => iter::repeat(x).take(3)
 map_with_unused_argument_over_ranges = "warn"
 # better be explicit with .clone()
 string_to_string = "warn"
 # no need to be extra verbose, and makes code easier to modify as well
 redundant_type_annotations = "warn"
 # having multiple layout styles can be confusing
+# I prefer mod.rs because the whole module is encapsulated in 1 directory
+# instead of a my_module/ and a my_module.rs, which is 1 file + 1 directory
+# always use: mod.rs
 self_named_module_files = "warn"
 # having an explicit, even if just containing a comment,
 # "else" branch improves readability
@@ -93,44 +123,64 @@ else_if_without_else = "warn"
 # explicit annotation of ! for functions that never return
 # due to having infinite loops
 infinite_loop = "warn"
-semicolon_outside_block = "warn"
+# for consistency: { x }; => { x; }
+semicolon_inside_block = "warn"
+# idiomatic to put tests into #[cfg(test)]
 tests_outside_test_module = "warn"
+# #[allow] => #[expect]
 allow_attributes = "warn"
+# always must specify a reason why we're opting out of a lint
 allow_attributes_without_reason = "warn"
+# do not use raw strings if we don't have to
 needless_raw_strings = "warn"
+# makes for confusing code
 mixed_read_write_in_expression = "warn"
+# when panicking its important to know what happened and why,
+# and a helpful message helps a LOT with that.
 missing_assert_message = "warn"
+# using index [] is more clear and concise
 get_unwrap = "warn"
 if_then_some_else_none = "warn"
+# turbofish ::<> can't be used to specify the type of an impl Trait parameter
 impl_trait_in_params = "warn"
+# throws away the error
 map_err_ignore = "warn"
 # explicit imports
 alloc_instead_of_core = "warn"
-std_instead_of_alloc = "warn"
-std_instead_of_core = "warn"
 # may give the impression that we have more test coverage than what we have in reality
 cfg_not_test = "warn"
 # Rc::clone($expr) is way better than $expr.clone(), when we see `.clone()`
 # we instantly might think "expensive". But cloning a pointer isn't. It's
 # good to be explicit
 clone_on_ref_ptr = "warn"
+# more readable to use hex literals sometimes
 decimal_literal_representation = "warn"
+# instead use: Infallible {} => !
+empty_enum = "warn"
+# enum A { B(), C } => enum A { B, C }
 empty_enum_variants_with_brackets = "warn"
+# struct A() => struct A
 empty_structs_with_brackets = "warn"
+# having error types named Error can be confusing
 error_impl_error = "warn"
+# use x86_intel instead
 inline_asm_x86_att_syntax = "warn"
+# splitting the implementation for a type makes code harder to navigate
 multiple_inherent_impl = "warn"
+# pub(in super) => pub(super)
 pub_without_shorthand = "warn"
+# use the same name as the trait method's default names when implement the trait
 renamed_function_params = "warn"
+# unnecessary pattern binding can be confusing
+# example: A { a, .. } => A { a } where A = struct A { a: usize }
 rest_pat_in_fully_bound_structs = "warn"
 # same name from a trait and one not from a trait can be confusing
 same_name_method = "warn"
 # more explicit and avoids polluting the scope
+# example: use std::io::Write => use std::io::Write as _ if Write only used for its methods
 unused_trait_names = "warn"
+# simpler and more obvious deref:
+# example: &vec[..] => &*vec
 deref_by_slicing = "warn"
+# use fs::read instead of intermediate values
 verbose_file_reads = "warn"
-
-# The profile that 'dist' will build with
-[profile.dist]
-inherits = "release"
-lto = "thin"

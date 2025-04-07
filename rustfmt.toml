@@ -1,5 +1,21 @@
-format_strings = true
+# better grepping
+imports_granularity = "Module"
+# quicker manual lookup
+group_imports = "StdExternalCrate"
+# makes it easier to read comments without soft wrap enabled
+# or on sites like GitHub for example
 wrap_comments = true
+# less verbose
+use_field_init_shorthand = true
+# easier to add new items
+match_block_trailing_comma = true
+# prefer 0xC0FF33 over 0xc0ff33
+hex_literal_case = "Upper"
+# makes code less crowded + makes it easier to edit closures
+force_multiline_blocks = true
+
+# format more things
+format_strings = true
 format_macro_bodies = true
 format_macro_matchers = true
 format_code_in_doc_comments = true
