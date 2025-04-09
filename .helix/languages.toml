@@ -1,3 +1,2 @@
 [language-server.rust-analyzer.config]
-# use nightly rustfmt so we can
-rustfmt.extraArgs = "+nightly"
+rustfmt.extraArgs = ["+nightly"]
