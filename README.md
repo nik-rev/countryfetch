@@ -54,7 +54,7 @@ curl --proto '=https' --tlsv1.2 -LsSf https://github.com/nik-rev/countryfetch/re
 brew install nik-rev/tap/countryfetch
 ```
 
-### Windows / MacOS / Linux (Powershell)
+### Windows / MacOS / Linux (PowerShell)
 
 ```sh
 powershell -ExecutionPolicy Bypass -c "irm https://github.com/nik-rev/countryfetch/releases/latest/download/countryfetch-installer.ps1 | iex"
