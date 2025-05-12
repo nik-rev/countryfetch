@@ -1,9 +1,12 @@
+//! Generate country data
 #![allow(clippy::cargo_common_metadata, reason = "TODO")]
 #![allow(clippy::multiple_crate_versions, reason = "TODO")]
+use std::fs::File;
+use std::io::Write as _;
+use std::path::PathBuf;
+
 use countryfetch::Country;
 use icu_collator::Collator;
-use std::io::Write as _;
-use std::{fs::File, path::PathBuf};
 
 mod codegen;
 mod country_parts;

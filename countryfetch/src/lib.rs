@@ -1,3 +1,4 @@
+//! Countryfetch
 #![allow(clippy::multiple_crate_versions, reason = "todo")]
 #![allow(clippy::cargo_common_metadata, reason = "later")]
 

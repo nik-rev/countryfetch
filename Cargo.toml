@@ -2,7 +2,6 @@
 members = ["countryfetch", "xtask", "gen_country"]
 default-members = ["countryfetch"]
 resolver = "1"
-license = "MIT OR Apache-2.0"
 
 [workspace.package]
 repository = "https://github.com/nik-rev/countryfetch"

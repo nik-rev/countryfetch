@@ -1,13 +1,12 @@
-use serde::Deserialize;
-use serde::Serialize;
 use std::fs::{self, File};
 use std::io::Read as _;
 use std::path::PathBuf;
-use std::time::SystemTime;
-use std::time::UNIX_EPOCH;
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use serde::{Deserialize, Serialize};
 
 /// Cache allows us to make less network request at the cost of inacurracy if
-/// the user moves to another country within the [`Cache::REFRESH_AFTER_SEC`]
+/// the user moves to another country within the `Cache::REFRESH_AFTER_SEC`
 /// period
 #[derive(Serialize, Deserialize)]
 pub struct Cache {
