@@ -265,7 +265,7 @@ pub fn established_date(country: Country) -> &'static str {
         Country::Philippines => "June 12, 1898",
         Country::PitcairnIslands => "January 15, 1790",
         Country::Poland => "November 11, 1918",
-        Country::Portugal => "June 10, 1580",
+        Country::Portugal => "October 5, 1143",
         Country::PuertoRico => "July 25, 1952",
         Country::Qatar => "September 3, 1971",
         Country::Reunion => "March 19, 1946",
