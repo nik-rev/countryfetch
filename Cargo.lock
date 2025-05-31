@@ -209,6 +209,7 @@ dependencies = [
  "anstyle",
  "clap_lex",
  "strsim 0.11.1",
+ "terminal_size",
 ]
 
 [[package]]
@@ -217,8 +218,10 @@ version = "4.5.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf4ced95c6f4a675af3da73304b9ac4ed991640c36374e4b46795c49e17cf1ed"
 dependencies = [
+ "anstyle",
  "heck 0.5.0",
  "proc-macro2",
+ "pulldown-cmark",
  "quote",
  "syn 2.0.98",
 ]
@@ -1232,6 +1235,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d26c52dbd32dccf2d10cac7725f8eae5296885fb5703b261f7d0a0739ec807ab"
 
 [[package]]
+name = "linux-raw-sys"
+version = "0.9.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
+
+[[package]]
 name = "litemap"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1555,6 +1564,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "pulldown-cmark"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f86ba2052aebccc42cbbb3ed234b8b13ce76f75c3551a303cb2bcffcff12bb14"
+dependencies = [
+ "bitflags 2.9.0",
+ "memchr",
+ "unicase",
+]
+
+[[package]]
 name = "qoi"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1757,8 +1777,21 @@ dependencies = [
  "bitflags 2.9.0",
  "errno",
  "libc",
- "linux-raw-sys",
+ "linux-raw-sys 0.4.15",
  "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "rustix"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c71e83d6afe7ff64890ec6b71d6a69bb8a610ab78ce364b3352876bb4c801266"
+dependencies = [
+ "bitflags 2.9.0",
+ "errno",
+ "libc",
+ "linux-raw-sys 0.9.4",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2091,7 +2124,17 @@ dependencies = [
  "fastrand",
  "getrandom 0.3.1",
  "once_cell",
- "rustix",
+ "rustix 0.38.44",
+ "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "terminal_size"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45c6481c4829e4cc63825e62c49186a34538b7b2750b73b266581ffb612fb5ed"
+dependencies = [
+ "rustix 1.0.7",
  "windows-sys 0.59.0",
 ]
 
@@ -2395,6 +2438,12 @@ checksum = "d2df906b07856748fa3f6e0ad0cbaa047052d4a7dd609e231c4f72cee8c36f31"
 dependencies = [
  "core_maths",
 ]
+
+[[package]]
+name = "unicase"
+version = "2.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75b844d17643ee918803943289730bec8aac480150456169e647ed0b576ba539"
 
 [[package]]
 name = "unicode-bidi"

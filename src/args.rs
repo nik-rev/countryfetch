@@ -1,51 +1,24 @@
 use core::error;
 
+use anstyle::{AnsiColor, Effects};
 use clap::{Parser, ValueEnum as _};
 
 use crate::cache::Cache;
 use crate::country_format::format_country;
 use crate::{Country, Location, generated_country_data};
 
-pub fn get_styles() -> clap::builder::Styles {
-    clap::builder::Styles::styled()
-        .usage(
-            anstyle::Style::new()
-                .bold()
-                .underline()
-                .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Yellow))),
-        )
-        .header(
-            anstyle::Style::new()
-                .bold()
-                .underline()
-                .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Yellow))),
-        )
-        .literal(
-            anstyle::Style::new().fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Green))),
-        )
-        .invalid(
-            anstyle::Style::new()
-                .bold()
-                .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red))),
-        )
-        .error(
-            anstyle::Style::new()
-                .bold()
-                .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red))),
-        )
-        .valid(
-            anstyle::Style::new()
-                .bold()
-                .underline()
-                .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Green))),
-        )
-        .placeholder(
-            anstyle::Style::new().fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::White))),
-        )
-}
+/// Styles for the CLI
+const STYLES: clap::builder::Styles = clap::builder::Styles::styled()
+    .header(AnsiColor::BrightGreen.on_default().effects(Effects::BOLD))
+    .usage(AnsiColor::BrightGreen.on_default().effects(Effects::BOLD))
+    .literal(AnsiColor::BrightCyan.on_default().effects(Effects::BOLD))
+    .placeholder(AnsiColor::BrightCyan.on_default())
+    .error(AnsiColor::BrightRed.on_default().effects(Effects::BOLD))
+    .valid(AnsiColor::BrightCyan.on_default().effects(Effects::BOLD))
+    .invalid(AnsiColor::BrightYellow.on_default().effects(Effects::BOLD));
 
 #[derive(Parser, Debug)]
-#[command(version, author = "Nik Revenco", about, long_about = None, styles=get_styles())]
+#[command(version, author = "Nik Revenco", about, long_about = None, styles = STYLES)]
 #[expect(
     clippy::struct_excessive_bools,
     reason = "Clap is expected to have many command line arguments"
