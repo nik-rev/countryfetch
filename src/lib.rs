@@ -1,11 +1,11 @@
 //! Countryfetch
-#![allow(clippy::multiple_crate_versions, reason = "todo")]
-#![allow(clippy::cargo_common_metadata, reason = "later")]
 
 pub mod args;
 pub mod cache;
 pub mod country;
 pub mod country_format;
+pub mod extra_country_data;
+pub mod generated_country_data;
 pub mod location;
 
 pub use args::Args;

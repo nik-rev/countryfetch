@@ -1,2 +1,2 @@
 [alias]
-xtask = "run --package xtask --"
+generate-country-data = "run --package generate-country-data --"

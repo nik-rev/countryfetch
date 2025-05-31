@@ -1,13 +1,14 @@
 //! This module is responsible for taking the data that we have in our app, and
 //! converting that into a String ready to be printed to the terminal.
-use colored::Colorize as _;
 use core::fmt;
 use core::fmt::Write as _;
-use separator::Separatable as _;
 use std::env;
 
-use crate::Args;
-use gen_country::CurrencyPosition;
+use colored::Colorize as _;
+use separator::Separatable as _;
+
+use crate::extra_country_data::{self, CurrencyPosition};
+use crate::{Args, generated_country_data};
 
 type Currency = Option<(CurrencyPosition, Vec<(String, String, String)>)>;
 
@@ -121,7 +122,7 @@ impl CountryOutput<'_> {
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
-                }
+                },
                 CurrencyPosition::Right => {
                     format!(
                         "{}: {}\n",
@@ -132,7 +133,7 @@ impl CountryOutput<'_> {
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
-                }
+                },
             }
         } else {
             String::new()
@@ -156,7 +157,8 @@ impl CountryOutput<'_> {
             let neigh = neighbours
                 .iter()
                 .filter_map(|cc3| {
-                    gen_country::Country::from_country_code(cc3).map(|a| a.country_name())
+                    generated_country_data::Country::from_country_code(cc3)
+                        .map(|a| a.country_name())
                 })
                 .collect::<Vec<_>>()
                 .join(", ");
@@ -296,7 +298,7 @@ impl fmt::Display for CountryOutput<'_> {
 /// Passing `gen_country` is required, passing other fields is optional and will
 /// further refine the output.
 pub fn format_country(
-    gen_country: gen_country::Country,
+    gen_country: generated_country_data::Country,
     country: Option<&crate::Country>,
     location: Option<&crate::Location>,
     args: &Args,
@@ -357,7 +359,7 @@ pub fn format_country(
             |c| c.languages.clone().into_values().collect(),
         )),
         currency: (!args.no_currencies).then_some((
-            gen_country::currency_position(gen_country),
+            extra_country_data::currency_position(gen_country),
             country.map_or_else(
                 || {
                     gen_country
@@ -391,7 +393,7 @@ pub fn format_country(
             |c| c.neighbours.clone(),
         )),
         established_date: (!args.no_established_date)
-            .then_some(gen_country::established_date(gen_country)),
+            .then_some(extra_country_data::established_date(gen_country)),
         iso_codes: (!args.no_iso_codes).then_some(country.map_or_else(
             || {
                 (

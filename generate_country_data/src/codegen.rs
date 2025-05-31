@@ -1,16 +1,16 @@
+//! Generate the entire Country enum and all methods associated with it
 use core::fmt;
 
-use crate::{
-    Country,
-    country_parts::{self, CountryParts},
-};
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use strum::IntoEnumIterator as _;
+
+use crate::Country;
+use crate::country_parts::{self, CountryData};
 
 #[derive(strum::EnumIter, strum::Display)]
 #[strum(serialize_all = "snake_case")]
 enum CountryMethod {
-    // takes &self
+    // --- takes &self
     Description,
     CountryName,
     CountryCode3,
@@ -30,13 +30,15 @@ enum CountryMethod {
     Continents,
     Flag,
     FlagNoColor,
-    // takes &str
+    // --- takes &str
     FromStr,
     FromCountryCode,
     CountryCode3FromCountryCode2,
+    // ---
 }
 
 impl CountryMethod {
+    /// Parameters that this method takes
     pub fn param(&self) -> (&'static str, &'static str) {
         match self {
             Self::Description
@@ -60,10 +62,11 @@ impl CountryMethod {
             | Self::Continents => ("self", "&Self"),
             Self::FromStr | Self::FromCountryCode | Self::CountryCode3FromCountryCode2 => {
                 ("s", "&str")
-            }
+            },
         }
     }
 
+    /// When matching `self`, this is the final match arm
     pub fn end_part(&self) -> &'static str {
         match self {
             Self::Description
@@ -87,162 +90,170 @@ impl CountryMethod {
             | Self::Continents => "        }\n    }\n",
             Self::FromStr | Self::FromCountryCode | Self::CountryCode3FromCountryCode2 => {
                 "            _ => None\n        }\n    }\n"
-            }
+            },
         }
     }
 
-    fn format_part(&self, parts: &CountryParts) -> String {
+    /// Generate the match arm for this method, given
+    /// some information about a country
+    fn generate_match_arm(&self, parts: &CountryData) -> String {
         match self {
             Self::Description => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts
-                        .description
+                        .flag_description
                         .as_ref()
                         .map_or_else(|| "None".to_owned(), |d| format!("Some(r###\"{d}\"###)"))
                 )
-            }
+            },
             Self::CountryName => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_name
                 )
-            }
+            },
             Self::CountryCode3 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_code3
                 )
-            }
+            },
             Self::DialingCode => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.dialing_code
                 )
-            }
+            },
             Self::DrivingSide => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.driving_side
                 )
-            }
+            },
             Self::CountryCode2 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_code2
                 )
-            }
+            },
             Self::TopLevelDomain => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.top_level_domains.join(", ")
                 )
-            }
+            },
             Self::Currencies => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.currencies
                 )
-            }
+            },
             Self::Languages => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.languages
                 )
-            }
+            },
             Self::Capital => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.capital.join(", ")
                 )
-            }
+            },
             Self::Palette => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
-                    parts.colors
+                    parts.flag_colors
                 )
-            }
+            },
             Self::Neighbours => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.neighbours.join(", ")
                 )
-            }
+            },
             Self::AreaKm => {
                 format!(
                     "            {} => {}_f64,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.area_km
                 )
-            }
+            },
             Self::BrightestColor => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
-                    parts.most_colorful
+                    parts.most_colorful_flag_color
                 )
-            }
+            },
             Self::Emoji => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.emoji
                 )
-            }
+            },
             Self::Population => {
                 format!(
                     "            {} => {}_u64,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.population
                 )
-            }
+            },
             Self::Continents => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.continents.join(", ")
                 )
-            }
+            },
             Self::FromStr => {
                 format!(
                     "            \"{}\" => Some(Self::{}),\n",
                     parts.deunicoded_name, parts.enum_name
                 )
-            }
+            },
             Self::FromCountryCode => {
                 format!(
                     "            \"{}\" => Some(Self::{}),\n",
                     parts.country_code3, parts.enum_name
                 )
-            }
+            },
             Self::CountryCode3FromCountryCode2 => {
                 format!(
                     "            \"{}\" => Some(\"{}\"),\n",
                     parts.country_code2, parts.country_code3
                 )
-            }
-            Self::Flag => format!(
-                "            Country::{} => r###\"{}\"###,\n",
-                parts.enum_name, parts.flag_color
-            ),
-            Self::FlagNoColor => format!(
-                "            Country::{} => r###\"{}\"###,\n",
-                parts.enum_name, parts.flag_nocolor
-            ),
+            },
+            Self::Flag => {
+                format!(
+                    "            Country::{} => r###\"{}\"###,\n",
+                    parts.enum_name, parts.flag_color
+                )
+            },
+            Self::FlagNoColor => {
+                format!(
+                    "            Country::{} => r###\"{}\"###,\n",
+                    parts.enum_name, parts.flag_nocolor
+                )
+            },
         }
     }
+
+    /// What this method returns
     pub fn return_type(&self) -> &'static str {
         match self {
             Self::Currencies => "&'static [(&'static str, &'static str, &'static str)]",
@@ -261,40 +272,42 @@ impl CountryMethod {
             Self::Population => "u64",
             Self::Continents | Self::TopLevelDomain | Self::Neighbours | Self::Capital => {
                 "&'static [&'static str]"
-            }
+            },
             Self::FromStr | Self::FromCountryCode => "Option<Self>",
             Self::CountryCode3FromCountryCode2 | Self::Description => "Option<&'static str>",
         }
     }
 }
 
+/// Generate code for a given country
 struct Codegen {
     /// Starts with this string
-    pub start: String,
+    pub prefix: String,
     /// Closure to compute each individual item
-    pub item: Box<dyn Fn(&CountryParts) -> String>,
+    pub item: Box<dyn Fn(&CountryData) -> String>,
     /// Ends with this string
-    pub end: String,
+    pub suffix: String,
 }
 
 impl Codegen {
-    pub fn codegen(&mut self, parts: &CountryParts) {
-        self.start.push_str(&(self.item)(parts));
+    /// Generate code for a specific country
+    pub fn codegen(&mut self, parts: &CountryData) {
+        self.prefix.push_str(&(self.item)(parts));
     }
 }
 
 impl fmt::Display for Codegen {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(&self.start)?;
-        f.write_str(&self.end)
+        f.write_str(&self.prefix)?;
+        f.write_str(&self.suffix)
     }
 }
 
 /// Generates Rust code for country enum and its implementation.
 #[expect(clippy::future_not_send, reason = "TODO")]
 pub async fn generate_code(countries: &[Country]) -> (String, String) {
-    let mut country_enum_ = Codegen {
-        start: String::from(
+    let mut country_enum = Codegen {
+        prefix: String::from(
             "// @generated
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt_skip)]
@@ -309,77 +322,71 @@ pub use extras::*;
 pub enum Country {
 ",
         ),
-        item: Box::new(|parts| {
+        item: Box::new(|data| {
             format!(
                 "    #[clap(alias = \"{}\")]
     {},
 ",
-                parts.country_code2, parts.enum_name
+                data.country_code2, data.enum_name
             )
         }),
-        end: "}\n".to_owned(),
+        suffix: "}\n".to_owned(),
     };
 
-    let country_impl_ = Codegen {
-        start: String::from("impl Country {\n"),
-        item: Box::new(|_| String::new()),
-        end: "}\n".to_owned(),
-    };
-
-    let mut all_countries_ = Codegen {
-        start: String::from("    pub const ALL_COUNTRIES: &[Self] = &[\n"),
+    let mut all_countries = Codegen {
+        prefix: String::from("    pub const ALL_COUNTRIES: &[Self] = &[\n"),
         item: Box::new(|parts| format!("        Country::{},\n", parts.enum_name)),
-        end: "    ];\n".to_owned(),
+        suffix: "    ];\n".to_owned(),
     };
 
-    let mut method_impls: Vec<Codegen> = CountryMethod::iter()
+    let mut country_methods: Vec<Codegen> = CountryMethod::iter()
         .map(|method| {
             let (arg, ty) = method.param();
 
             Codegen {
-                start: format!(
+                prefix: format!(
                     "    pub fn {method}({arg}: {ty}) -> {} {{\n        match {arg} {{\n",
                     method.return_type()
                 ),
-                end: method.end_part().to_owned(),
-                item: Box::new(move |parts| method.format_part(parts)),
+                suffix: method.end_part().to_owned(),
+                item: Box::new(move |parts| method.generate_match_arm(parts)),
             }
         })
         .collect();
 
     // Generate all country parts in parallel because it is an expensive operation
     // that also makes network requests
-    let country_parts: Vec<CountryParts> = futures::future::join_all(
+    let country_data: Vec<CountryData> = futures::future::join_all(
         countries
             .par_iter()
-            .map(country_parts::generate_country_parts)
+            .map(country_parts::generate_country_data)
             .collect::<Vec<_>>(),
     )
     .await;
 
     // Append all the generated parts to the respective Codegen objects
-    for parts in country_parts {
-        country_enum_.codegen(&parts);
-        all_countries_.codegen(&parts);
+    for country in country_data {
+        // Write the Country enum variant
+        country_enum.codegen(&country);
+        all_countries.codegen(&country);
 
-        for method_impl in &mut method_impls {
-            method_impl.codegen(&parts);
+        // Generate all methods for the country
+        for country_method in &mut country_methods {
+            // Write each match arm for the country's method
+            country_method.codegen(&country);
         }
     }
 
-    // Build final strings
-    let country_enum = country_enum_.to_string();
+    // All method implementations on the country
+    let country_impl = format!(
+        "\
+impl Country {{
+{all_countries}{}}}\n",
+        country_methods
+            .into_iter()
+            .map(|method_impl| format!("{method_impl}"))
+            .collect::<String>()
+    );
 
-    // Build country_impl by combining all method implementations
-    let mut country_impl = country_impl_.start.clone();
-    country_impl.push_str(&all_countries_.to_string());
-
-    for method_impl in method_impls {
-        country_impl.push_str(&method_impl.start);
-        country_impl.push_str(&method_impl.end);
-    }
-
-    country_impl.push_str(&country_impl_.end);
-
-    (country_enum, country_impl)
+    (country_enum.to_string(), country_impl)
 }

@@ -283,7 +283,6 @@ dependencies = [
  "clap",
  "colored",
  "directories",
- "gen_country",
  "image",
  "openssl",
  "public-ip",
@@ -690,10 +689,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "gen_country"
-version = "0.2.0"
+name = "generate_country_data"
+version = "0.0.0"
 dependencies = [
- "clap",
+ "countryfetch",
+ "deunicode",
+ "futures",
+ "heck 0.5.0",
+ "icu_collator",
+ "image",
+ "palette_extract",
+ "rascii_art",
+ "rayon",
+ "reqwest",
+ "resvg",
+ "serde",
+ "serde_json",
+ "strum",
+ "tokio",
 ]
 
 [[package]]
@@ -2791,28 +2804,6 @@ name = "xmlwriter"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec7a2a501ed189703dba8b08142f057e887dfc4b2cc4db2d343ac6376ba3e0b9"
-
-[[package]]
-name = "xtask"
-version = "0.0.0"
-dependencies = [
- "countryfetch",
- "deunicode",
- "futures",
- "heck 0.5.0",
- "icu_collator",
- "image",
- "palette_extract",
- "rascii_art",
- "rayon",
- "reqwest",
- "resvg",
- "serde",
- "serde_json",
- "strum",
- "tiny-skia",
- "tokio",
-]
 
 [[package]]
 name = "yoke"

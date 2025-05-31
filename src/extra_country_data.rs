@@ -1,7 +1,7 @@
 //! Extra methods for `Country` that are not from the API, but rather
 //! manually written.
 
-use crate::Country;
+use crate::generated_country_data::Country;
 
 #[derive(PartialEq, PartialOrd, Ord, Clone, Copy, Eq)]
 pub enum CurrencyPosition {
