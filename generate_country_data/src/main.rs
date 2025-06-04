@@ -35,7 +35,6 @@ async fn main() -> Result<()> {
     File::create(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
-            .join("countryfetch")
             .join("src")
             .join("generated_country_data.rs"),
     )

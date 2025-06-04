@@ -51,13 +51,6 @@ resolver = "1"
 [workspace.package]
 repository = "https://github.com/nik-rev/countryfetch"
 
-# LINTS
-
-[workspace.lints.rustdoc]
-# it is usually sufficient to include the README
-missing_crate_level_docs = "warn"
-unescaped_backticks = "warn"
-
 [workspace.lints.clippy]
 pedantic = { priority = -1, level = "warn" }
 nursery = { priority = -1, level = "warn" }

@@ -1,2 +1,2 @@
 [alias]
-generate-country-data = "run --package generate-country-data --"
+generate-country-data = "run --package generate_country_data --"
