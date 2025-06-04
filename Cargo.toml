@@ -54,3 +54,9 @@ repository = "https://github.com/nik-rev/countryfetch"
 [workspace.lints.clippy]
 pedantic = { priority = -1, level = "warn" }
 nursery = { priority = -1, level = "warn" }
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+codegen-units = 1
+lto = true
