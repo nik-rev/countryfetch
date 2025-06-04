@@ -4,9 +4,6 @@
 #![allow(clippy::should_implement_trait)]
 #![allow(clippy::needless_arbitrary_self_type)]
 
-pub mod extras;
-pub use extras::*;
-
 #[derive(Eq, PartialEq, Copy, Clone, Ord, PartialOrd, Debug, clap::ValueEnum)]
 #[clap(rename_all = "PascalCase")]
 pub enum Country {

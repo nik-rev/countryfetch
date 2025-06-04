@@ -85,8 +85,8 @@ pub fn currency_position(country: Country) -> CurrencyPosition {
 
 /// The date when each country was established
 #[allow(clippy::match_same_arms, reason = "readability")]
-pub fn established_date(country: Country) -> &'static str {
-    match country {
+pub fn established_date(country: Country) -> Option<&'static str> {
+    Some(match country {
         Country::Afghanistan => "August 19, 1919",
         Country::AlandIslands => "December 6, 1917",
         Country::Albania => "November 28, 1912",
@@ -264,7 +264,7 @@ pub fn established_date(country: Country) -> &'static str {
         Country::Peru => "July 28, 1821",
         Country::Philippines => "June 12, 1898",
         Country::PitcairnIslands => "January 15, 1790",
-        Country::Poland => "November 11, 1918",
+        Country::Poland => return None,
         Country::Portugal => "October 5, 1143",
         Country::PuertoRico => "July 25, 1952",
         Country::Qatar => "September 3, 1971",
@@ -297,7 +297,7 @@ pub fn established_date(country: Country) -> &'static str {
         Country::SouthGeorgia => "May 3, 1985",
         Country::SouthKorea => "August 15, 1948",
         Country::SouthSudan => "July 9, 2011",
-        Country::Spain => "December 6, 1978",
+        Country::Spain => return None,
         Country::SriLanka => "February 4, 1948",
         Country::Sudan => "January 1, 1956",
         Country::Suriname => "November 25, 1975",
@@ -337,5 +337,5 @@ pub fn established_date(country: Country) -> &'static str {
         Country::Yemen => "May 22, 1990",
         Country::Zambia => "October 24, 1964",
         Country::Zimbabwe => "April 18, 1980",
-    }
+    })
 }

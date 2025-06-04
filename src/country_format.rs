@@ -393,7 +393,8 @@ pub fn format_country(
             |c| c.neighbours.clone(),
         )),
         established_date: (!args.no_established_date)
-            .then_some(extra_country_data::established_date(gen_country)),
+            .then(|| extra_country_data::established_date(gen_country))
+            .flatten(),
         iso_codes: (!args.no_iso_codes).then_some(country.map_or_else(
             || {
                 (
