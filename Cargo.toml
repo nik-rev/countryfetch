@@ -5,7 +5,7 @@ edition = "2024"
 repository = "https://github.com/nik-rev/countryfetch"
 homepage = "https://github.com/nik-rev/countryfetch"
 description = "A Command-line tool similar to Neofetch for obtaining information about your country"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [lib]
 name = "countryfetch"
