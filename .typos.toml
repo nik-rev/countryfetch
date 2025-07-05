@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["src/generated_country_data.rs"]

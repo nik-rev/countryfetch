@@ -50,7 +50,7 @@ impl Cache {
     ///
     /// # Panics
     ///
-    /// If the system clock is set to earier than [`std::time::UNIX_EPOCH`]
+    /// If the system clock is set to earlier than [`std::time::UNIX_EPOCH`]
     pub fn write(country_code: String) -> Result<(), Box<dyn core::error::Error>> {
         let serialized = serde_json::ser::to_vec(&Self {
             modified_time: SystemTime::now()

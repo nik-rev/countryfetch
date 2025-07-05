@@ -40,7 +40,7 @@ pub struct CountryData {
     pub currencies: String,
     /// Languages spoken here
     pub languages: String,
-    /// Neightboring countries, in 3-letter country codes
+    /// Neighbouring countries, in 3-letter country codes
     pub neighbours: Vec<String>,
     /// Area
     pub area_km: f64,
@@ -177,11 +177,7 @@ pub async fn generate_country_data(country: &countryfetch::Country) -> CountryDa
         .collect::<Vec<_>>()
         .join(", ");
 
-    let capital = country
-        .capital
-        .iter()
-        .map(|n| format!("\"{n}\""))
-        .collect();
+    let capital = country.capital.iter().map(|n| format!("\"{n}\"")).collect();
 
     let neighbours = country
         .neighbours
