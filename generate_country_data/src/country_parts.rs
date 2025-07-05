@@ -147,7 +147,7 @@ pub async fn generate_country_data(country: &countryfetch::Country) -> CountryDa
     let top_level_domains = country
         .top_level_domain
         .iter()
-        .map(|tld| format!("\"{}\"", tld))
+        .map(|tld| format!("\"{tld}\""))
         .collect();
 
     let colors = format!(
@@ -180,19 +180,19 @@ pub async fn generate_country_data(country: &countryfetch::Country) -> CountryDa
     let capital = country
         .capital
         .iter()
-        .map(|n| format!("\"{}\"", n))
+        .map(|n| format!("\"{n}\""))
         .collect();
 
     let neighbours = country
         .neighbours
         .iter()
-        .map(|n| format!("\"{}\"", n))
+        .map(|n| format!("\"{n}\""))
         .collect();
 
     let continents = country
         .continents
         .iter()
-        .map(|c| format!("\"{}\"", c))
+        .map(|c| format!("\"{c}\""))
         .collect();
 
     CountryData {

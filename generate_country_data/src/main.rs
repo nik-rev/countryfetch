@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
             .join("generated_country_data.rs"),
     )
     .expect("Failed to create generated country enum")
-    .write_all(format!("{}\n{}", country_enum, country_impl).as_bytes())
+    .write_all(format!("{country_enum}\n{country_impl}").as_bytes())
     .expect("Failed to write to country.rs");
 
     Ok(())

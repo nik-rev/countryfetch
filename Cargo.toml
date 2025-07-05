@@ -51,12 +51,143 @@ textwrap = "0.16"
 
 openssl = { version = "0.10", features = ["vendored"] }
 
-[workspace.lints.clippy]
-pedantic = { priority = -1, level = "warn" }
-nursery = { priority = -1, level = "warn" }
-
 # The profile that 'dist' will build with
 [profile.dist]
 inherits = "release"
 codegen-units = 1
 lto = true
+
+# ============================
+# 
+#            Lints
+#
+# - strict set of lints for a
+#   more consistent codebase
+#
+# - delegate as much as possible
+#   to automated tooling 
+# 
+# ============================
+
+[workspace.lints.rust]
+# do not import if its already in scope
+# e.g. `use std::option::Option::None`
+redundant_imports = "warn"
+# Documentation for all public items
+missing_docs = "warn"
+# `foo::bar::baz` => `bar::baz` if `bar` is in scope
+unused_qualifications = "warn"
+# detects rules of macros that weren't used
+unused_macro_rules = "warn"
+# lints against e.g. undefined meta variables
+meta_variable_misuse = "warn"
+# all types must `#[derive(Copy)]`
+missing_copy_implementations = "warn"
+# all types must `#[derive(Debug)]`
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+pedantic = { priority = -1, level = "warn" }
+
+# --- more consistent ways of writing code
+# 
+# `if $a { Some($b) } else { None }` => `$a.then(|| $b)`
+if_then_some_else_none = "warn"
+# `use Trait` => `use Trait as _`
+unused_trait_names = "warn"
+# `foo.rs` => `foo/mod.rs`
+self_named_module_files = "warn"
+# omit `test_` prefix in tests: `fn test_foo` => `fn foo`
+redundant_test_prefix = "warn"
+# `123832i64` => `123832_i64`
+unseparated_literal_suffix = "warn"
+# `Foo { a: _, b: 0, .. }` => `Foo { b: 0, .. }`
+# do not bind unused by `_` when pattern matching, bind by `..` instead
+unneeded_field_pattern = "warn"
+# `Err(x)?` => `return Err(x)`
+try_err = "warn"
+# `#[test] fn` must be in `#[cfg(test)]`
+tests_outside_test_module = "warn"
+# functions ending in `.and_then` could be better expressed as `?`
+return_and_then = "warn"
+# `match (A { a }) { A { a, .. } => () }` => `match (A { a: 5 }) { A { a } => () }`
+rest_pat_in_fully_bound_structs = "warn"
+# do not use differing names from the trait itself when implementing its method
+renamed_function_params = "warn"
+# `0x2345 & 0xF000 >> 12` => `0x2345 & (0xF000 >> 12)`
+precedence_bits = "warn"
+# omitting type annotations make code easier to modify
+redundant_type_annotations = "warn"
+# `assert!(r.is_ok())` => `r.unwrap()`
+assertions_on_result_states = "warn"
+# `fs::read_to_string` requires much less steps than `File::read_to_string`
+verbose_file_reads = "warn"
+# `use std::io::{self}` => `use std::io`
+unnecessary_self_imports = "warn"
+# do not lose type information about NonZero numbers
+non_zero_suggestions = "warn"
+# exit obscures flow of the program
+exit = "warn"
+# no need for a `SAFETY:` comment on safe code
+unnecessary_safety_comment = "warn"
+# each `unsafe` block must contain only 1 unsafe operation
+multiple_unsafe_ops_per_block = "warn"
+# ---
+
+# --- explain more things
+# 
+# `#[allow]` => `#[allow, reason = "why"]`
+allow_attributes_without_reason = "warn"
+# `unsafe` blocks need a `SAFETY:` comment
+undocumented_unsafe_blocks = "warn"
+# `.unwrap()` => `.expect("why")`
+unwrap_used = "warn"
+# `arr[4]` => `arr.get(4).expect("why")`
+indexing_slicing = "warn"
+# `assert!(...)` => `assert!(..., "why")`
+missing_assert_message = "warn"
+# documentation for everything
+missing_docs_in_private_items = "warn"
+# `path_buf.push("foo")` => `... = PathBuf::new().join("foo")`
+pathbuf_init_then_push = "warn"
+# explicitly mark return type as `!` for infinite loop fns
+infinite_loop = "warn"
+# ---
+
+# --- catch debug remnants
+#
+dbg_macro = "warn"
+todo = "warn"
+use_debug = "warn"
+unimplemented = "warn"
+# explicitly `#[allow]` functions to print to stdout
+print_stdout = "warn" 
+# explicitly `#[allow]` functions to print to stderr
+print_stderr = "warn"
+# ---
+
+# --- prevent bugs
+# new variants added by libraries become errors
+# instead of being silently ignored
+wildcard_enum_match_arm = "warn"
+# if function and trait provide method of same name, it is confusing
+same_name_method = "warn"
+# `create_dir(...)` => `create_dir_all(...)`
+# usually, failing when dir already exists is
+# not what we want
+create_dir = "warn"
+# ---
+
+# --- allowed lints
+# 
+# `$a * $b + $c` is slower and less precise than `$a.mul_add($b, $c)`
+# but it is more readable, the gain in speed / precision
+# will be negligible in most situations
+suboptimal_flops = "allow"
+# arbitrary limit imposes unnecessary
+# restriction and can make code harder to follow
+too_many_lines = "allow"
+# if we need it const, make it const.
+# no need to make everything that can be const, const
+missing_const_for_fn = "allow"
+# ---
