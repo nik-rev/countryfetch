@@ -10,7 +10,6 @@ license = "MIT OR Apache-2.0"
 [workspace]
 members = [".", "generate_country_data"]
 default-members = ["."]
-resolver = "1"
 
 [workspace.package]
 repository = "https://github.com/nik-rev/countryfetch"
