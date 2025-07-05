@@ -1,2 +1,2 @@
-toolchain.channel = "stable"
-toolchain.components = ["rust-analyzer"]
+toolchain.channel = "1.88"
+toolchain.components = ["rust-analyzer", "cargo", "rustfmt", "clippy"]

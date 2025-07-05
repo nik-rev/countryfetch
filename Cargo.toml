@@ -7,6 +7,14 @@ homepage = "https://github.com/nik-rev/countryfetch"
 description = "A Command-line tool similar to Neofetch for obtaining information about your country"
 license = "MIT OR Apache-2.0"
 
+[workspace]
+members = [".", "generate_country_data"]
+default-members = ["."]
+resolver = "1"
+
+[workspace.package]
+repository = "https://github.com/nik-rev/countryfetch"
+
 [lib]
 name = "countryfetch"
 path = "src/lib.rs"
@@ -42,14 +50,6 @@ directories = "6.0"
 textwrap = "0.16"
 
 openssl = { version = "0.10", features = ["vendored"] }
-
-[workspace]
-members = [".", "generate_country_data"]
-default-members = ["."]
-resolver = "1"
-
-[workspace.package]
-repository = "https://github.com/nik-rev/countryfetch"
 
 [workspace.lints.clippy]
 pedantic = { priority = -1, level = "warn" }
