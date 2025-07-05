@@ -122,7 +122,7 @@ impl CountryOutput<'_> {
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
-                },
+                }
                 CurrencyPosition::Right => {
                     format!(
                         "{}: {}\n",
@@ -133,7 +133,7 @@ impl CountryOutput<'_> {
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
-                },
+                }
             }
         } else {
             String::new()
