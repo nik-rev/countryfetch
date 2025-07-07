@@ -35,7 +35,7 @@ reqwest = { version = "0.12", default-features = false, features = [
 rascii_art = "0.4.5"
 # NOTE: This must be the same version as what is required by `rascii_art`
 image = "0.24.9"
-separator = "0.3"
+separator = "0.4"
 # colored strings
 colored = "3.0"
 clap = { version = "4.5", features = [
