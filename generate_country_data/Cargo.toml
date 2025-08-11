@@ -18,7 +18,7 @@ rascii_art = "0.4.5"
 heck = "0.5"
 
 # async runtime
-tokio = { version = "1.46", features = ["full"] }
+tokio = { version = "1.47", features = ["full"] }
 
 # --- Obtain country data from the JSON API
 serde = { version = "1.0", features = ["derive"] }
