@@ -34,7 +34,7 @@ futures = "0.3"
 # NOTE: This must be the same version as what is required by `rascii_art`
 image = "0.25.6"
 
-rayon = "1.10"
+rayon = "1.11"
 
 countryfetch = { path = ".." }
 
