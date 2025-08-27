@@ -7,30 +7,56 @@ use std::env;
 use colored::Colorize as _;
 use separator::Separatable as _;
 
-use crate::extra_country_data::{self, CurrencyPosition};
-use crate::{Args, generated_country_data};
+use crate::Args;
+use crate::extra_country_data;
+use crate::extra_country_data::CurrencyPosition;
+use crate::generated_country_data;
 
+/// TODO: This would be modelled better as a `struct`
+///
+/// `(Left | Right, List<3-letter name, Name of currency, Symbol>)`
 type Currency = Option<(CurrencyPosition, Vec<(String, String, String)>)>;
 
+/// This describes the
 struct CountryOutput<'a> {
+    /// The country's flag
     flag: Option<&'a str>,
+    /// Emoji of the country's flag
     flag_emoji: Option<&'a str>,
+    /// Name of the country
     country_name: &'a str,
+    /// Area in KM
     area_km: Option<f64>,
+    /// Area in miles
     area_mi: Option<f64>,
+    /// How many people live in this country
     population: Option<u64>,
+    /// A list of continents that the country is on (is just 1 continent for
+    /// most countries)
     continent: Option<&'a Vec<String>>,
+    /// Continental code
     continent_code: Option<&'a str>,
+    /// TLD like .uk
     top_level_domain: Option<&'a Vec<String>>,
+    /// A list of languages spoken in the country
     languages: Option<Vec<String>>,
+    /// Currency position
     currency: Currency,
+    /// Countries that are physically neighbours to this country
     neighbours: Option<&'a Vec<String>>,
+    /// Established date. Not all countries have a definite establishment date.
     established_date: Option<&'static str>,
+    /// Dialing code
     dialing_code: Option<String>,
+    /// A country can have several capital cities
     capital: Option<&'a Vec<String>>,
+    /// Left or Right.
     driving_side: Option<&'a str>,
+    /// (2-letter, 3-letter)
     iso_codes: Option<(String, String)>,
+    /// A list of brightest colours from the country's flag
     palette: Option<&'static [(u8, u8, u8)]>,
+    /// (R, G, B)
     brightest_color: (u8, u8, u8),
 }
 
@@ -44,6 +70,7 @@ impl CountryOutput<'_> {
         )
     }
 
+    /// Render the country's area
     fn area(&self) -> String {
         if let (Some(area_km), Some(area_mi)) = (self.area_km, self.area_mi) {
             let km = area_km.separated_string();
@@ -54,6 +81,7 @@ impl CountryOutput<'_> {
         }
     }
 
+    /// Render the country's population
     fn population(&self) -> String {
         self.population.map_or_else(String::new, |population| {
             format!(
@@ -64,6 +92,7 @@ impl CountryOutput<'_> {
         })
     }
 
+    /// Render the country's capital
     fn capital(&self) -> String {
         self.capital.map_or_else(String::new, |capital| {
             format!(
@@ -77,6 +106,7 @@ impl CountryOutput<'_> {
         })
     }
 
+    /// Render the dialing code of the country
     fn dialing_code(&self) -> String {
         self.dialing_code
             .as_ref()
@@ -85,6 +115,7 @@ impl CountryOutput<'_> {
             })
     }
 
+    /// Render the ISO Codes
     fn iso_codes(&self) -> String {
         self.iso_codes
             .as_ref()
@@ -98,12 +129,14 @@ impl CountryOutput<'_> {
             })
     }
 
+    /// Render the driving side of the country
     fn driving_side(&self) -> String {
         self.driving_side.map_or_else(String::new, |driving_side| {
             format!("{}: {}\n", self.colored("Driving side"), driving_side)
         })
     }
 
+    /// Render the currency of the country
     fn currency(&self) -> String {
         if let Some((currency_position, currencies)) = &self.currency {
             let currency_label = self.colored(&format!(
@@ -140,6 +173,7 @@ impl CountryOutput<'_> {
         }
     }
 
+    /// Render colors of the country's flag
     fn palette(&self) -> String {
         self.palette.map_or_else(String::new, |palette| {
             format!(
@@ -152,6 +186,7 @@ impl CountryOutput<'_> {
         })
     }
 
+    /// Render neighbours of the country
     fn neighbours(&self) -> String {
         self.neighbours.map_or_else(String::new, |neighbours| {
             let neigh = neighbours
@@ -180,6 +215,7 @@ impl CountryOutput<'_> {
         })
     }
 
+    /// Render the continent
     fn continent(&self) -> String {
         if let (Some(continent), continent_code) = (self.continent, self.continent_code) {
             format!(
@@ -198,6 +234,7 @@ impl CountryOutput<'_> {
         }
     }
 
+    /// Render the established date
     fn established_date(&self) -> String {
         self.established_date
             .map_or_else(String::new, |established_date| {
@@ -205,6 +242,7 @@ impl CountryOutput<'_> {
             })
     }
 
+    /// Render the TLD
     fn top_level_domain(&self) -> String {
         self.top_level_domain
             .map_or_else(String::new, |top_level_domain| {
@@ -219,6 +257,7 @@ impl CountryOutput<'_> {
             })
     }
 
+    /// Render languages
     fn languages(&self) -> String {
         self.languages
             .as_ref()
@@ -234,12 +273,14 @@ impl CountryOutput<'_> {
             })
     }
 
+    /// Render the emoji flag
     fn flag(&self) -> String {
         self.flag_emoji
             .map(|flag| format!(" {flag}"))
             .unwrap_or_default()
     }
 
+    /// Render a separator
     fn separator() -> &'static str {
         "\n-------\n"
     }
@@ -274,7 +315,7 @@ impl CountryOutput<'_> {
 }
 
 impl fmt::Display for CountryOutput<'_> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let information = self.generate_information();
 
         if let Some(flag) = self.flag {
@@ -335,7 +376,7 @@ pub fn format_country(
         )),
         continent_code: location
             .map(|l| l.continent_code.as_str())
-            .filter(|_| (!args.no_continent)),
+            .filter(|_| !args.no_continent),
         population: (!args.no_population)
             .then_some(country.map_or(gen_country.population(), |c| c.population)),
         top_level_domain: (!args.no_tlds).then_some(&country.map_or_else(
@@ -373,7 +414,7 @@ pub fn format_country(
                         .iter()
                         .map(|(currency_id, currency)| {
                             (
-                                currency_id.to_string(),
+                                currency_id.clone(),
                                 currency.name.clone(),
                                 currency.symbol.clone(),
                             )

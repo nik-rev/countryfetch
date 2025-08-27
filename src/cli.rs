@@ -1,11 +1,17 @@
+//! The command-line interface
+
 use core::error;
 
-use anstyle::{AnsiColor, Effects};
-use clap::{Parser, ValueEnum as _};
+use anstyle::AnsiColor;
+use anstyle::Effects;
+use clap::Parser;
+use clap::ValueEnum as _;
 
+use crate::Country;
+use crate::Location;
 use crate::cache::Cache;
 use crate::country_format::format_country;
-use crate::{Country, Location, generated_country_data};
+use crate::generated_country_data;
 
 /// Styles for the CLI
 const STYLES: clap::builder::Styles = clap::builder::Styles::styled()
@@ -17,6 +23,7 @@ const STYLES: clap::builder::Styles = clap::builder::Styles::styled()
     .valid(AnsiColor::BrightCyan.on_default().effects(Effects::BOLD))
     .invalid(AnsiColor::BrightYellow.on_default().effects(Effects::BOLD));
 
+/// Countryfetch's arguments
 #[derive(Parser, Debug)]
 #[command(version, author = "Nik Revenco", about, long_about = None, styles = STYLES)]
 #[expect(
@@ -24,6 +31,8 @@ const STYLES: clap::builder::Styles = clap::builder::Styles::styled()
     reason = "Clap is expected to have many command line arguments"
 )]
 pub struct Args {
+    /// A list of countries to generate output for. If it's empty, detect the
+    /// country
     #[clap(hide_possible_values = true, ignore_case = true)]
     pub country: Option<Vec<generated_country_data::Country>>,
     /// Print information about all countries
@@ -86,6 +95,7 @@ impl Args {
     /// # Panics
     ///
     /// - Stored invalid 2 letter country code in the cache file
+    #[expect(clippy::print_stdout, reason = "this is where we print the country")]
     pub async fn print(self) -> Result<(), Box<dyn error::Error>> {
         if self.list_countries {
             println!(

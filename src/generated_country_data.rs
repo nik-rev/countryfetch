@@ -1,4 +1,5 @@
 // @generated
+#![allow(warnings)]
 #![allow(clippy::all)]
 #![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(clippy::should_implement_trait)]

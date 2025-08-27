@@ -1,16 +1,23 @@
-use std::fs::{self, File};
+//! Cache
+
+use std::fs;
+use std::fs::File;
 use std::io::Read as _;
 use std::path::PathBuf;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Cache allows us to make less network request at the cost of inacurracy if
 /// the user moves to another country within the `Cache::REFRESH_AFTER_SEC`
 /// period
 #[derive(Serialize, Deserialize)]
 pub struct Cache {
+    /// When was the last time we modified the cache
     modified_time: u64,
+    /// Country code stored
     pub country_code: String,
 }
 
@@ -19,17 +26,20 @@ impl Cache {
     /// it will make another networkr request to the country API to get the
     /// user's current country
     const REFRESH_AFTER_SEC: u64 = 30 * 60;
+    /// The file that we use for cache
     const CACHE_FILE: &str = "countryfetch.json";
 
+    /// If it is outdated
     fn is_outdated(&self) -> bool {
         (SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .unwrap_or_default()
             .as_secs()
             .saturating_sub(self.modified_time))
             < Self::REFRESH_AFTER_SEC
     }
 
+    /// Returns the file of the cache
     fn cache_file() -> Option<PathBuf> {
         directories::BaseDirs::new().map(|b| b.cache_dir().join(Self::CACHE_FILE))
     }
@@ -47,16 +57,9 @@ impl Cache {
     }
 
     /// Read the cache file if we can find it
-    ///
-    /// # Panics
-    ///
-    /// If the system clock is set to earlier than [`std::time::UNIX_EPOCH`]
     pub fn write(country_code: String) -> Result<(), Box<dyn core::error::Error>> {
         let serialized = serde_json::ser::to_vec(&Self {
-            modified_time: SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
+            modified_time: SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs(),
             country_code,
         })?;
 

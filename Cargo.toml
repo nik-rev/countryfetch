@@ -7,6 +7,15 @@ homepage = "https://github.com/nik-rev/countryfetch"
 description = "A Command-line tool similar to Neofetch for obtaining information about your country"
 license = "MIT OR Apache-2.0"
 
+# Our MSRV. We use nightly toolchain for better dev experience, but
+# this software must build with at least this version.
+# 
+# More info in the comment in `rust-toolchain.toml`
+rust-version = "1.88"
+
+[lints]
+workspace = true
+
 [workspace]
 members = [".", "generate_country_data"]
 default-members = ["."]
@@ -56,18 +65,6 @@ inherits = "release"
 codegen-units = 1
 lto = true
 
-# ============================
-# 
-#            Lints
-#
-# - strict set of lints for a
-#   more consistent codebase
-#
-# - delegate as much as possible
-#   to automated tooling 
-# 
-# ============================
-
 [workspace.lints.rust]
 # do not import if its already in scope
 # e.g. `use std::option::Option::None`
@@ -80,20 +77,36 @@ unused_qualifications = "warn"
 unused_macro_rules = "warn"
 # lints against e.g. undefined meta variables
 meta_variable_misuse = "warn"
-# all types must `#[derive(Copy)]`
-missing_copy_implementations = "warn"
-# all types must `#[derive(Debug)]`
-missing_debug_implementations = "warn"
 
 [workspace.lints.clippy]
 pedantic = { priority = -1, level = "warn" }
+
+# --- allowed lints
+# 
+# `$a * $b + $c` is slower and less precise than `$a.mul_add($b, $c)`
+# but it is more readable, the gain in speed / precision
+# will be negligible in most situations
+suboptimal_flops = "allow"
+# arbitrary limit imposes unnecessary
+# restriction and can make code harder to follow
+too_many_lines = "allow"
+# if we need it const, make it const.
+# no need to make everything that can be const, const
+missing_const_for_fn = "allow"
+# Too verbose.
+missing_errors_doc = "allow"
+# ---
+
+# We use nightly Rust toolchain but want to guarantee that we
+# can build with a stable Rust compiler.
+#
+# See `rust-toolchain.toml` for more info.
+incompatible_msrv = "deny"
 
 # --- more consistent ways of writing code
 # 
 # `if $a { Some($b) } else { None }` => `$a.then(|| $b)`
 if_then_some_else_none = "warn"
-# `use Trait` => `use Trait as _`
-unused_trait_names = "warn"
 # `foo.rs` => `foo/mod.rs`
 self_named_module_files = "warn"
 # omit `test_` prefix in tests: `fn test_foo` => `fn foo`
@@ -135,6 +148,8 @@ multiple_unsafe_ops_per_block = "warn"
 
 # --- explain more things
 # 
+# `#[allow]` => `#[expect]`
+allow_attributes = "warn"
 # `#[allow]` => `#[allow, reason = "why"]`
 allow_attributes_without_reason = "warn"
 # `unsafe` blocks need a `SAFETY:` comment
@@ -159,34 +174,17 @@ dbg_macro = "warn"
 todo = "warn"
 use_debug = "warn"
 unimplemented = "warn"
-# explicitly `#[allow]` functions to print to stdout
+# must explicitly `#[allow]` functions to print to stdout
 print_stdout = "warn" 
-# explicitly `#[allow]` functions to print to stderr
+# must explicitly `#[allow]` functions to print to stderr
 print_stderr = "warn"
 # ---
 
 # --- prevent bugs
-# new variants added by libraries become errors
-# instead of being silently ignored
-wildcard_enum_match_arm = "warn"
 # if function and trait provide method of same name, it is confusing
 same_name_method = "warn"
 # `create_dir(...)` => `create_dir_all(...)`
 # usually, failing when dir already exists is
 # not what we want
 create_dir = "warn"
-# ---
-
-# --- allowed lints
-# 
-# `$a * $b + $c` is slower and less precise than `$a.mul_add($b, $c)`
-# but it is more readable, the gain in speed / precision
-# will be negligible in most situations
-suboptimal_flops = "allow"
-# arbitrary limit imposes unnecessary
-# restriction and can make code harder to follow
-too_many_lines = "allow"
-# if we need it const, make it const.
-# no need to make everything that can be const, const
-missing_const_for_fn = "allow"
 # ---

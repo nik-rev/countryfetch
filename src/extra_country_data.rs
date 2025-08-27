@@ -3,17 +3,22 @@
 
 use crate::generated_country_data::Country;
 
+/// Where the currency sigh is located
 #[derive(PartialEq, PartialOrd, Ord, Clone, Copy, Eq)]
 pub enum CurrencyPosition {
+    /// Currency sign is on the left
     Left,
+    /// Currency sign is on the right
     Right,
 }
 
-#[allow(
+/// For a given country, which side do we render its currency on?
+#[expect(
     clippy::wildcard_enum_match_arm,
     reason = "We only want to select specific countries that have a left driving side, since most \
               countries have a right driving side"
 )]
+#[must_use]
 pub fn currency_position(country: Country) -> CurrencyPosition {
     match country {
         Country::UnitedStates
@@ -84,7 +89,8 @@ pub fn currency_position(country: Country) -> CurrencyPosition {
 }
 
 /// The date when each country was established
-#[allow(clippy::match_same_arms, reason = "readability")]
+#[expect(clippy::match_same_arms, reason = "readability")]
+#[must_use]
 pub fn established_date(country: Country) -> Option<&'static str> {
     Some(match country {
         Country::Afghanistan => "August 19, 1919",

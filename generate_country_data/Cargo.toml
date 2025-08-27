@@ -32,7 +32,7 @@ reqwest = { version = "0.12", default-features = false, features = [
 futures = "0.3"
 
 # NOTE: This must be the same version as what is required by `rascii_art`
-image = "0.25.6"
+image = "0.24.6"
 
 rayon = "1.11"
 

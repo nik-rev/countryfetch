@@ -1,2 +1,20 @@
-toolchain.channel = "1.88"
-toolchain.components = ["rust-analyzer", "cargo", "rustfmt", "clippy", "rustc"]
+# We use nightly Rust toolchain but set `rust-version` in `Cargo.toml` to
+# a stable release.
+#
+# This allows us to use the latest versions of clippy, rustfmt and rust-analyzer.
+#
+# We can't use `#[feature(..)]` of course, and the `clippy::incompatible_msrv` lint ensures we
+# don't use any Rust features that were stabilized in a later version than `rust-version` set
+# in the `Cargo.toml`.
+#
+# We can use `#[feature(..)]` in tests which is nice - since tests aren't compiled with the main
+# crate so MSRV does not apply to them
+toolchain.channel = "nightly-2025-08-24"
+toolchain.components = [
+  "rust-analyzer",
+  "cargo",
+  "rustfmt",
+  "clippy",
+  "rustc",
+  "rust-src"
+]

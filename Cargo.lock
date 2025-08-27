@@ -805,7 +805,7 @@ dependencies = [
  "futures",
  "heck 0.5.0",
  "icu_collator",
- "image 0.25.6",
+ "image 0.24.9",
  "palette_extract",
  "rascii_art",
  "rayon",

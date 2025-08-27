@@ -1,3 +1,5 @@
+//! Location
+
 use core::net;
 
 use serde::Deserialize;
@@ -5,6 +7,7 @@ use serde::Deserialize;
 /// Information obtained from the user's IP
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[expect(missing_docs, reason = "this just models the JSON API")]
 pub struct Location {
     pub status: String,
     pub message: Option<String>,
@@ -30,6 +33,7 @@ pub struct Location {
 }
 
 impl Location {
+    /// Discover the country from the user's IP Address
     pub async fn from_ip(ip: net::IpAddr) -> Result<Self, reqwest::Error> {
         reqwest::get(
             format!(

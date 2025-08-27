@@ -1,3 +1,8 @@
+#![allow(
+    clippy::missing_docs_in_private_items,
+    missing_docs,
+    reason = "this just models the JSON API"
+)]
 use std::collections::HashMap;
 
 use serde::Deserialize;
@@ -6,7 +11,9 @@ use serde::Deserialize;
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Country {
+    /// Name of the country
     #[serde(rename = "name")]
+    #[expect(clippy::struct_field_names, reason = "this is cleaner")]
     country_name: Name,
     #[serde(default)]
     #[serde(rename = "tld")]
@@ -102,12 +109,15 @@ impl Country {
             .await
     }
 
+    #[must_use]
     pub fn country_name(&self) -> &str {
         &self.country_name.common
     }
+    #[must_use]
     pub fn driving_side(&self) -> &str {
         &self.car.side
     }
+    #[must_use]
     pub fn dialing_code(&self) -> String {
         let codes = self
             .dialing_code

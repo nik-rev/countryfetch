@@ -1,11 +1,13 @@
 //! Generate the entire Country enum and all methods associated with it
 use core::fmt;
 
-use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
+use rayon::iter::IntoParallelRefIterator as _;
+use rayon::iter::ParallelIterator as _;
 use strum::IntoEnumIterator as _;
 
 use crate::Country;
-use crate::country_parts::{self, CountryData};
+use crate::country_parts::CountryData;
+use crate::country_parts::{self};
 
 #[derive(strum::EnumIter, strum::Display)]
 #[strum(serialize_all = "snake_case")]
@@ -309,10 +311,8 @@ pub async fn generate_code(countries: &[Country]) -> (String, String) {
     let mut country_enum = Codegen {
         prefix: String::from(
             "// @generated
-#![allow(clippy::all)]
+#![allow(warnings)]
 #![cfg_attr(rustfmt, rustfmt_skip)]
-#![allow(clippy::should_implement_trait)]
-#![allow(clippy::needless_arbitrary_self_type)]
 
 pub mod extras;
 pub use extras::*;
