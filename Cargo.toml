@@ -97,12 +97,6 @@ missing_const_for_fn = "allow"
 missing_errors_doc = "allow"
 # ---
 
-# We use nightly Rust toolchain but want to guarantee that we
-# can build with a stable Rust compiler.
-#
-# See `rust-toolchain.toml` for more info.
-incompatible_msrv = "deny"
-
 # --- more consistent ways of writing code
 # 
 # `if $a { Some($b) } else { None }` => `$a.then(|| $b)`

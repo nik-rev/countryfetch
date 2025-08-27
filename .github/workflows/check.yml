@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+        # All tests must pass with our MSRV.
+        with:
+          toolchain: 1.88.0
 
       - run: cargo test --workspace
 
