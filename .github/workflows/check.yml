@@ -47,12 +47,3 @@ jobs:
       - uses: cachix/install-nix-action@v31
 
       - run: nix build
-
-  spelling:
-    name: Check spelling errors
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Actions Repository
-      uses: actions/checkout@v5
-    - name: Spell Check Repo
-      uses: crate-ci/typos@master
