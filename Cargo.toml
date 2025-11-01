@@ -59,6 +59,8 @@ textwrap = "0.16"
 
 openssl = { version = "0.10", features = ["vendored"] }
 
+rand = "0.9.2"
+
 # The profile that 'dist' will build with
 [profile.dist]
 inherits = "release"
