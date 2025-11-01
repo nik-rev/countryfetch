@@ -11,7 +11,10 @@ use crate::Country;
 use crate::Location;
 use crate::cache::Cache;
 use crate::country_format::format_country;
+use crate::generated_continent_data;
 use crate::generated_country_data;
+
+use rand::prelude::IndexedRandom;
 
 /// Styles for the CLI
 const STYLES: clap::builder::Styles = clap::builder::Styles::styled()
@@ -89,6 +92,12 @@ pub struct Args {
     /// No colored output
     #[arg(long, help_heading = "Config")]
     pub no_color: bool,
+    /// List current continents
+    #[arg(long)]
+    pub list_continents: bool,
+    /// Get random country by specified continent
+    #[clap(long, ignore_case = true)]
+    pub continent: Option<Vec<generated_continent_data::Continent>>,
 }
 
 impl Args {
@@ -112,6 +121,23 @@ You can either use the country name, or the 2-letter country code. Case-insensit
                 }
             }
             return Ok(());
+        } else if self.list_continents {
+            println!(
+                "'countryfetch' accepts any of the below values as an input for the continent \
+                 flat.
+                You can either use the country name, or the 2-letter continent code. \
+                 Case-insensitive"
+            );
+            for continent in generated_continent_data::Continent::ALL_CONTINENTS {
+                if let Some(value) = continent.to_possible_value() {
+                    let aliases = value
+                        .get_name_and_aliases()
+                        .collect::<Vec<&str>>()
+                        .join(", ");
+                    println!("{} {aliases}", continent.emoji());
+                }
+            }
+            return Ok(());
         } else if self.all_countries {
             for country in generated_country_data::Country::ALL_COUNTRIES {
                 let out = format_country(*country, None, None, &self);
@@ -125,6 +151,32 @@ You can either use the country name, or the 2-letter country code. Case-insensit
             for country in *countries {
                 let out = format_country(*country, None, None, &self);
                 println!("{out}");
+            }
+        } else if let Some(continents) = &self
+            .continent
+            .as_ref()
+            .and_then(|v| (!v.is_empty()).then_some(v))
+        {
+            // Iterate over all the continents
+            for continent in continents.iter() {
+                // Obtain the current continent name
+                let possible_value = continent
+                    .to_possible_value()
+                    .expect("Continent enum must have a value");
+
+                let continent_name: &str = possible_value.get_name();
+
+                // For each continent, get it's countries
+                let countries_in_continent: Vec<_> = generated_country_data::Country::ALL_COUNTRIES
+                    .iter()
+                    .filter(|c| c.continents().contains(&continent_name))
+                    .collect();
+
+                // Pick one random country
+                if let Some(random_country) = countries_in_continent.choose(&mut rand::rng()) {
+                    let out = format_country(**random_country, None, None, &self);
+                    println!("{out}");
+                }
             }
         } else if let Some(cache) = Cache::read() {
             let gen_country = generated_country_data::Country::country_code3_from_country_code2(
