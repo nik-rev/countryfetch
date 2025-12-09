@@ -16,5 +16,6 @@ toolchain.components = [
   "rustfmt",
   "clippy",
   "rustc",
-  "rust-src"
+  "rust-src",
+  "rustc-codegen-cranelift-preview"
 ]
