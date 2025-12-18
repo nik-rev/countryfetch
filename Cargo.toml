@@ -13,25 +13,18 @@ license = "MIT OR Apache-2.0"
 # More info in the comment in `rust-toolchain.toml`
 rust-version = "1.88"
 
-[lints]
-workspace = true
-
-[workspace]
-members = [".", "generate_country_data"]
-default-members = ["."]
-
-[workspace.package]
-repository = "https://github.com/nik-rev/countryfetch"
-
-[lib]
-name = "countryfetch"
-path = "src/lib.rs"
-
-[[bin]]
-name = "countryfetch"
-path = "src/main.rs"
+[build-dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+subdef = "0.1"
+uneval = "0.2"
 
 [dependencies]
+flate2 = "1"
+time-tz = { version = "1", features = ["system"] }
+strum = { version = "0.27", features = ["derive"] }
+rkyv = "0.8"
+subdef = "0.1"
 public-ip = "0.2"
 tokio = { version = "1.47", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -60,6 +53,9 @@ textwrap = "0.16"
 openssl = { version = "0.10", features = ["vendored"] }
 
 rand = "0.9.2"
+eyre = "0.6.12"
+color-eyre = "0.6.5"
+fs-err = "3.2.0"
 
 # The profile that 'dist' will build with
 [profile.dist]
@@ -67,5 +63,5 @@ inherits = "release"
 codegen-units = 1
 lto = "fat"
 
-[workspace.lints.rust]
+[lints.rust]
 unused_qualifications = "warn"

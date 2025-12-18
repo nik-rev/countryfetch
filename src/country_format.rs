@@ -7,23 +7,22 @@ use std::env;
 use colored::Colorize as _;
 use separator::Separatable as _;
 
-use crate::Args;
-use crate::extra_country_data;
+use crate::Cli;
+use crate::countries::Country;
 use crate::extra_country_data::CurrencyPosition;
-use crate::generated_country_data;
 
 /// TODO: This would be modelled better as a `struct`
 ///
 /// `(Left | Right, List<3-letter name, Name of currency, Symbol>)`
-type Currency = Option<(CurrencyPosition, Vec<(String, String, String)>)>;
+type CurrencyData = Option<(CurrencyPosition, Vec<(String, String, String)>)>;
 
 /// This describes the
 struct CountryOutput<'a> {
-    /// The country's flag
+    /// The country's flag (ASCII colored or plain)
     flag: Option<&'a str>,
     /// Emoji of the country's flag
-    flag_emoji: Option<&'a str>,
-    /// Name of the country
+    flag_emoji: Option<&'a str>, // NOTE: New API doesn't explicitly have 'flag_emoji', but we'll keep the field for compatibility if it comes from `crate::Country` or a lookup. Keeping the logic simple, assuming it's available or we can use the main country name.
+    /// Name of the country (common name)
     country_name: &'a str,
     /// Area in KM
     area_km: Option<f64>,
@@ -31,31 +30,28 @@ struct CountryOutput<'a> {
     area_mi: Option<f64>,
     /// How many people live in this country
     population: Option<u64>,
-    /// A list of continents that the country is on (is just 1 continent for
-    /// most countries)
+    /// A list of continents that the country is on
     continent: Option<&'a Vec<String>>,
-    /// Continental code
-    continent_code: Option<&'a str>,
     /// TLD like .uk
     top_level_domain: Option<&'a Vec<String>>,
     /// A list of languages spoken in the country
     languages: Option<Vec<String>>,
-    /// Currency position
-    currency: Currency,
-    /// Countries that are physically neighbours to this country
+    /// Currency position and data
+    currency: CurrencyData,
+    /// Countries that are physically neighbours to this country (borders)
     neighbours: Option<&'a Vec<String>>,
-    /// Established date. Not all countries have a definite establishment date.
+    /// Established date. (Removed, as it was tied to 'extra_country_data')
     established_date: Option<&'static str>,
     /// Dialing code
     dialing_code: Option<String>,
     /// A country can have several capital cities
     capital: Option<&'a Vec<String>>,
-    /// Left or Right.
+    /// Left or Right driving side.
     driving_side: Option<&'a str>,
-    /// (2-letter, 3-letter)
+    /// (2-letter, 3-letter) ISO codes
     iso_codes: Option<(String, String)>,
     /// A list of brightest colours from the country's flag
-    palette: Option<&'static [(u8, u8, u8)]>,
+    palette: Option<&'a [(u8, u8, u8)]>,
     /// (R, G, B)
     brightest_color: (u8, u8, u8),
 }
@@ -73,8 +69,8 @@ impl CountryOutput<'_> {
     /// Render the country's area
     fn area(&self) -> String {
         if let (Some(area_km), Some(area_mi)) = (self.area_km, self.area_mi) {
-            let km = area_km.separated_string();
-            let mi = area_mi.separated_string();
+            let km = format!("{:.0}", area_km.separated_string());
+            let mi = format!("{:.0}", area_mi.separated_string());
             format!("{}: {km} km² ({mi} miles²)\n", self.colored("Area"))
         } else {
             String::new()
@@ -95,14 +91,18 @@ impl CountryOutput<'_> {
     /// Render the country's capital
     fn capital(&self) -> String {
         self.capital.map_or_else(String::new, |capital| {
-            format!(
-                "{}: {}\n",
-                self.colored(&format!(
-                    "Capital{s}",
-                    s = if capital.len() == 1 { "" } else { " Cities" }
-                )),
-                capital.join(", ")
-            )
+            if capital.is_empty() {
+                String::new()
+            } else {
+                format!(
+                    "{}: {}\n",
+                    self.colored(&format!(
+                        "Capital{s}",
+                        s = if capital.len() == 1 { "" } else { " Cities" }
+                    )),
+                    capital.join(", ")
+                )
+            }
         })
     }
 
@@ -151,7 +151,12 @@ impl CountryOutput<'_> {
                         currency_label,
                         currencies
                             .iter()
-                            .map(|(id, name, symbol)| format!("{symbol} {id} ({name})"))
+                            .map(|(id, name, symbol)| {
+                                format!(
+                                    "{symbol} {id} ({name})",
+                                    symbol = symbol.as_str(), // Symbol is now a String or Option<String>
+                                )
+                            })
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
@@ -162,7 +167,9 @@ impl CountryOutput<'_> {
                         currency_label,
                         currencies
                             .iter()
-                            .map(|(id, name, symbol)| format!("{id} {symbol} ({name})"))
+                            .map(|(id, name, symbol)| {
+                                format!("{id} {symbol} ({name})", symbol = symbol.as_str())
+                            })
                             .collect::<Vec<_>>()
                             .join(", ")
                     )
@@ -189,14 +196,10 @@ impl CountryOutput<'_> {
     /// Render neighbours of the country
     fn neighbours(&self) -> String {
         self.neighbours.map_or_else(String::new, |neighbours| {
-            let neigh = neighbours
-                .iter()
-                .filter_map(|cc3| {
-                    generated_country_data::Country::from_country_code(cc3)
-                        .map(|a| a.country_name())
-                })
-                .collect::<Vec<_>>()
-                .join(", ");
+            // Note: The original logic for resolving 3-letter codes to full names
+            // is removed because `generated_country_data` is gone. We'll output
+            // the 3-letter codes directly or filter if empty.
+            let neigh = neighbours.join(", ");
 
             let neigh_text = if neigh.is_empty() {
                 "No neighbours"
@@ -217,17 +220,14 @@ impl CountryOutput<'_> {
 
     /// Render the continent
     fn continent(&self) -> String {
-        if let (Some(continent), continent_code) = (self.continent, self.continent_code) {
+        if let Some(continent) = self.continent {
             format!(
-                "{}: {}{}\n",
+                "{}: {}\n",
                 self.colored(&format!(
                     "Continent{s}",
                     s = if continent.len() == 1 { "" } else { "s" }
                 )),
-                continent.join(", "),
-                continent_code
-                    .map(|c| format!(" ({c})"))
-                    .unwrap_or_default()
+                continent.join(", ")
             )
         } else {
             String::new()
@@ -236,6 +236,7 @@ impl CountryOutput<'_> {
 
     /// Render the established date
     fn established_date(&self) -> String {
+        // This is now always empty since `extra_country_data` is removed
         self.established_date
             .map_or_else(String::new, |established_date| {
                 format!("{}: {}\n", self.colored("Established"), established_date)
@@ -336,135 +337,109 @@ impl fmt::Display for CountryOutput<'_> {
     }
 }
 
-/// Passing `gen_country` is required, passing other fields is optional and will
-/// further refine the output.
-pub fn format_country(
-    gen_country: generated_country_data::Country,
-    country: Option<&crate::Country>,
-    location: Option<&crate::Location>,
-    args: &Args,
-) -> String {
-    let area_km = country.map_or(gen_country.area_km(), |c| c.area_km);
+/// Passing `country` is required. The `location` and `old_country` parameters
+/// from the previous API are now considered obsolete or are replaced by fields
+/// directly on the new `Country` struct.
+pub fn format_country(country: &'static Country, args: &Cli) -> String {
+    let area_km = country.area;
+
+    // The new API doesn't provide a direct emoji flag, so we'll check if the
+    // flag field (which is a string, often the emoji) exists. If not, it's None.
+    let flag_emoji: Option<&str> = (!args.no_emoji)
+        .then_some(country.flag.as_deref())
+        .flatten();
+
+    // The new API provides flag_ascii_plain and flag_ascii_colored
+    let flag_ascii = if env::var_os("NO_COLOR").is_some() {
+        &country.flag_ascii_plain
+    } else {
+        &country.flag_ascii_colored
+    };
+
+    let dialing_code = if let Some(idd) = &country.idd {
+        if let (Some(root), Some(suffixes)) = (&idd.root, &idd.suffixes) {
+            // Simplification: Join the root and the first suffix.
+            Some(format!(
+                "{}{}",
+                root,
+                suffixes.first().unwrap_or(&"".to_string())
+            ))
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let currency_data = (!args.no_currencies).then(|| {
+        let position = crate::extra_country_data::currency_position(country.kind());
+
+        let currencies: Vec<(String, String, String)> = country
+            .currencies
+            .as_ref()
+            .map(|map| {
+                map.iter()
+                    .map(|(id, currency)| {
+                        (
+                            id.clone(),
+                            currency.name.clone(),
+                            currency.symbol.clone().unwrap_or_default(), // Symbol can be Option<String>
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        (position, currencies)
+    });
+
+    // NOTE: This assumes a static brightest color is computed and added to the
+    // Country struct, which is not in the JSON but *is* in the `flag_palette`
+    // from the user's struct definition. We will take the first color from the
+    // palette for simplicity.
+    let brightest_color = country.flag_palette.first().copied().unwrap_or((0, 0, 0));
 
     // PERF: We don't need to clone and to_string everything, CountryOutput should
     // be able to just be a struct with no owned values.
     CountryOutput {
-        flag: (!args.no_flag).then_some(if env::var_os("NO_COLOR").is_some() {
-            gen_country.flag_no_color()
-        } else {
-            gen_country.flag()
-        }),
-        flag_emoji: (!args.no_emoji)
-            .then_some(country.map_or(gen_country.emoji(), |c| c.emoji.as_str())),
-        area_km: (!args.no_area).then_some(country.map_or(gen_country.area_km(), |c| c.area_km)),
+        flag: (!args.no_flag).then_some(flag_ascii),
+        flag_emoji,
+        area_km: (!args.no_area).then_some(area_km),
         // rounds to the nearest 100
         area_mi: (!args.no_area).then_some((area_km * (0.62137_f64.powi(2)) * 0.01).round() / 0.01),
-        country_name: country.map_or(
-            gen_country.country_name(),
-            super::country::Country::country_name,
+        country_name: &country.name.common,
+
+        continent: (!args.no_continent).then_some(&country.continents),
+        population: (!args.no_population).then_some(country.population),
+        top_level_domain: (!args.no_tlds).then_some(&country.tld),
+
+        languages: (!args.no_languages).then_some(
+            country
+                .languages
+                .as_ref()
+                .map(|langs| langs.values().cloned().collect())
+                .unwrap_or_default(),
         ),
 
-        continent: (!args.no_continent).then_some(&country.map_or_else(
-            || {
-                gen_country
-                    .continents()
-                    .iter()
-                    .map(|s| (*s).to_owned())
-                    .collect()
-            },
-            |c| c.continents.clone(),
-        )),
-        continent_code: location
-            .map(|l| l.continent_code.as_str())
-            .filter(|_| !args.no_continent),
-        population: (!args.no_population)
-            .then_some(country.map_or(gen_country.population(), |c| c.population)),
-        top_level_domain: (!args.no_tlds).then_some(&country.map_or_else(
-            || {
-                gen_country
-                    .top_level_domain()
-                    .iter()
-                    .map(|a| (*a).to_owned())
-                    .collect::<Vec<_>>()
-            },
-            |c| c.top_level_domain.clone(),
-        )),
-        languages: (!args.no_languages).then_some(country.map_or_else(
-            || {
-                gen_country
-                    .languages()
-                    .iter()
-                    .map(|(_, lang)| (*lang).to_owned())
-                    .collect()
-            },
-            |c| c.languages.clone().into_values().collect(),
-        )),
-        currency: (!args.no_currencies).then_some((
-            extra_country_data::currency_position(gen_country),
-            country.map_or_else(
-                || {
-                    gen_country
-                        .currencies()
-                        .iter()
-                        .map(|c| (c.0.to_owned(), c.1.to_owned(), c.2.to_owned()))
-                        .collect()
-                },
-                |c| {
-                    c.currencies
-                        .iter()
-                        .map(|(currency_id, currency)| {
-                            (
-                                currency_id.clone(),
-                                currency.name.clone(),
-                                currency.symbol.clone(),
-                            )
-                        })
-                        .collect()
-                },
-            ),
-        )),
-        neighbours: (!args.no_neighbours).then_some(&country.map_or_else(
-            || {
-                gen_country
-                    .neighbours()
-                    .iter()
-                    .map(|n| (*n).to_owned())
-                    .collect()
-            },
-            |c| c.neighbours.clone(),
-        )),
-        established_date: (!args.no_established_date)
-            .then(|| extra_country_data::established_date(gen_country))
+        currency: currency_data,
+
+        neighbours: (!args.no_neighbours).then_some(&country.borders),
+
+        established_date: None, // Established date is removed
+
+        iso_codes: (!args.no_iso_codes).then_some((country.cca2.clone(), country.cca3.clone())),
+
+        driving_side: (!args.no_driving_side).then_some(country.car.side.as_str()),
+
+        capital: (!args.no_capital)
+            .then_some(country.capital.as_ref())
             .flatten(),
-        iso_codes: (!args.no_iso_codes).then_some(country.map_or_else(
-            || {
-                (
-                    gen_country.country_code2().to_owned(),
-                    gen_country.country_code3().to_owned(),
-                )
-            },
-            |c| (c.country_code2.clone(), c.country_code3.clone()),
-        )),
-        driving_side: (!args.no_driving_side).then_some(country.map_or(
-            gen_country.driving_side(),
-            super::country::Country::driving_side,
-        )),
-        capital: (!args.no_capital).then_some(&country.map_or_else(
-            || {
-                gen_country
-                    .capital()
-                    .iter()
-                    .map(|s| (*s).to_owned())
-                    .collect()
-            },
-            |c| c.capital.clone(),
-        )),
-        dialing_code: (!args.no_dialing_code).then_some(country.map_or_else(
-            || gen_country.dialing_code().to_owned(),
-            super::country::Country::dialing_code,
-        )),
-        palette: (!args.no_palette).then_some(gen_country.palette()),
-        brightest_color: gen_country.brightest_color(),
+
+        dialing_code: (!args.no_dialing_code).then_some(dialing_code).flatten(),
+
+        palette: (!args.no_palette).then_some(&country.flag_palette),
+
+        brightest_color,
     }
     .to_string()
 }

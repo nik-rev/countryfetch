@@ -1,18 +1,17 @@
 //! Countryfetch
 
+use eyre::Result;
 use std::env;
+use strum::VariantArray;
 
-use clap::Parser as _;
+fn main() -> Result<()> {
+    color_eyre::install()?;
 
-#[expect(clippy::allow_attributes, reason = "may or may not do IO")]
-#[allow(
-    clippy::print_stdout,
-    clippy::print_stderr,
-    reason = "print from `main` is ok"
-)]
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn core::error::Error>> {
-    let args = countryfetch::Args::parse();
+    let mut args = <countryfetch::Cli as clap::Parser>::parse();
+
+    if args.select.is_empty() {
+        args.select = countryfetch::cli::DataPiece::VARIANTS.to_vec();
+    }
 
     if args.no_color {
         // SAFETY: This runs in a single-threaded environment
@@ -20,10 +19,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             env::set_var("NO_COLOR", "1");
         }
     }
-
-    println!();
-
-    args.print().await?;
+    args.print()?;
 
     Ok(())
 }

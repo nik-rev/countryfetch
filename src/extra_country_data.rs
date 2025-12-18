@@ -1,7 +1,7 @@
 //! Extra methods for `Country` that are not from the API, but rather
 //! manually written.
 
-use crate::generated_country_data::Country;
+use crate::gen_countries::CountryKind as Country;
 
 /// Where the currency sigh is located
 #[derive(PartialEq, PartialOrd, Ord, Clone, Copy, Eq)]

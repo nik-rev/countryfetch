@@ -1,14 +1,10 @@
 //! Countryfetch
 
-pub mod cache;
+pub mod gen_countries;
+
 pub mod cli;
-pub mod country;
+pub mod countries;
 pub mod country_format;
 pub mod extra_country_data;
-pub mod generated_continent_data;
-pub mod generated_country_data;
-pub mod location;
 
-pub use cli::Args;
-pub use country::Country;
-pub use location::Location;
+pub use cli::Cli;
