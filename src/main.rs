@@ -1,7 +1,8 @@
 //! Countryfetch
 
-use eyre::Result;
 use std::env;
+
+use eyre::Result;
 use strum::VariantArray;
 
 fn main() -> Result<()> {

@@ -1,14 +1,14 @@
 //! The command-line interface
 
+use anstyle::AnsiColor;
+use anstyle::Effects;
+use clap::Parser;
 use clap::ValueEnum;
 use eyre::Result;
 use strum::VariantArray;
 
 use crate::country_format::format_country;
 use crate::gen_countries;
-use anstyle::AnsiColor;
-use anstyle::Effects;
-use clap::Parser;
 
 /// Styles for the CLI
 const STYLES: clap::builder::Styles = clap::builder::Styles::styled()
