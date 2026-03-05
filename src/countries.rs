@@ -2,39 +2,15 @@ use std::collections::HashMap;
 use std::io::Read as _;
 use std::sync::LazyLock;
 
-static COUNTRIES_DATA_BYTES: LazyLock<Vec<u8>> = LazyLock::new(|| {
-    let countries = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/countries.rkyv.gz"));
-    let mut decoder = flate2::read::GzDecoder::new(&countries[..]);
-    let mut countries = Vec::new();
-    decoder
-        .read_to_end(&mut countries)
-        .expect("failed to decompress `countries.rkyv.gz`, which stores data about all countries");
+use subdef::subdef;
 
-    countries
-});
-
-pub static COUNTRIES_DATA: LazyLock<Countries> = LazyLock::new(|| {
-    let countries =
-        rkyv::access::<ArchivedCountries, rkyv::rancor::Error>(&COUNTRIES_DATA_BYTES[..])
-            .expect("failed to decode `countries.rkyv`, which stores data about all countries");
-    rkyv::deserialize::<_, rkyv::rancor::Error>(countries)
-        .expect("failed to deserialize `countries.rkyv`, which stores data about all countries")
-});
-
-#[subdef::subdef(
-    derive(
-        rkyv::Archive,
-        rkyv::Serialize,
-        rkyv::Deserialize,
-        serde::Serialize,
-        serde::Deserialize,
-        Debug,
-    ),
-    serde(rename_all = "camelCase")
+#[derive(
+    rkyv::Archive, rkyv::Serialize, rkyv::Deserialize, serde::Serialize, serde::Deserialize, Debug,
 )]
+#[serde(rename_all = "camelCase")]
 pub struct Countries(pub Vec<Country>);
 
-#[subdef::subdef(
+#[subdef(
     derive(
         rkyv::Archive,
         rkyv::Serialize,
@@ -146,3 +122,22 @@ pub struct Country {
     // Added by the script
     pub country_id: usize,
 }
+
+pub static COUNTRIES_DATA: LazyLock<Countries> = LazyLock::new(|| {
+    let countries =
+        rkyv::access::<ArchivedCountries, rkyv::rancor::Error>(&COUNTRIES_DATA_BYTES[..])
+            .expect("failed to decode `countries.rkyv`, which stores data about all countries");
+    rkyv::deserialize::<_, rkyv::rancor::Error>(countries)
+        .expect("failed to deserialize `countries.rkyv`, which stores data about all countries")
+});
+
+static COUNTRIES_DATA_BYTES: LazyLock<Vec<u8>> = LazyLock::new(|| {
+    let countries = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/countries.rkyv.gz"));
+    let mut decoder = flate2::read::GzDecoder::new(&countries[..]);
+    let mut countries = Vec::new();
+    decoder
+        .read_to_end(&mut countries)
+        .expect("failed to decompress `countries.rkyv.gz`, which stores data about all countries");
+
+    countries
+});

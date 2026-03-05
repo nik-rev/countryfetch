@@ -15,504 +15,1299 @@ use crate::countries::Country;
 #[clap(rename_all = "PascalCase")]
 pub enum CountryKind {
     #[clap(alias = "AW")]
+    #[clap(alias = "AW")]
     Aruba,
     #[clap(alias = "AF")]
+    #[clap(alias = "AF")]
+    #[clap(alias = "Afġānistān")]
     Afghanistan,
     #[clap(alias = "AO")]
+    #[clap(alias = "AO")]
+    #[clap(alias = "República de Angola")]
+    #[clap(alias = "ʁɛpublika de an'ɡɔla")]
     Angola,
+    #[clap(alias = "AI")]
     #[clap(alias = "AI")]
     Anguilla,
     #[clap(alias = "AX")]
+    #[clap(alias = "AX")]
+    #[clap(alias = "Aaland")]
+    #[clap(alias = "Aland")]
+    #[clap(alias = "Ahvenanmaa")]
     AlandIslands,
     #[clap(alias = "AL")]
+    #[clap(alias = "AL")]
+    #[clap(alias = "Shqipëri")]
+    #[clap(alias = "Shqipëria")]
+    #[clap(alias = "Shqipnia")]
     Albania,
     #[clap(alias = "AD")]
+    #[clap(alias = "AD")]
+    #[clap(alias = "Principality of Andorra")]
+    #[clap(alias = "Principat d'Andorra")]
     Andorra,
     #[clap(alias = "AE")]
+    #[clap(alias = "AE")]
+    #[clap(alias = "UAE")]
+    #[clap(alias = "Emirates")]
     UnitedArabEmirates,
     #[clap(alias = "AR")]
+    #[clap(alias = "AR")]
+    #[clap(alias = "Argentine Republic")]
+    #[clap(alias = "República Argentina")]
     Argentina,
     #[clap(alias = "AM")]
+    #[clap(alias = "AM")]
+    #[clap(alias = "Hayastan")]
+    #[clap(alias = "Republic of Armenia")]
+    #[clap(alias = "Հայաստանի Հանրապետություն")]
     Armenia,
     #[clap(alias = "AS")]
+    #[clap(alias = "AS")]
+    #[clap(alias = "Amerika Sāmoa")]
+    #[clap(alias = "Amelika Sāmoa")]
+    #[clap(alias = "Sāmoa Amelika")]
     AmericanSamoa,
+    #[clap(alias = "AQ")]
     #[clap(alias = "AQ")]
     Antarctica,
     #[clap(alias = "TF")]
+    #[clap(alias = "TF")]
+    #[clap(alias = "French Southern Territories")]
     FrenchSouthernAndAntarcticLands,
+    #[clap(alias = "AG")]
     #[clap(alias = "AG")]
     AntiguaAndBarbuda,
     #[clap(alias = "AU")]
+    #[clap(alias = "AU")]
     Australia,
     #[clap(alias = "AT")]
+    #[clap(alias = "AT")]
+    #[clap(alias = "Osterreich")]
+    #[clap(alias = "Oesterreich")]
     Austria,
     #[clap(alias = "AZ")]
+    #[clap(alias = "AZ")]
+    #[clap(alias = "Republic of Azerbaijan")]
+    #[clap(alias = "Azərbaycan Respublikası")]
     Azerbaijan,
     #[clap(alias = "BI")]
+    #[clap(alias = "BI")]
+    #[clap(alias = "Republic of Burundi")]
+    #[clap(alias = "Republika y'Uburundi")]
+    #[clap(alias = "République du Burundi")]
     Burundi,
     #[clap(alias = "BE")]
+    #[clap(alias = "BE")]
+    #[clap(alias = "België")]
+    #[clap(alias = "Belgie")]
+    #[clap(alias = "Belgien")]
+    #[clap(alias = "Belgique")]
+    #[clap(alias = "Kingdom of Belgium")]
+    #[clap(alias = "Koninkrijk België")]
+    #[clap(alias = "Royaume de Belgique")]
+    #[clap(alias = "Königreich Belgien")]
     Belgium,
     #[clap(alias = "BJ")]
+    #[clap(alias = "BJ")]
+    #[clap(alias = "Republic of Benin")]
+    #[clap(alias = "République du Bénin")]
     Benin,
+    #[clap(alias = "BF")]
     #[clap(alias = "BF")]
     BurkinaFaso,
     #[clap(alias = "BD")]
+    #[clap(alias = "BD")]
+    #[clap(alias = "People's Republic of Bangladesh")]
+    #[clap(alias = "Gônôprôjatôntri Bangladesh")]
     Bangladesh,
     #[clap(alias = "BG")]
+    #[clap(alias = "BG")]
+    #[clap(alias = "Republic of Bulgaria")]
+    #[clap(alias = "Република България")]
     Bulgaria,
     #[clap(alias = "BH")]
+    #[clap(alias = "BH")]
+    #[clap(alias = "Kingdom of Bahrain")]
+    #[clap(alias = "Mamlakat al-Baḥrayn")]
     Bahrain,
     #[clap(alias = "BS")]
+    #[clap(alias = "BS")]
+    #[clap(alias = "Commonwealth of the Bahamas")]
     Bahamas,
     #[clap(alias = "BA")]
+    #[clap(alias = "BA")]
+    #[clap(alias = "Bosnia-Herzegovina")]
+    #[clap(alias = "Босна и Херцеговина")]
     BosniaAndHerzegovina,
     #[clap(alias = "BL")]
+    #[clap(alias = "BL")]
+    #[clap(alias = "St. Barthelemy")]
+    #[clap(alias = "Collectivity of Saint Barthélemy")]
+    #[clap(alias = "Collectivité de Saint-Barthélemy")]
     SaintBarthelemy,
     #[clap(alias = "SH")]
+    #[clap(alias = "Saint Helena")]
+    #[clap(alias = "St. Helena, Ascension and Tristan da Cunha")]
     SaintHelenaAscensionAndTristanDaCunha,
     #[clap(alias = "BY")]
+    #[clap(alias = "BY")]
+    #[clap(alias = "Bielaruś")]
+    #[clap(alias = "Republic of Belarus")]
+    #[clap(alias = "Белоруссия")]
+    #[clap(alias = "Республика Белоруссия")]
     Belarus,
+    #[clap(alias = "BZ")]
     #[clap(alias = "BZ")]
     Belize,
     #[clap(alias = "BM")]
+    #[clap(alias = "BM")]
+    #[clap(alias = "The Islands of Bermuda")]
+    #[clap(alias = "The Bermudas")]
+    #[clap(alias = "Somers Isles")]
     Bermuda,
     #[clap(alias = "BO")]
+    #[clap(alias = "BO")]
+    #[clap(alias = "Buliwya")]
+    #[clap(alias = "Wuliwya")]
+    #[clap(alias = "Bolivia, Plurinational State of")]
+    #[clap(alias = "Plurinational State of Bolivia")]
+    #[clap(alias = "Estado Plurinacional de Bolivia")]
+    #[clap(alias = "Buliwya Mamallaqta")]
+    #[clap(alias = "Wuliwya Suyu")]
+    #[clap(alias = "Tetã Volívia")]
     Bolivia,
     #[clap(alias = "BQ")]
+    #[clap(alias = "BES islands")]
     CaribbeanNetherlands,
     #[clap(alias = "BR")]
+    #[clap(alias = "BR")]
+    #[clap(alias = "Brasil")]
+    #[clap(alias = "Federative Republic of Brazil")]
+    #[clap(alias = "República Federativa do Brasil")]
     Brazil,
+    #[clap(alias = "BB")]
     #[clap(alias = "BB")]
     Barbados,
     #[clap(alias = "BN")]
+    #[clap(alias = "BN")]
+    #[clap(alias = "Brunei Darussalam")]
+    #[clap(alias = "Nation of Brunei")]
+    #[clap(alias = "the Abode of Peace")]
     Brunei,
     #[clap(alias = "BT")]
+    #[clap(alias = "BT")]
+    #[clap(alias = "Kingdom of Bhutan")]
     Bhutan,
     #[clap(alias = "BV")]
+    #[clap(alias = "BV")]
+    #[clap(alias = "Bouvetøya")]
+    #[clap(alias = "Bouvet-øya")]
     BouvetIsland,
     #[clap(alias = "BW")]
+    #[clap(alias = "BW")]
+    #[clap(alias = "Republic of Botswana")]
+    #[clap(alias = "Lefatshe la Botswana")]
     Botswana,
     #[clap(alias = "CF")]
+    #[clap(alias = "CF")]
+    #[clap(alias = "Central African Republic")]
+    #[clap(alias = "République centrafricaine")]
     CentralAfricanRepublic,
+    #[clap(alias = "CA")]
     #[clap(alias = "CA")]
     Canada,
     #[clap(alias = "CC")]
+    #[clap(alias = "CC")]
+    #[clap(alias = "Keeling Islands")]
+    #[clap(alias = "Cocos Islands")]
     CocosKeelingIslands,
     #[clap(alias = "CH")]
+    #[clap(alias = "CH")]
+    #[clap(alias = "Swiss Confederation")]
+    #[clap(alias = "Schweiz")]
+    #[clap(alias = "Suisse")]
+    #[clap(alias = "Svizzera")]
+    #[clap(alias = "Svizra")]
     Switzerland,
     #[clap(alias = "CL")]
+    #[clap(alias = "CL")]
+    #[clap(alias = "Republic of Chile")]
+    #[clap(alias = "República de Chile")]
     Chile,
     #[clap(alias = "CN")]
+    #[clap(alias = "CN")]
+    #[clap(alias = "Zhōngguó")]
+    #[clap(alias = "Zhongguo")]
+    #[clap(alias = "Zhonghua")]
+    #[clap(alias = "People's Republic of China")]
+    #[clap(alias = "中华人民共和国")]
+    #[clap(alias = "Zhōnghuá Rénmín Gònghéguó")]
     China,
     #[clap(alias = "CI")]
+    #[clap(alias = "CI")]
+    #[clap(alias = "Côte d'Ivoire")]
+    #[clap(alias = "Ivory Coast")]
+    #[clap(alias = "Republic of Côte d'Ivoire")]
+    #[clap(alias = "République de Côte d'Ivoire")]
     IvoryCoast,
     #[clap(alias = "CM")]
+    #[clap(alias = "CM")]
+    #[clap(alias = "Republic of Cameroon")]
+    #[clap(alias = "République du Cameroun")]
     Cameroon,
     #[clap(alias = "CD")]
+    #[clap(alias = "CD")]
+    #[clap(alias = "DR Congo")]
+    #[clap(alias = "Congo-Kinshasa")]
+    #[clap(alias = "Congo, the Democratic Republic of the")]
+    #[clap(alias = "DRC")]
     DrCongo,
     #[clap(alias = "CG")]
+    #[clap(alias = "CG")]
+    #[clap(alias = "Congo")]
+    #[clap(alias = "Congo-Brazzaville")]
     RepublicOfTheCongo,
     #[clap(alias = "CK")]
+    #[clap(alias = "CK")]
+    #[clap(alias = "Kūki 'Āirani")]
     CookIslands,
     #[clap(alias = "CO")]
+    #[clap(alias = "CO")]
+    #[clap(alias = "Republic of Colombia")]
+    #[clap(alias = "República de Colombia")]
     Colombia,
     #[clap(alias = "KM")]
+    #[clap(alias = "KM")]
+    #[clap(alias = "Union of the Comoros")]
+    #[clap(alias = "Union des Comores")]
+    #[clap(alias = "Udzima wa Komori")]
+    #[clap(alias = "al-Ittiḥād al-Qumurī")]
     Comoros,
     #[clap(alias = "CV")]
+    #[clap(alias = "CV")]
+    #[clap(alias = "Republic of Cabo Verde")]
+    #[clap(alias = "República de Cabo Verde")]
     CapeVerde,
     #[clap(alias = "CR")]
+    #[clap(alias = "CR")]
+    #[clap(alias = "Republic of Costa Rica")]
+    #[clap(alias = "República de Costa Rica")]
     CostaRica,
     #[clap(alias = "CU")]
+    #[clap(alias = "CU")]
+    #[clap(alias = "Republic of Cuba")]
+    #[clap(alias = "República de Cuba")]
     Cuba,
     #[clap(alias = "CW")]
+    #[clap(alias = "CW")]
+    #[clap(alias = "Curacao")]
+    #[clap(alias = "Kòrsou")]
+    #[clap(alias = "Country of Curaçao")]
+    #[clap(alias = "Land Curaçao")]
+    #[clap(alias = "Pais Kòrsou")]
     Curacao,
     #[clap(alias = "CX")]
+    #[clap(alias = "CX")]
+    #[clap(alias = "Territory of Christmas Island")]
     ChristmasIsland,
+    #[clap(alias = "KY")]
     #[clap(alias = "KY")]
     CaymanIslands,
     #[clap(alias = "CY")]
+    #[clap(alias = "CY")]
+    #[clap(alias = "Kýpros")]
+    #[clap(alias = "Kıbrıs")]
+    #[clap(alias = "Republic of Cyprus")]
+    #[clap(alias = "Κυπριακή Δημοκρατία")]
+    #[clap(alias = "Kıbrıs Cumhuriyeti")]
     Cyprus,
     #[clap(alias = "CZ")]
+    #[clap(alias = "CZ")]
+    #[clap(alias = "Česká republika")]
+    #[clap(alias = "Česko")]
     Czechia,
     #[clap(alias = "DE")]
+    #[clap(alias = "DE")]
+    #[clap(alias = "Federal Republic of Germany")]
+    #[clap(alias = "Bundesrepublik Deutschland")]
     Germany,
     #[clap(alias = "DJ")]
+    #[clap(alias = "DJ")]
+    #[clap(alias = "Jabuuti")]
+    #[clap(alias = "Gabuuti")]
+    #[clap(alias = "Republic of Djibouti")]
+    #[clap(alias = "République de Djibouti")]
+    #[clap(alias = "Gabuutih Ummuuno")]
+    #[clap(alias = "Jamhuuriyadda Jabuuti")]
     Djibouti,
     #[clap(alias = "DM")]
+    #[clap(alias = "DM")]
+    #[clap(alias = "Dominique")]
+    #[clap(alias = "Wai‘tu kubuli")]
+    #[clap(alias = "Commonwealth of Dominica")]
     Dominica,
     #[clap(alias = "DK")]
+    #[clap(alias = "DK")]
+    #[clap(alias = "Danmark")]
+    #[clap(alias = "Kingdom of Denmark")]
+    #[clap(alias = "Kongeriget Danmark")]
     Denmark,
+    #[clap(alias = "DO")]
     #[clap(alias = "DO")]
     DominicanRepublic,
     #[clap(alias = "DZ")]
+    #[clap(alias = "DZ")]
+    #[clap(alias = "Dzayer")]
+    #[clap(alias = "Algérie")]
     Algeria,
     #[clap(alias = "EC")]
+    #[clap(alias = "EC")]
+    #[clap(alias = "Republic of Ecuador")]
+    #[clap(alias = "República del Ecuador")]
     Ecuador,
     #[clap(alias = "EG")]
+    #[clap(alias = "EG")]
+    #[clap(alias = "Arab Republic of Egypt")]
     Egypt,
     #[clap(alias = "ER")]
+    #[clap(alias = "ER")]
+    #[clap(alias = "State of Eritrea")]
+    #[clap(alias = "ሃገረ ኤርትራ")]
+    #[clap(alias = "Dawlat Iritriyá")]
+    #[clap(alias = "ʾErtrā")]
+    #[clap(alias = "Iritriyā")]
     Eritrea,
     #[clap(alias = "EH")]
+    #[clap(alias = "EH")]
+    #[clap(alias = "Taneẓroft Tutrimt")]
     WesternSahara,
     #[clap(alias = "ES")]
+    #[clap(alias = "ES")]
+    #[clap(alias = "Kingdom of Spain")]
+    #[clap(alias = "Reino de España")]
     Spain,
     #[clap(alias = "EE")]
+    #[clap(alias = "EE")]
+    #[clap(alias = "Eesti")]
+    #[clap(alias = "Republic of Estonia")]
+    #[clap(alias = "Eesti Vabariik")]
     Estonia,
     #[clap(alias = "ET")]
+    #[clap(alias = "ET")]
+    #[clap(alias = "ʾĪtyōṗṗyā")]
+    #[clap(alias = "Federal Democratic Republic of Ethiopia")]
+    #[clap(
+        alias = "የኢትዮጵያ ፌዴራላዊ ዲሞክራሲያዊ ሪፐብሊክ"
+    )]
     Ethiopia,
     #[clap(alias = "FI")]
+    #[clap(alias = "FI")]
+    #[clap(alias = "Suomi")]
+    #[clap(alias = "Republic of Finland")]
+    #[clap(alias = "Suomen tasavalta")]
+    #[clap(alias = "Republiken Finland")]
     Finland,
     #[clap(alias = "FJ")]
+    #[clap(alias = "FJ")]
+    #[clap(alias = "Viti")]
+    #[clap(alias = "Republic of Fiji")]
+    #[clap(alias = "Matanitu ko Viti")]
+    #[clap(alias = "Fijī Gaṇarājya")]
     Fiji,
     #[clap(alias = "FK")]
+    #[clap(alias = "FK")]
+    #[clap(alias = "Islas Malvinas")]
+    #[clap(alias = "Falkland Islands (Malvinas)")]
     FalklandIslands,
     #[clap(alias = "FR")]
+    #[clap(alias = "FR")]
+    #[clap(alias = "French Republic")]
+    #[clap(alias = "République française")]
     France,
     #[clap(alias = "FO")]
+    #[clap(alias = "FO")]
+    #[clap(alias = "Føroyar")]
+    #[clap(alias = "Færøerne")]
     FaroeIslands,
     #[clap(alias = "FM")]
+    #[clap(alias = "FM")]
+    #[clap(alias = "Federated States of Micronesia")]
+    #[clap(alias = "Micronesia, Federated States of")]
     Micronesia,
     #[clap(alias = "GA")]
+    #[clap(alias = "GA")]
+    #[clap(alias = "Gabonese Republic")]
+    #[clap(alias = "République Gabonaise")]
     Gabon,
     #[clap(alias = "GB")]
+    #[clap(alias = "GB")]
+    #[clap(alias = "UK")]
+    #[clap(alias = "Great Britain")]
     UnitedKingdom,
     #[clap(alias = "GE")]
+    #[clap(alias = "GE")]
+    #[clap(alias = "Sakartvelo")]
     Georgia,
     #[clap(alias = "GG")]
+    #[clap(alias = "GG")]
+    #[clap(alias = "Bailiwick of Guernsey")]
+    #[clap(alias = "Bailliage de Guernesey")]
     Guernsey,
+    #[clap(alias = "GH")]
     #[clap(alias = "GH")]
     Ghana,
     #[clap(alias = "GI")]
+    #[clap(alias = "GI")]
     Gibraltar,
     #[clap(alias = "GN")]
+    #[clap(alias = "GN")]
+    #[clap(alias = "Republic of Guinea")]
+    #[clap(alias = "République de Guinée")]
     Guinea,
     #[clap(alias = "GP")]
+    #[clap(alias = "GP")]
+    #[clap(alias = "Gwadloup")]
     Guadeloupe,
     #[clap(alias = "GM")]
+    #[clap(alias = "GM")]
+    #[clap(alias = "Republic of the Gambia")]
     Gambia,
     #[clap(alias = "GW")]
+    #[clap(alias = "GW")]
+    #[clap(alias = "Republic of Guinea-Bissau")]
+    #[clap(alias = "República da Guiné-Bissau")]
     GuineaBissau,
     #[clap(alias = "GQ")]
+    #[clap(alias = "GQ")]
+    #[clap(alias = "Republic of Equatorial Guinea")]
+    #[clap(alias = "República de Guinea Ecuatorial")]
+    #[clap(alias = "République de Guinée équatoriale")]
+    #[clap(alias = "República da Guiné Equatorial")]
     EquatorialGuinea,
     #[clap(alias = "GR")]
+    #[clap(alias = "GR")]
+    #[clap(alias = "Elláda")]
+    #[clap(alias = "Hellenic Republic")]
+    #[clap(alias = "Ελληνική Δημοκρατία")]
     Greece,
+    #[clap(alias = "GD")]
     #[clap(alias = "GD")]
     Grenada,
     #[clap(alias = "GL")]
+    #[clap(alias = "GL")]
+    #[clap(alias = "Grønland")]
     Greenland,
+    #[clap(alias = "GT")]
     #[clap(alias = "GT")]
     Guatemala,
     #[clap(alias = "GF")]
+    #[clap(alias = "GF")]
+    #[clap(alias = "Guiana")]
+    #[clap(alias = "Guyane")]
     FrenchGuiana,
     #[clap(alias = "GU")]
+    #[clap(alias = "GU")]
+    #[clap(alias = "Guåhån")]
     Guam,
     #[clap(alias = "GY")]
+    #[clap(alias = "GY")]
+    #[clap(alias = "Co-operative Republic of Guyana")]
     Guyana,
+    #[clap(alias = "HK")]
     #[clap(alias = "HK")]
     HongKong,
     #[clap(alias = "HM")]
+    #[clap(alias = "HM")]
+    #[clap(alias = "Heard Island and McDonald Islands")]
     HeardIslandAndMcDonaldIslands,
     #[clap(alias = "HN")]
+    #[clap(alias = "HN")]
+    #[clap(alias = "Republic of Honduras")]
+    #[clap(alias = "República de Honduras")]
     Honduras,
     #[clap(alias = "HR")]
+    #[clap(alias = "HR")]
+    #[clap(alias = "Hrvatska")]
+    #[clap(alias = "Republic of Croatia")]
+    #[clap(alias = "Republika Hrvatska")]
     Croatia,
     #[clap(alias = "HT")]
+    #[clap(alias = "HT")]
+    #[clap(alias = "Republic of Haiti")]
+    #[clap(alias = "République d'Haïti")]
+    #[clap(alias = "Repiblik Ayiti")]
     Haiti,
+    #[clap(alias = "HU")]
     #[clap(alias = "HU")]
     Hungary,
     #[clap(alias = "ID")]
+    #[clap(alias = "ID")]
+    #[clap(alias = "Republic of Indonesia")]
+    #[clap(alias = "Republik Indonesia")]
     Indonesia,
     #[clap(alias = "IM")]
+    #[clap(alias = "IM")]
+    #[clap(alias = "Ellan Vannin")]
+    #[clap(alias = "Mann")]
+    #[clap(alias = "Mannin")]
     IsleOfMan,
     #[clap(alias = "IN")]
+    #[clap(alias = "IN")]
+    #[clap(alias = "Bhārat")]
+    #[clap(alias = "Republic of India")]
+    #[clap(alias = "Bharat Ganrajya")]
+    #[clap(alias = "இந\u{bcd}திய\u{bbe}")]
     India,
+    #[clap(alias = "IO")]
     #[clap(alias = "IO")]
     BritishIndianOceanTerritory,
     #[clap(alias = "IE")]
+    #[clap(alias = "IE")]
+    #[clap(alias = "Éire")]
+    #[clap(alias = "Republic of Ireland")]
+    #[clap(alias = "Poblacht na hÉireann")]
     Ireland,
     #[clap(alias = "IR")]
+    #[clap(alias = "IR")]
+    #[clap(alias = "Islamic Republic of Iran")]
+    #[clap(alias = "Iran, Islamic Republic of")]
+    #[clap(alias = "Jomhuri-ye Eslāmi-ye Irān")]
     Iran,
     #[clap(alias = "IQ")]
+    #[clap(alias = "IQ")]
+    #[clap(alias = "Republic of Iraq")]
+    #[clap(alias = "Jumhūriyyat al-‘Irāq")]
     Iraq,
     #[clap(alias = "IS")]
+    #[clap(alias = "IS")]
+    #[clap(alias = "Island")]
+    #[clap(alias = "Republic of Iceland")]
+    #[clap(alias = "Lýðveldið Ísland")]
     Iceland,
     #[clap(alias = "IL")]
+    #[clap(alias = "IL")]
+    #[clap(alias = "State of Israel")]
+    #[clap(alias = "Medīnat Yisrā'el")]
     Israel,
     #[clap(alias = "IT")]
+    #[clap(alias = "IT")]
+    #[clap(alias = "Italian Republic")]
+    #[clap(alias = "Repubblica italiana")]
     Italy,
+    #[clap(alias = "JM")]
     #[clap(alias = "JM")]
     Jamaica,
     #[clap(alias = "JE")]
+    #[clap(alias = "JE")]
+    #[clap(alias = "Bailiwick of Jersey")]
+    #[clap(alias = "Bailliage de Jersey")]
+    #[clap(alias = "Bailliage dé Jèrri")]
     Jersey,
     #[clap(alias = "JO")]
+    #[clap(alias = "JO")]
+    #[clap(alias = "Hashemite Kingdom of Jordan")]
+    #[clap(alias = "al-Mamlakah al-Urdunīyah al-Hāshimīyah")]
     Jordan,
     #[clap(alias = "JP")]
+    #[clap(alias = "JP")]
+    #[clap(alias = "Nippon")]
+    #[clap(alias = "Nihon")]
     Japan,
     #[clap(alias = "KZ")]
+    #[clap(alias = "KZ")]
+    #[clap(alias = "Qazaqstan")]
+    #[clap(alias = "Казахстан")]
+    #[clap(alias = "Republic of Kazakhstan")]
+    #[clap(alias = "Қазақстан Республикасы")]
+    #[clap(alias = "Qazaqstan Respublïkası")]
+    #[clap(alias = "Республика Казахстан")]
+    #[clap(alias = "Respublika Kazakhstan")]
     Kazakhstan,
     #[clap(alias = "KE")]
+    #[clap(alias = "KE")]
+    #[clap(alias = "Republic of Kenya")]
+    #[clap(alias = "Jamhuri ya Kenya")]
     Kenya,
     #[clap(alias = "KG")]
+    #[clap(alias = "KG")]
+    #[clap(alias = "Киргизия")]
+    #[clap(alias = "Kyrgyz Republic")]
+    #[clap(alias = "Кыргыз Республикасы")]
+    #[clap(alias = "Kyrgyz Respublikasy")]
     Kyrgyzstan,
     #[clap(alias = "KH")]
+    #[clap(alias = "KH")]
+    #[clap(alias = "Kingdom of Cambodia")]
     Cambodia,
     #[clap(alias = "KI")]
+    #[clap(alias = "KI")]
+    #[clap(alias = "Republic of Kiribati")]
+    #[clap(alias = "Ribaberiki Kiribati")]
     Kiribati,
     #[clap(alias = "KN")]
+    #[clap(alias = "KN")]
+    #[clap(alias = "Federation of Saint Christopher and Nevis")]
     SaintKittsAndNevis,
     #[clap(alias = "KR")]
+    #[clap(alias = "KR")]
+    #[clap(alias = "Korea, Republic of")]
+    #[clap(alias = "Republic of Korea")]
+    #[clap(alias = "남한")]
+    #[clap(alias = "남조선")]
     SouthKorea,
     #[clap(alias = "XK")]
+    #[clap(alias = "XK")]
+    #[clap(alias = "Република Косово")]
     Kosovo,
     #[clap(alias = "KW")]
+    #[clap(alias = "KW")]
+    #[clap(alias = "State of Kuwait")]
+    #[clap(alias = "Dawlat al-Kuwait")]
     Kuwait,
     #[clap(alias = "LA")]
+    #[clap(alias = "LA")]
+    #[clap(alias = "Lao")]
+    #[clap(alias = "Lao People's Democratic Republic")]
+    #[clap(alias = "Sathalanalat Paxathipatai Paxaxon Lao")]
     Laos,
     #[clap(alias = "LB")]
+    #[clap(alias = "LB")]
+    #[clap(alias = "Lebanese Republic")]
+    #[clap(alias = "Al-Jumhūrīyah Al-Libnānīyah")]
     Lebanon,
     #[clap(alias = "LR")]
+    #[clap(alias = "LR")]
+    #[clap(alias = "Republic of Liberia")]
     Liberia,
     #[clap(alias = "LY")]
+    #[clap(alias = "LY")]
+    #[clap(alias = "State of Libya")]
+    #[clap(alias = "Dawlat Libya")]
     Libya,
+    #[clap(alias = "LC")]
     #[clap(alias = "LC")]
     SaintLucia,
     #[clap(alias = "LI")]
+    #[clap(alias = "LI")]
+    #[clap(alias = "Principality of Liechtenstein")]
+    #[clap(alias = "Fürstentum Liechtenstein")]
     Liechtenstein,
     #[clap(alias = "LK")]
+    #[clap(alias = "LK")]
+    #[clap(alias = "ilaṅkai")]
+    #[clap(alias = "Democratic Socialist Republic of Sri Lanka")]
     SriLanka,
     #[clap(alias = "LS")]
+    #[clap(alias = "LS")]
+    #[clap(alias = "Kingdom of Lesotho")]
+    #[clap(alias = "Muso oa Lesotho")]
     Lesotho,
     #[clap(alias = "LT")]
+    #[clap(alias = "LT")]
+    #[clap(alias = "Republic of Lithuania")]
+    #[clap(alias = "Lietuvos Respublika")]
     Lithuania,
     #[clap(alias = "LU")]
+    #[clap(alias = "LU")]
+    #[clap(alias = "Grand Duchy of Luxembourg")]
+    #[clap(alias = "Grand-Duché de Luxembourg")]
+    #[clap(alias = "Großherzogtum Luxemburg")]
+    #[clap(alias = "Groussherzogtum Lëtzebuerg")]
     Luxembourg,
     #[clap(alias = "LV")]
+    #[clap(alias = "LV")]
+    #[clap(alias = "Republic of Latvia")]
+    #[clap(alias = "Latvijas Republika")]
     Latvia,
     #[clap(alias = "MO")]
+    #[clap(alias = "MO")]
+    #[clap(alias = "澳门")]
+    #[clap(alias = "Macao")]
+    #[clap(
+        alias = "Macao Special Administrative Region of the People's Republic of China"
+    )]
+    #[clap(alias = "中華人民共和國澳門特別行政區")]
+    #[clap(
+        alias = "Região Administrativa Especial de Macau da República Popular da China"
+    )]
     Macau,
     #[clap(alias = "MF")]
+    #[clap(alias = "MF")]
+    #[clap(alias = "Collectivity of Saint Martin")]
+    #[clap(alias = "Collectivité de Saint-Martin")]
+    #[clap(alias = "Saint Martin (French part)")]
     SaintMartin,
     #[clap(alias = "MA")]
+    #[clap(alias = "MA")]
+    #[clap(alias = "Kingdom of Morocco")]
+    #[clap(alias = "Al-Mamlakah al-Maġribiyah")]
     Morocco,
     #[clap(alias = "MC")]
+    #[clap(alias = "MC")]
+    #[clap(alias = "Principality of Monaco")]
+    #[clap(alias = "Principauté de Monaco")]
     Monaco,
     #[clap(alias = "MD")]
+    #[clap(alias = "MD")]
+    #[clap(alias = "Moldova, Republic of")]
+    #[clap(alias = "Republic of Moldova")]
+    #[clap(alias = "Republica Moldova")]
     Moldova,
     #[clap(alias = "MG")]
+    #[clap(alias = "MG")]
+    #[clap(alias = "Republic of Madagascar")]
+    #[clap(alias = "Repoblikan'i Madagasikara")]
+    #[clap(alias = "République de Madagascar")]
     Madagascar,
     #[clap(alias = "MV")]
+    #[clap(alias = "MV")]
+    #[clap(alias = "Maldive Islands")]
+    #[clap(alias = "Republic of the Maldives")]
+    #[clap(alias = "Dhivehi Raajjeyge Jumhooriyya")]
     Maldives,
     #[clap(alias = "MX")]
+    #[clap(alias = "MX")]
+    #[clap(alias = "Mexicanos")]
+    #[clap(alias = "United Mexican States")]
+    #[clap(alias = "Estados Unidos Mexicanos")]
     Mexico,
     #[clap(alias = "MH")]
+    #[clap(alias = "MH")]
+    #[clap(alias = "Republic of the Marshall Islands")]
+    #[clap(alias = "Aolepān Aorōkin M\u{327}ajeļ")]
     MarshallIslands,
     #[clap(alias = "MK")]
+    #[clap(alias = "MK")]
+    #[clap(alias = "The former Yugoslav Republic of Macedonia")]
+    #[clap(alias = "Republic of North Macedonia")]
+    #[clap(alias = "Macedonia, The Former Yugoslav Republic of")]
+    #[clap(alias = "Република Северна Македонија")]
     NorthMacedonia,
     #[clap(alias = "ML")]
+    #[clap(alias = "ML")]
+    #[clap(alias = "Republic of Mali")]
+    #[clap(alias = "République du Mali")]
     Mali,
     #[clap(alias = "MT")]
+    #[clap(alias = "MT")]
+    #[clap(alias = "Republic of Malta")]
+    #[clap(alias = "Repubblika ta' Malta")]
     Malta,
     #[clap(alias = "MM")]
+    #[clap(alias = "MM")]
+    #[clap(alias = "Burma")]
+    #[clap(alias = "Republic of the Union of Myanmar")]
+    #[clap(alias = "Pyidaunzu Thanmăda Myăma Nainngandaw")]
     Myanmar,
     #[clap(alias = "ME")]
+    #[clap(alias = "ME")]
+    #[clap(alias = "Crna Gora")]
     Montenegro,
+    #[clap(alias = "MN")]
     #[clap(alias = "MN")]
     Mongolia,
     #[clap(alias = "MP")]
+    #[clap(alias = "MP")]
+    #[clap(alias = "Commonwealth of the Northern Mariana Islands")]
+    #[clap(alias = "Sankattan Siha Na Islas Mariånas")]
     NorthernMarianaIslands,
     #[clap(alias = "MZ")]
+    #[clap(alias = "MZ")]
+    #[clap(alias = "Republic of Mozambique")]
+    #[clap(alias = "República de Moçambique")]
     Mozambique,
     #[clap(alias = "MR")]
+    #[clap(alias = "MR")]
+    #[clap(alias = "Islamic Republic of Mauritania")]
+    #[clap(alias = "al-Jumhūriyyah al-ʾIslāmiyyah al-Mūrītāniyyah")]
     Mauritania,
+    #[clap(alias = "MS")]
     #[clap(alias = "MS")]
     Montserrat,
     #[clap(alias = "MQ")]
+    #[clap(alias = "MQ")]
     Martinique,
     #[clap(alias = "MU")]
+    #[clap(alias = "MU")]
+    #[clap(alias = "Republic of Mauritius")]
+    #[clap(alias = "République de Maurice")]
     Mauritius,
     #[clap(alias = "MW")]
+    #[clap(alias = "MW")]
+    #[clap(alias = "Republic of Malawi")]
     Malawi,
+    #[clap(alias = "MY")]
     #[clap(alias = "MY")]
     Malaysia,
     #[clap(alias = "YT")]
+    #[clap(alias = "YT")]
+    #[clap(alias = "Department of Mayotte")]
+    #[clap(alias = "Département de Mayotte")]
     Mayotte,
     #[clap(alias = "NA")]
+    #[clap(alias = "NA")]
+    #[clap(alias = "Namibië")]
+    #[clap(alias = "Republic of Namibia")]
     Namibia,
+    #[clap(alias = "NC")]
     #[clap(alias = "NC")]
     NewCaledonia,
     #[clap(alias = "NE")]
+    #[clap(alias = "NE")]
+    #[clap(alias = "Nijar")]
     Niger,
     #[clap(alias = "NF")]
+    #[clap(alias = "NF")]
+    #[clap(alias = "Territory of Norfolk Island")]
+    #[clap(alias = "Teratri of Norf'k Ailen")]
     NorfolkIsland,
     #[clap(alias = "NG")]
+    #[clap(alias = "NG")]
+    #[clap(alias = "Nijeriya")]
+    #[clap(alias = "Naíjíríà")]
+    #[clap(alias = "Federal Republic of Nigeria")]
     Nigeria,
     #[clap(alias = "NI")]
+    #[clap(alias = "NI")]
+    #[clap(alias = "Republic of Nicaragua")]
+    #[clap(alias = "República de Nicaragua")]
     Nicaragua,
+    #[clap(alias = "NU")]
     #[clap(alias = "NU")]
     Niue,
     #[clap(alias = "NL")]
+    #[clap(alias = "NL")]
+    #[clap(alias = "Holland")]
+    #[clap(alias = "Nederland")]
+    #[clap(alias = "The Netherlands")]
     Netherlands,
     #[clap(alias = "NO")]
+    #[clap(alias = "NO")]
+    #[clap(alias = "Norge")]
+    #[clap(alias = "Noreg")]
+    #[clap(alias = "Kingdom of Norway")]
+    #[clap(alias = "Kongeriket Norge")]
+    #[clap(alias = "Kongeriket Noreg")]
     Norway,
     #[clap(alias = "NP")]
+    #[clap(alias = "NP")]
+    #[clap(alias = "Federal Democratic Republic of Nepal")]
+    #[clap(alias = "Loktāntrik Ganatantra Nepāl")]
     Nepal,
     #[clap(alias = "NR")]
+    #[clap(alias = "NR")]
+    #[clap(alias = "Naoero")]
+    #[clap(alias = "Pleasant Island")]
+    #[clap(alias = "Republic of Nauru")]
+    #[clap(alias = "Ripublik Naoero")]
     Nauru,
     #[clap(alias = "NZ")]
+    #[clap(alias = "NZ")]
+    #[clap(alias = "Aotearoa")]
     NewZealand,
     #[clap(alias = "OM")]
+    #[clap(alias = "OM")]
+    #[clap(alias = "Sultanate of Oman")]
+    #[clap(alias = "Salṭanat ʻUmān")]
     Oman,
     #[clap(alias = "PK")]
+    #[clap(alias = "PK")]
+    #[clap(alias = "Pākistān")]
+    #[clap(alias = "Islamic Republic of Pakistan")]
+    #[clap(alias = "Islāmī Jumhūriya'eh Pākistān")]
     Pakistan,
     #[clap(alias = "PA")]
+    #[clap(alias = "PA")]
+    #[clap(alias = "Republic of Panama")]
+    #[clap(alias = "República de Panamá")]
     Panama,
     #[clap(alias = "PN")]
+    #[clap(alias = "PN")]
+    #[clap(alias = "Pitcairn")]
+    #[clap(alias = "Pitcairn Henderson Ducie and Oeno Islands")]
     PitcairnIslands,
     #[clap(alias = "PE")]
+    #[clap(alias = "PE")]
+    #[clap(alias = "Republic of Peru")]
+    #[clap(alias = "República del Perú")]
     Peru,
     #[clap(alias = "PH")]
+    #[clap(alias = "PH")]
+    #[clap(alias = "Republic of the Philippines")]
+    #[clap(alias = "Repúblika ng Pilipinas")]
     Philippines,
     #[clap(alias = "PW")]
+    #[clap(alias = "PW")]
+    #[clap(alias = "Republic of Palau")]
+    #[clap(alias = "Beluu er a Belau")]
     Palau,
     #[clap(alias = "PG")]
+    #[clap(alias = "PG")]
+    #[clap(alias = "Independent State of Papua New Guinea")]
+    #[clap(alias = "Independen Stet bilong Papua Niugini")]
     PapuaNewGuinea,
     #[clap(alias = "PL")]
+    #[clap(alias = "PL")]
+    #[clap(alias = "Republic of Poland")]
+    #[clap(alias = "Rzeczpospolita Polska")]
     Poland,
     #[clap(alias = "PR")]
+    #[clap(alias = "PR")]
+    #[clap(alias = "Commonwealth of Puerto Rico")]
+    #[clap(alias = "Estado Libre Asociado de Puerto Rico")]
     PuertoRico,
     #[clap(alias = "KP")]
+    #[clap(alias = "KP")]
+    #[clap(alias = "Democratic People's Republic of Korea")]
+    #[clap(alias = "DPRK")]
+    #[clap(alias = "조선민주주의인민공화국")]
+    #[clap(alias = "Chosŏn Minjujuŭi Inmin Konghwaguk")]
+    #[clap(alias = "Korea, Democratic People's Republic of")]
+    #[clap(alias = "북한")]
+    #[clap(alias = "북조선")]
     NorthKorea,
     #[clap(alias = "PT")]
+    #[clap(alias = "PT")]
+    #[clap(alias = "Portuguesa")]
+    #[clap(alias = "Portuguese Republic")]
+    #[clap(alias = "República Portuguesa")]
     Portugal,
     #[clap(alias = "PY")]
+    #[clap(alias = "PY")]
+    #[clap(alias = "Republic of Paraguay")]
+    #[clap(alias = "República del Paraguay")]
+    #[clap(alias = "Tetã Paraguái")]
     Paraguay,
     #[clap(alias = "PS")]
+    #[clap(alias = "PS")]
+    #[clap(alias = "Palestine, State of")]
+    #[clap(alias = "State of Palestine")]
+    #[clap(alias = "Dawlat Filasṭin")]
     Palestine,
     #[clap(alias = "PF")]
+    #[clap(alias = "PF")]
+    #[clap(alias = "Polynésie française")]
+    #[clap(alias = "French Polynesia")]
+    #[clap(alias = "Pōrīnetia Farāni")]
     FrenchPolynesia,
     #[clap(alias = "QA")]
+    #[clap(alias = "QA")]
+    #[clap(alias = "State of Qatar")]
+    #[clap(alias = "Dawlat Qaṭar")]
     Qatar,
     #[clap(alias = "RE")]
+    #[clap(alias = "RE")]
+    #[clap(alias = "Reunion")]
     Reunion,
     #[clap(alias = "RO")]
+    #[clap(alias = "RO")]
+    #[clap(alias = "Rumania")]
+    #[clap(alias = "Roumania")]
+    #[clap(alias = "România")]
     Romania,
     #[clap(alias = "RU")]
+    #[clap(alias = "RU")]
+    #[clap(alias = "Russian Federation")]
+    #[clap(alias = "Российская Федерация")]
     Russia,
     #[clap(alias = "RW")]
+    #[clap(alias = "RW")]
+    #[clap(alias = "Republic of Rwanda")]
+    #[clap(alias = "Repubulika y'u Rwanda")]
+    #[clap(alias = "République du Rwanda")]
     Rwanda,
     #[clap(alias = "SA")]
+    #[clap(alias = "Saudi")]
+    #[clap(alias = "SA")]
+    #[clap(alias = "Kingdom of Saudi Arabia")]
+    #[clap(alias = "Al-Mamlakah al-‘Arabiyyah as-Su‘ūdiyyah")]
     SaudiArabia,
     #[clap(alias = "SD")]
+    #[clap(alias = "SD")]
+    #[clap(alias = "Republic of the Sudan")]
+    #[clap(alias = "Jumhūrīyat as-Sūdān")]
     Sudan,
     #[clap(alias = "SN")]
+    #[clap(alias = "SN")]
+    #[clap(alias = "Republic of Senegal")]
+    #[clap(alias = "République du Sénégal")]
     Senegal,
     #[clap(alias = "SG")]
+    #[clap(alias = "SG")]
+    #[clap(alias = "Singapura")]
+    #[clap(alias = "Republik Singapura")]
+    #[clap(alias = "新加坡共和国")]
     Singapore,
     #[clap(alias = "GS")]
+    #[clap(alias = "GS")]
+    #[clap(alias = "South Georgia and the South Sandwich Islands")]
     SouthGeorgia,
     #[clap(alias = "SJ")]
+    #[clap(alias = "SJ")]
+    #[clap(alias = "Svalbard and Jan Mayen Islands")]
     SvalbardAndJanMayen,
+    #[clap(alias = "SB")]
     #[clap(alias = "SB")]
     SolomonIslands,
     #[clap(alias = "SL")]
+    #[clap(alias = "SL")]
+    #[clap(alias = "Republic of Sierra Leone")]
     SierraLeone,
     #[clap(alias = "SV")]
+    #[clap(alias = "SV")]
+    #[clap(alias = "Republic of El Salvador")]
+    #[clap(alias = "República de El Salvador")]
     ElSalvador,
     #[clap(alias = "SM")]
+    #[clap(alias = "SM")]
+    #[clap(alias = "Republic of San Marino")]
+    #[clap(alias = "Repubblica di San Marino")]
     SanMarino,
     #[clap(alias = "SO")]
+    #[clap(alias = "SO")]
+    #[clap(alias = "aṣ-Ṣūmāl")]
+    #[clap(alias = "Federal Republic of Somalia")]
+    #[clap(alias = "Jamhuuriyadda Federaalka Soomaaliya")]
+    #[clap(alias = "Jumhūriyyat aṣ-Ṣūmāl al-Fiderāliyya")]
     Somalia,
     #[clap(alias = "PM")]
+    #[clap(alias = "PM")]
+    #[clap(alias = "Collectivité territoriale de Saint-Pierre-et-Miquelon")]
     SaintPierreAndMiquelon,
     #[clap(alias = "RS")]
+    #[clap(alias = "RS")]
+    #[clap(alias = "Srbija")]
+    #[clap(alias = "Republic of Serbia")]
+    #[clap(alias = "Република Србија")]
+    #[clap(alias = "Republika Srbija")]
     Serbia,
+    #[clap(alias = "SS")]
     #[clap(alias = "SS")]
     SouthSudan,
     #[clap(alias = "ST")]
+    #[clap(alias = "ST")]
+    #[clap(alias = "Democratic Republic of São Tomé and Príncipe")]
+    #[clap(alias = "Sao Tome and Principe")]
+    #[clap(alias = "República Democrática de São Tomé e Príncipe")]
     SaoTomeAndPrincipe,
     #[clap(alias = "SR")]
+    #[clap(alias = "SR")]
+    #[clap(alias = "Sarnam")]
+    #[clap(alias = "Sranangron")]
+    #[clap(alias = "Republic of Suriname")]
+    #[clap(alias = "Republiek Suriname")]
     Suriname,
     #[clap(alias = "SK")]
+    #[clap(alias = "SK")]
+    #[clap(alias = "Slovak Republic")]
+    #[clap(alias = "Slovenská republika")]
     Slovakia,
     #[clap(alias = "SI")]
+    #[clap(alias = "SI")]
+    #[clap(alias = "Republic of Slovenia")]
+    #[clap(alias = "Republika Slovenija")]
     Slovenia,
     #[clap(alias = "SE")]
+    #[clap(alias = "SE")]
+    #[clap(alias = "Kingdom of Sweden")]
+    #[clap(alias = "Konungariket Sverige")]
     Sweden,
     #[clap(alias = "SZ")]
+    #[clap(alias = "SZ")]
+    #[clap(alias = "Swaziland")]
+    #[clap(alias = "weSwatini")]
+    #[clap(alias = "Swatini")]
+    #[clap(alias = "Ngwane")]
+    #[clap(alias = "Kingdom of Eswatini")]
+    #[clap(alias = "Umbuso weSwatini")]
     Eswatini,
     #[clap(alias = "SX")]
+    #[clap(alias = "SX")]
+    #[clap(alias = "Sint Maarten (Dutch part)")]
     SintMaarten,
     #[clap(alias = "SC")]
+    #[clap(alias = "SC")]
+    #[clap(alias = "Republic of Seychelles")]
+    #[clap(alias = "Repiblik Sesel")]
+    #[clap(alias = "République des Seychelles")]
     Seychelles,
     #[clap(alias = "SY")]
+    #[clap(alias = "SY")]
+    #[clap(alias = "Syrian Arab Republic")]
+    #[clap(alias = "Al-Jumhūrīyah Al-ʻArabīyah As-Sūrīyah")]
     Syria,
+    #[clap(alias = "TC")]
     #[clap(alias = "TC")]
     TurksAndCaicosIslands,
     #[clap(alias = "TD")]
+    #[clap(alias = "TD")]
+    #[clap(alias = "Tchad")]
+    #[clap(alias = "Republic of Chad")]
+    #[clap(alias = "République du Tchad")]
     Chad,
     #[clap(alias = "TG")]
+    #[clap(alias = "TG")]
+    #[clap(alias = "Togolese")]
+    #[clap(alias = "Togolese Republic")]
+    #[clap(alias = "République Togolaise")]
     Togo,
     #[clap(alias = "TH")]
+    #[clap(alias = "TH")]
+    #[clap(alias = "Prathet")]
+    #[clap(alias = "Thai")]
+    #[clap(alias = "Kingdom of Thailand")]
+    #[clap(alias = "ราชอาณาจ\u{e31}กรไทย")]
+    #[clap(alias = "Ratcha Anachak Thai")]
     Thailand,
     #[clap(alias = "TJ")]
+    #[clap(alias = "TJ")]
+    #[clap(alias = "Toçikiston")]
+    #[clap(alias = "Republic of Tajikistan")]
+    #[clap(alias = "Ҷумҳурии Тоҷикистон")]
+    #[clap(alias = "Çumhuriyi Toçikiston")]
     Tajikistan,
+    #[clap(alias = "TK")]
     #[clap(alias = "TK")]
     Tokelau,
     #[clap(alias = "TM")]
+    #[clap(alias = "TM")]
     Turkmenistan,
     #[clap(alias = "TL")]
+    #[clap(alias = "TL")]
+    #[clap(alias = "East Timor")]
+    #[clap(alias = "Democratic Republic of Timor-Leste")]
+    #[clap(alias = "República Democrática de Timor-Leste")]
+    #[clap(alias = "Repúblika Demokrátika Timór-Leste")]
+    #[clap(alias = "Timór Lorosa'e")]
+    #[clap(alias = "Timor Lorosae")]
     TimorLeste,
+    #[clap(alias = "TO")]
     #[clap(alias = "TO")]
     Tonga,
     #[clap(alias = "TT")]
+    #[clap(alias = "TT")]
+    #[clap(alias = "Republic of Trinidad and Tobago")]
     TrinidadAndTobago,
     #[clap(alias = "TN")]
+    #[clap(alias = "TN")]
+    #[clap(alias = "Republic of Tunisia")]
+    #[clap(alias = "al-Jumhūriyyah at-Tūnisiyyah")]
     Tunisia,
     #[clap(alias = "TR")]
+    #[clap(alias = "TR")]
+    #[clap(alias = "Turkiye")]
+    #[clap(alias = "Republic of Turkey")]
+    #[clap(alias = "Türkiye Cumhuriyeti")]
     Turkey,
+    #[clap(alias = "TV")]
     #[clap(alias = "TV")]
     Tuvalu,
     #[clap(alias = "TW")]
+    #[clap(alias = "TW")]
+    #[clap(alias = "Táiwān")]
+    #[clap(alias = "Republic of China")]
+    #[clap(alias = "中華民國")]
+    #[clap(alias = "Zhōnghuá Mínguó")]
+    #[clap(alias = "Chinese Taipei")]
     Taiwan,
     #[clap(alias = "TZ")]
+    #[clap(alias = "TZ")]
+    #[clap(alias = "Tanzania, United Republic of")]
+    #[clap(alias = "United Republic of Tanzania")]
+    #[clap(alias = "Jamhuri ya Muungano wa Tanzania")]
     Tanzania,
     #[clap(alias = "UG")]
+    #[clap(alias = "UG")]
+    #[clap(alias = "Republic of Uganda")]
+    #[clap(alias = "Jamhuri ya Uganda")]
     Uganda,
     #[clap(alias = "UA")]
+    #[clap(alias = "UA")]
+    #[clap(alias = "Ukrayina")]
     Ukraine,
+    #[clap(alias = "UM")]
     #[clap(alias = "UM")]
     UnitedStatesMinorOutlyingIslands,
     #[clap(alias = "UY")]
+    #[clap(alias = "UY")]
+    #[clap(alias = "Oriental Republic of Uruguay")]
+    #[clap(alias = "República Oriental del Uruguay")]
     Uruguay,
     #[clap(alias = "US")]
+    #[clap(alias = "US")]
+    #[clap(alias = "USA")]
+    #[clap(alias = "United States of America")]
     UnitedStates,
     #[clap(alias = "UZ")]
+    #[clap(alias = "UZ")]
+    #[clap(alias = "Republic of Uzbekistan")]
+    #[clap(alias = "O‘zbekiston Respublikasi")]
+    #[clap(alias = "Ўзбекистон Республикаси")]
     Uzbekistan,
     #[clap(alias = "VA")]
+    #[clap(alias = "VA")]
+    #[clap(alias = "Holy See (Vatican City State)")]
+    #[clap(alias = "Vatican City State")]
+    #[clap(alias = "Stato della Città del Vaticano")]
     VaticanCity,
+    #[clap(alias = "VC")]
     #[clap(alias = "VC")]
     SaintVincentAndTheGrenadines,
     #[clap(alias = "VE")]
+    #[clap(alias = "VE")]
+    #[clap(alias = "Bolivarian Republic of Venezuela")]
+    #[clap(alias = "Venezuela, Bolivarian Republic of")]
+    #[clap(alias = "República Bolivariana de Venezuela")]
     Venezuela,
     #[clap(alias = "VG")]
+    #[clap(alias = "VG")]
+    #[clap(alias = "Virgin Islands, British")]
     BritishVirginIslands,
     #[clap(alias = "VI")]
+    #[clap(alias = "VI")]
+    #[clap(alias = "Virgin Islands, U.S.")]
     UnitedStatesVirginIslands,
     #[clap(alias = "VN")]
+    #[clap(alias = "VN")]
+    #[clap(alias = "Socialist Republic of Vietnam")]
+    #[clap(alias = "Cộng hòa Xã hội chủ nghĩa Việt Nam")]
+    #[clap(alias = "Viet Nam")]
     Vietnam,
     #[clap(alias = "VU")]
+    #[clap(alias = "VU")]
+    #[clap(alias = "Republic of Vanuatu")]
+    #[clap(alias = "Ripablik blong Vanuatu")]
+    #[clap(alias = "République de Vanuatu")]
     Vanuatu,
     #[clap(alias = "WF")]
+    #[clap(alias = "WF")]
+    #[clap(alias = "Territory of the Wallis and Futuna Islands")]
+    #[clap(alias = "Territoire des îles Wallis et Futuna")]
     WallisAndFutuna,
     #[clap(alias = "WS")]
+    #[clap(alias = "WS")]
+    #[clap(alias = "Independent State of Samoa")]
+    #[clap(alias = "Malo Saʻoloto Tutoʻatasi o Sāmoa")]
     Samoa,
     #[clap(alias = "YE")]
+    #[clap(alias = "YE")]
+    #[clap(alias = "Yemeni Republic")]
+    #[clap(alias = "al-Jumhūriyyah al-Yamaniyyah")]
     Yemen,
     #[clap(alias = "ZA")]
+    #[clap(alias = "ZA")]
+    #[clap(alias = "RSA")]
+    #[clap(alias = "Suid-Afrika")]
+    #[clap(alias = "Republic of South Africa")]
     SouthAfrica,
     #[clap(alias = "ZM")]
+    #[clap(alias = "ZM")]
+    #[clap(alias = "Republic of Zambia")]
     Zambia,
     #[clap(alias = "ZW")]
+    #[clap(alias = "ZW")]
+    #[clap(alias = "Republic of Zimbabwe")]
     Zimbabwe,
 }
 /// Slice containing information about every country

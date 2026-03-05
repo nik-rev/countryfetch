@@ -1,3 +1,4 @@
+#!/usr/bin/env cargo -S +nightly -Zscript
 ---
 package.edition = "2024"
 
@@ -28,13 +29,14 @@ deunicode = "1.6"
 
 include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/countries.rs"));
 
+use std::io::Write;
+
 use eyre::OptionExt as _;
 use eyre::Result;
 use eyre::WrapErr as _;
 use eyre::eyre;
 use quip::quip;
 use rayon::prelude::*;
-use std::io::Write;
 
 const COUNTRIES_JSON_URL: &str = "https://gitlab.com/restcountries/restcountries/-/raw/master/src/main/resources/countriesV3.1.json?ref_type=heads";
 
@@ -118,13 +120,15 @@ fn main() -> Result<()> {
             let variant_name = heck::AsPascalCase(country.name.common.clone()).to_string();
             let variant_name = deunicode::deunicode(&variant_name);
             let variant_name = syn::Ident::new(&variant_name, proc_macro2::Span::call_site());
-            (
-                variant_name.clone(),
-                quip! {
-                    #[clap(alias = #{country.cca2})]
-                    #variant_name
-                },
-            )
+            let alt_spelling = &country.alt_spellings;
+
+            (variant_name.clone(), quip! {
+                #[clap(alias = #{country.cca2})]
+                #(
+                    #[clap(alias = #{alt_spelling})]
+                )*
+                #variant_name
+            })
         })
         .unzip();
     let countries_ident_2 = countries_ident.clone();
