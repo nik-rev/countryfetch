@@ -104,11 +104,7 @@ impl fmt::Display for Country {
 
         let neigh = c_neighbours.join(", ");
 
-        let neigh_text = if neigh.is_empty() {
-            "Not neighboring any country"
-        } else {
-            &neigh
-        };
+        let neigh_text = if neigh.is_empty() { "None" } else { &neigh };
 
         let neighbours_s = if c_neighbours.len() == 1 { "" } else { "s" };
 
