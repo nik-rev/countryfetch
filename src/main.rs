@@ -56,7 +56,7 @@ fn main() -> Result<()> {
             if cli.json {
                 println!("{}", colored_json::to_colored_json_auto(country)?)
             } else {
-                println!("{}", country)
+                println!("\n{}", country)
             }
         }
         true => {
@@ -66,6 +66,8 @@ fn main() -> Result<()> {
                 println!("{}", colored_json::to_colored_json_auto(&countries)?);
             } else {
                 let mut stdout = anstream::stdout().lock();
+
+                stdout.write_all(b"\n")?;
 
                 for country in countries {
                     stdout.write_all(country.to_string().as_bytes())?;

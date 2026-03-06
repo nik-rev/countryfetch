@@ -105,7 +105,7 @@ impl fmt::Display for Country {
         let neigh = c_neighbours.join(", ");
 
         let neigh_text = if neigh.is_empty() {
-            "No neighbours"
+            "Not neighboring any country"
         } else {
             &neigh
         };
@@ -180,7 +180,7 @@ impl fmt::Display for Country {
             /// {brightest_color}Area{RESET}: {km} km² ({mi} miles²)
             /// {brightest_color}Continent{continents_s}{RESET}: {continents}
             /// {brightest_color}Population{RESET}: {people_count} People
-            /// {brightest_color}Neighbour{neighbours_s}{RESET}: {neigh_text}{capital}
+            /// {brightest_color}Neighbor{neighbours_s}{RESET}: {neigh_text}{capital}
             /// {brightest_color}ISO Codes{RESET}: {iso_code_1} / {iso_code_2}
             /// {brightest_color}Driving side{RESET}: {driving_side}{dialing_code}
             /// {brightest_color}Language{languages_s}{RESET}: {languages}
