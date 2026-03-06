@@ -1,21 +1,15 @@
+//! Handles formatting of output for each country
+
 use core::fmt;
 use std::fmt::Write as _;
 
 use colored::Colorize as _;
 use docstr::docstr;
 use separator::Separatable as _;
+use simply_colored::*;
 
 use crate::countries::Country;
 use crate::extra_country_data::CurrencyPosition;
-
-/// Gets the brightest color that should be used for a country
-pub fn brightest_color(country: &Country) -> (u8, u8, u8) {
-    // NOTE: This assumes a static brightest color is computed and added to the
-    // Country struct, which is not in the JSON but *is* in the `flag_palette`
-    // from the user's struct definition. We will take the first color from the
-    // palette for simplicity.
-    country.flag_palette.first().copied().unwrap_or((0, 0, 0))
-}
 
 impl fmt::Display for Country {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -97,13 +91,9 @@ impl fmt::Display for Country {
 
         let c_palette = &self.flag_palette;
 
-        let (r, g, b) = brightest_color;
-
         let km = format!("{:.0}", c_area_km.separated_string());
         let mi = format!("{:.0}", c_area_mi.separated_string());
 
-        let c = crate::rgb(r, g, b);
-        let r = simply_colored::RESET;
         let country_name = c_country_name;
         let flag_emoji = c_flag_emoji
             .map(|flag| format!(" {flag}"))
@@ -127,7 +117,7 @@ impl fmt::Display for Country {
                 .filter(|capital| !capital.is_empty())
                 .map_or_else(String::new, |capital| {
                     format!(
-                        "\n{c}Capital{}{r}: {}",
+                        "\n{brightest_color}Capital{}{RESET}: {}",
                         if capital.len() == 1 { "" } else { " Cities" },
                         capital.join(", ")
                     )
@@ -140,7 +130,7 @@ impl fmt::Display for Country {
         let dialing_code = c_dialing_code
             .as_ref()
             .map_or_else(String::new, |dialing_code| {
-                format!("\n{c}Dialing code{r}: {}", dialing_code)
+                format!("\n{brightest_color}Dialing code{RESET}: {}", dialing_code)
             });
 
         let languages_s = if c_languages.len() == 1 { "" } else { "s" };
@@ -184,15 +174,15 @@ impl fmt::Display for Country {
         let output = docstr!(format!
             /// {country_name}{flag_emoji}
             /// -------
-            /// {c}Area{r}: {km} km² ({mi} miles²)
-            /// {c}Continent{continents_s}{r}: {continents}
-            /// {c}Population{r}: {people_count} People
-            /// {c}Neighbour{neighbours_s}{r}: {neigh_text}{capital}
-            /// {c}ISO Codes{r}: {iso_code_1} / {iso_code_2}
-            /// {c}Driving side{r}: {driving_side}{dialing_code}
-            /// {c}Language{languages_s}{r}: {languages}
-            /// {c}Currenc{currency_ies}{r}: {currencies}
-            /// {c}Top Level Domain{top_level_domain_suffix}{r}: {top_level_domain}
+            /// {brightest_color}Area{RESET}: {km} km² ({mi} miles²)
+            /// {brightest_color}Continent{continents_s}{RESET}: {continents}
+            /// {brightest_color}Population{RESET}: {people_count} People
+            /// {brightest_color}Neighbour{neighbours_s}{RESET}: {neigh_text}{capital}
+            /// {brightest_color}ISO Codes{RESET}: {iso_code_1} / {iso_code_2}
+            /// {brightest_color}Driving side{RESET}: {driving_side}{dialing_code}
+            /// {brightest_color}Language{languages_s}{RESET}: {languages}
+            /// {brightest_color}Currenc{currency_ies}{RESET}: {currencies}
+            /// {brightest_color}Top Level Domain{top_level_domain_suffix}{RESET}: {top_level_domain}
             ///
             /// {palette}
         );
@@ -221,5 +211,26 @@ impl fmt::Display for Country {
         }
 
         Ok(())
+    }
+}
+
+/// Gets the brightest color that should be used for a country
+pub fn brightest_color(country: &Country) -> AnsiRgb {
+    // NOTE: This assumes a static brightest color is computed and added to the
+    // Country struct, which is not in the JSON but *is* in the `flag_palette`
+    // from the user's struct definition. We will take the first color from the
+    // palette for simplicity.
+    let (r, g, b) = country.flag_palette.first().copied().unwrap_or_default();
+    AnsiRgb(r, g, b)
+}
+
+/// The `Display` implementation renders an ANSI escape sequence for an arbitrary color
+#[derive(Default)]
+pub struct AnsiRgb(u8, u8, u8);
+
+impl fmt::Display for AnsiRgb {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let Self(r, g, b) = self;
+        f.write_fmt(format_args!("\x1b[38;2;{r};{g};{b}m"))
     }
 }
