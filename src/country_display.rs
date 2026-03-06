@@ -171,9 +171,12 @@ impl fmt::Display for Country {
             output
         });
 
+        let separator = "─".repeat(country_name.len());
+
         let output = docstr!(format!
             /// {country_name}{flag_emoji}
-            /// -------
+            /// {brightest_color}{separator}{RESET}
+            ///
             /// {brightest_color}Area{RESET}: {km} km² ({mi} miles²)
             /// {brightest_color}Continent{continents_s}{RESET}: {continents}
             /// {brightest_color}Population{RESET}: {people_count} People
