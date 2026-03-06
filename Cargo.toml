@@ -2,11 +2,18 @@
 name = "countryfetch"
 version = "0.2.0"
 edition = "2024"
+authors = ["Nik Revenco <pm@nikrev.com>"]
 repository = "https://github.com/nik-rev/countryfetch"
 homepage = "https://github.com/nik-rev/countryfetch"
 description = "Fancy CLI tool to show information about your country"
 license = "MIT OR Apache-2.0"
 rust-version = "1.88"
+
+[package.metadata.wix]
+upgrade-guid = "857C01A7-3368-42B5-A9BC-4E5B1B54B3F9"
+path-guid = "C9B676B2-8632-4B58-AFE9-EADC972012B2"
+license = false
+eula = false
 
 [build-dependencies]
 serde = { version = "1.0", features = ["derive"] }
