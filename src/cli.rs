@@ -10,7 +10,7 @@ use crate::country_display;
 use crate::country_display::AnsiRgb;
 
 #[derive(Parser)]
-#[command(version, about, styles = STYLES, arg_required_else_help = true)]
+#[command(version, about, styles = STYLES)]
 pub struct Cli {
     /// Country to print. (case-insensitive)
     #[clap(ignore_case = true, hide_possible_values = true, help = format!("Country to show data for. {BOLD}Choose any of:{NO_BOLD}\n\n{}", display_possible_countries()))]

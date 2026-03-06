@@ -1,10 +1,12 @@
 use std::io::Write;
 
-use anstream::eprintln;
 use anstream::println;
 use clap::Parser;
+use eyre::ContextCompat;
 use eyre::Result;
+use serde::Deserialize;
 
+use crate::countries::COUNTRIES_DATA;
 use crate::countries::Country;
 
 mod cli;
@@ -16,32 +18,53 @@ mod gen_countries;
 fn main() -> Result<()> {
     let cli = <cli::Cli as Parser>::parse();
 
-    if let Some(country) = cli.country {
-        if cli.all {
-            eprintln!("you cannot specify both a country and --all countries");
-            std::process::exit(1);
-        }
+    match cli.all {
+        false => {
+            let country = if let Some(country) = cli.country {
+                country.data()
+            } else {
+                // No specific country provided, so we'll detect it
 
-        if cli.json {
-            println!("{}", colored_json::to_colored_json_auto(country.data())?)
-        } else {
-            println!("{}", country.data())
-        }
-    } else if cli.all {
-        let countries: &[&Country] = &gen_countries::all_countries();
+                #[derive(Deserialize)]
+                struct Response {
+                    /// 2-letter country code (cca2)
+                    country: String,
+                }
 
-        if cli.json {
-            println!("{}", colored_json::to_colored_json_auto(&countries)?);
-        } else {
-            let mut stdout = std::io::stdout().lock();
-            for country in countries {
-                stdout.write_all(country.to_string().as_bytes())?;
-                stdout.write_all(b"\n")?;
+                // get current country
+                let cca2 = ureq::get("https://api.country.is")
+                    .header("User-Agent", "countryfetch")
+                    .call()?
+                    .body_mut()
+                    .read_json::<Response>()?
+                    .country;
+
+                COUNTRIES_DATA
+                    .0
+                    .iter()
+                    .find(|country| country.cca2 == cca2)
+                    .wrap_err_with(|| format!("no country with cca2 {cca2} found"))?
+            };
+
+            if cli.json {
+                println!("{}", colored_json::to_colored_json_auto(country)?)
+            } else {
+                println!("{}", country)
             }
         }
-    } else {
-        eprintln!("either specify a country, or --all countries");
-        std::process::exit(1);
+        true => {
+            let countries: &[&Country] = &gen_countries::all_countries();
+
+            if cli.json {
+                println!("{}", colored_json::to_colored_json_auto(&countries)?);
+            } else {
+                let mut stdout = std::io::stdout().lock();
+                for country in countries {
+                    stdout.write_all(country.to_string().as_bytes())?;
+                    stdout.write_all(b"\n")?;
+                }
+            }
+        }
     }
 
     Ok(())
