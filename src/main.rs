@@ -1,3 +1,10 @@
+//! Things left to do
+//!
+//! - Vertically align the country flag in the middle
+//! - Fancy display for the "Neighbours", so it shows the full country name
+//! - Fix numeric value of the "Area" field
+//! - Round population to the nearest million, e.g "13.4 million" or "63.1 thousand" instead of exact count
+
 use std::io::Write;
 
 use anstream::println;
@@ -58,7 +65,8 @@ fn main() -> Result<()> {
             if cli.json {
                 println!("{}", colored_json::to_colored_json_auto(&countries)?);
             } else {
-                let mut stdout = std::io::stdout().lock();
+                let mut stdout = anstream::stdout().lock();
+
                 for country in countries {
                     stdout.write_all(country.to_string().as_bytes())?;
                     stdout.write_all(b"\n")?;
