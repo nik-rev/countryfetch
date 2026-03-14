@@ -177,3 +177,24 @@ You can either use the country name, or the 2-letter country code. Case-insensit
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser as _;
+
+    use super::Args;
+
+    #[test]
+    fn parses_liberland_by_name() {
+        let args = Args::try_parse_from(["countryfetch", "Liberland"]).expect("valid country");
+        let countries = args.country.expect("country argument present");
+        assert_eq!(countries, vec![gen_country::Country::Liberland]);
+    }
+
+    #[test]
+    fn parses_liberland_by_project_code() {
+        let args = Args::try_parse_from(["countryfetch", "ll"]).expect("valid country alias");
+        let countries = args.country.expect("country argument present");
+        assert_eq!(countries, vec![gen_country::Country::Liberland]);
+    }
+}

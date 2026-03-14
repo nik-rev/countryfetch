@@ -28,6 +28,14 @@ You can also use 2-letter country codes:
 countryfetch us gb
 ```
 
+Project-specific aliases can also cover entries that are not part of the
+default Rest Countries dataset:
+
+```sh
+countryfetch Liberland
+countryfetch ll
+```
+
 List all countries:
 
 ```sh

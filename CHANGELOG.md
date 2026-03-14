@@ -1,3 +1,8 @@
+# Unreleased
+
+- Add a generated Liberland entry with project-local `LL` / `LIB` codes for explicit lookups
+- Skip blank output sections so entries without capital, dialing code, or TLD metadata render cleanly
+
 # v0.1.9 - 7 March 2025
 
 - Use `,` instead of `OR` as a separator in `--list-countries`

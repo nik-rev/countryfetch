@@ -260,6 +260,8 @@ pub enum Country {
     Lesotho,
     #[clap(alias = "LR")]
     Liberia,
+    #[clap(alias = "LL")]
+    Liberland,
     #[clap(alias = "LY")]
     Libya,
     #[clap(alias = "LI")]
@@ -639,6 +641,7 @@ impl Country {
         Country::Lebanon,
         Country::Lesotho,
         Country::Liberia,
+        Country::Liberland,
         Country::Libya,
         Country::Liechtenstein,
         Country::Lithuania,
@@ -892,6 +895,7 @@ impl Country {
             Self::Lebanon => Some(r###"The flag of Lebanon is composed of three horizontal bands of red, white and red. The white band is twice the height of the red bands and bears a green Lebanese Cedar tree at its center."###),
             Self::Lesotho => Some(r###"The flag of Lesotho is composed of three horizontal bands of blue, white and green in the ratio of 3:4:3. A black mokorotlo — a Basotho hat — is centered in the white band."###),
             Self::Liberia => Some(r###"The flag of Liberia is composed of eleven equal horizontal bands of red alternating with white. A blue square bearing a five-pointed white star is superimposed in the canton."###),
+            Self::Liberland => Some(r###"The flag of Liberland is composed of three horizontal stripes, black in the center between two yellow stripes, with the coat of arms centered."###),
             Self::Libya => Some(r###"The flag of Libya is composed of three horizontal bands of red, black and green, with the black band twice the height of the other two bands. At the center of the black band is a fly-side facing white crescent and a five-pointed white star placed just outside the crescent opening."###),
             Self::Liechtenstein => Some(r###"The flag of Liechtenstein is composed of two equal horizontal bands of blue and red, with a golden-yellow crown on the hoist side of the blue band."###),
             Self::Lithuania => Some(r###"The flag of Lithuania is composed of three equal horizontal bands of yellow, green and red."###),
@@ -1146,6 +1150,7 @@ impl Country {
             Self::Lebanon => r###"Lebanon"###,
             Self::Lesotho => r###"Lesotho"###,
             Self::Liberia => r###"Liberia"###,
+            Self::Liberland => r###"Liberland"###,
             Self::Libya => r###"Libya"###,
             Self::Liechtenstein => r###"Liechtenstein"###,
             Self::Lithuania => r###"Lithuania"###,
@@ -1400,6 +1405,7 @@ impl Country {
             Self::Lebanon => r###"LBN"###,
             Self::Lesotho => r###"LSO"###,
             Self::Liberia => r###"LBR"###,
+            Self::Liberland => r###"LIB"###,
             Self::Libya => r###"LBY"###,
             Self::Liechtenstein => r###"LIE"###,
             Self::Lithuania => r###"LTU"###,
@@ -1654,6 +1660,7 @@ impl Country {
             Self::Lebanon => r###"LB"###,
             Self::Lesotho => r###"LS"###,
             Self::Liberia => r###"LR"###,
+            Self::Liberland => r###"LL"###,
             Self::Libya => r###"LY"###,
             Self::Liechtenstein => r###"LI"###,
             Self::Lithuania => r###"LT"###,
@@ -1908,6 +1915,7 @@ impl Country {
             Self::Lebanon => &[".lb"],
             Self::Lesotho => &[".ls"],
             Self::Liberia => &[".lr"],
+            Self::Liberland => &[],
             Self::Libya => &[".ly"],
             Self::Liechtenstein => &[".li"],
             Self::Lithuania => &[".lt"],
@@ -2162,6 +2170,7 @@ impl Country {
             Self::Lebanon => &[("LBP", "Lebanese pound", "ل.ل")],
             Self::Lesotho => &[("ZAR", "South African rand", "R"), ("LSL", "Lesotho loti", "L")],
             Self::Liberia => &[("LRD", "Liberian dollar", "$")],
+            Self::Liberland => &[("LLD", "Liberland dollar", "LLD")],
             Self::Libya => &[("LYD", "Libyan dinar", "ل.د")],
             Self::Liechtenstein => &[("CHF", "Swiss franc", "Fr")],
             Self::Lithuania => &[("EUR", "Euro", "€")],
@@ -2416,6 +2425,7 @@ impl Country {
             Self::Lebanon => &[("fra", "French"), ("ara", "Arabic")],
             Self::Lesotho => &[("sot", "Sotho"), ("eng", "English")],
             Self::Liberia => &[("eng", "English")],
+            Self::Liberland => &[("eng", "English")],
             Self::Libya => &[("ara", "Arabic")],
             Self::Liechtenstein => &[("deu", "German")],
             Self::Lithuania => &[("lit", "Lithuanian")],
@@ -2670,6 +2680,7 @@ impl Country {
             Self::Lebanon => &["ISR", "SYR"],
             Self::Lesotho => &["ZAF"],
             Self::Liberia => &["GIN", "CIV", "SLE"],
+            Self::Liberland => &["HRV", "SRB"],
             Self::Libya => &["DZA", "TCD", "EGY", "NER", "SDN", "TUN"],
             Self::Liechtenstein => &["AUT", "CHE"],
             Self::Lithuania => &["BLR", "LVA", "POL", "RUS"],
@@ -2924,6 +2935,7 @@ impl Country {
             Self::Lebanon => &["Beirut"],
             Self::Lesotho => &["Maseru"],
             Self::Liberia => &["Monrovia"],
+            Self::Liberland => &[],
             Self::Libya => &["Tripoli"],
             Self::Liechtenstein => &["Vaduz"],
             Self::Lithuania => &["Vilnius"],
@@ -3178,6 +3190,7 @@ impl Country {
             Self::Lebanon => &[(236, 28, 36), (184, 84, 148), (240, 84, 36), (240, 84, 36), (240, 84, 36), (248, 84, 36), (8, 166, 87), (140, 220, 180), (251, 250, 250)],
             Self::Lesotho => &[(5, 5, 5), (4, 20, 139), (4, 156, 68), (132, 132, 132), (164, 164, 164), (188, 188, 188), (220, 220, 220), (244, 244, 244), (252, 252, 252)],
             Self::Liberia => &[(4, 44, 108), (188, 12, 52), (192, 12, 100), (192, 12, 100), (140, 76, 100), (204, 76, 100), (217, 132, 156), (148, 164, 188), (250, 248, 249)],
+            Self::Liberland => &[(18, 15, 20), (180, 66, 45), (60, 145, 168), (226, 137, 23), (167, 168, 26), (206, 163, 21), (248, 182, 104), (251, 211, 20), (248, 248, 248)],
             Self::Libya => &[(4, 4, 4), (32, 12, 4), (28, 12, 52), (28, 28, 28), (228, 4, 20), (60, 60, 60), (100, 100, 100), (36, 156, 68), (237, 237, 237)],
             Self::Liechtenstein => &[(4, 43, 121), (208, 12, 20), (232, 12, 20), (204, 20, 36), (92, 76, 28), (200, 60, 84), (200, 72, 20), (116, 100, 28), (214, 184, 50)],
             Self::Lithuania => &[(196, 36, 44), (4, 108, 68), (148, 116, 44), (228, 192, 44), (228, 192, 44), (228, 192, 44), (228, 192, 44), (228, 192, 44), (252, 188, 20)],
@@ -3432,6 +3445,7 @@ impl Country {
             Self::Lebanon => 10452_f64,
             Self::Lesotho => 30355_f64,
             Self::Liberia => 111369_f64,
+            Self::Liberland => 7_f64,
             Self::Libya => 1759540_f64,
             Self::Liechtenstein => 160_f64,
             Self::Lithuania => 65300_f64,
@@ -3686,6 +3700,7 @@ impl Country {
             Self::Lebanon => r###"+961"###,
             Self::Lesotho => r###"+266"###,
             Self::Liberia => r###"+231"###,
+            Self::Liberland => r###""###,
             Self::Libya => r###"+218"###,
             Self::Liechtenstein => r###"+423"###,
             Self::Lithuania => r###"+370"###,
@@ -3940,6 +3955,7 @@ impl Country {
             Self::Lebanon => r###"right"###,
             Self::Lesotho => r###"left"###,
             Self::Liberia => r###"right"###,
+            Self::Liberland => r###"right"###,
             Self::Libya => r###"right"###,
             Self::Liechtenstein => r###"right"###,
             Self::Lithuania => r###"right"###,
@@ -4194,6 +4210,7 @@ impl Country {
             Self::Lebanon => r###"🇱🇧"###,
             Self::Lesotho => r###"🇱🇸"###,
             Self::Liberia => r###"🇱🇷"###,
+            Self::Liberland => r###"🟨"###,
             Self::Libya => r###"🇱🇾"###,
             Self::Liechtenstein => r###"🇱🇮"###,
             Self::Lithuania => r###"🇱🇹"###,
@@ -4448,6 +4465,7 @@ impl Country {
             Self::Lebanon => (248, 84, 36),
             Self::Lesotho => (4, 20, 139),
             Self::Liberia => (188, 12, 52),
+            Self::Liberland => (251, 211, 20),
             Self::Libya => (228, 4, 20),
             Self::Liechtenstein => (232, 12, 20),
             Self::Lithuania => (252, 188, 20),
@@ -4702,6 +4720,7 @@ impl Country {
             Self::Lebanon => 6825442_u64,
             Self::Lesotho => 2142252_u64,
             Self::Liberia => 5057677_u64,
+            Self::Liberland => 63_u64,
             Self::Libya => 6871287_u64,
             Self::Liechtenstein => 38137_u64,
             Self::Lithuania => 2794700_u64,
@@ -4956,6 +4975,7 @@ impl Country {
             Self::Lebanon => &["Asia"],
             Self::Lesotho => &["Africa"],
             Self::Liberia => &["Africa"],
+            Self::Liberland => &["Europe"],
             Self::Libya => &["Africa"],
             Self::Liechtenstein => &["Europe"],
             Self::Lithuania => &["Europe"],
@@ -7210,6 +7230,23 @@ impl Country {
 [38;2;255;255;255m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@[0m
 [38;2;215;102;126mvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv[0m
 [38;2;191;10;48m----------------------------------------[0m"###,
+            Country::Liberland => r###"[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddd[38;2;240;201;19mw[38;2;138;84;19m)[38;2;175;125;20mx[38;2;191;145;20mz[38;2;188;141;19mc[38;2;164;124;23mr[38;2;173;123;20mx[38;2;192;145;19mz[38;2;189;142;19mc[38;2;167;116;19mj[38;2;152;102;19m/[38;2;251;210;20mddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddd[38;2;248;208;20mp[38;2;87;20;20ml[38;2;93;21;22m!![38;2;93;47;29m~[38;2;96;73;35m][38;2;98;79;38m[[38;2;92;23;23m![38;2;93;21;22m!![38;2;119;61;19m?[38;2;251;210;20mddddddddddddddd[0m
+[38;2;185;155;15mXXXXXXXXXXXXXX[38;2;186;155;15mX[38;2;80;21;19ml[38;2;87;21;22m!![38;2;88;32;26m>[38;2;90;36;25m>[38;2;96;29;25m>[38;2;88;23;24m!![38;2;92;27;28mi[38;2;111;62;26m?[38;2;185;155;15mXXXXXXXXXXXXXXX[0m
+[38;2;0;0;0m               [38;2;192;193;193mq[38;2;255;255;255m@@@[38;2;254;255;255m$[38;2;251;251;251mB[38;2;252;232;207mW[38;2;251;212;167mo[38;2;254;252;249m$[38;2;139;139;139mv[38;2;0;0;0m               [0m
+[38;2;0;0;0m               [38;2;90;90;90m1[38;2;255;255;255m@@[38;2;243;243;243m8[38;2;104;104;104m\[38;2;164;164;164mC[38;2;249;191;124md[38;2;248;157;57mQ[38;2;244;230;213mM[38;2;38;38;38ml[38;2;0;0;0m               [0m
+[38;2;0;0;0m               [38;2;1;1;1m [38;2;161;168;173mL[38;2;161;177;190m0[38;2;60;77;90m?[38;2;27;29;32m:[38;2;98;103;108m|[38;2;213;231;244m#[38;2;222;235;246mM[38;2;102;103;104m|[38;2;0;0;0m                [0m
+[38;2;204;171;17mCCCCCCCCCCCCCCCC[38;2;195;168;26mJ[38;2;48;121;163m\[38;2;28;123;200m|[38;2;43;120;181m\[38;2;32;122;195m|[38;2;25;121;199m|[38;2;83;131;127mf[38;2;204;171;17mCCCCCCCCCCCCCCCCC[0m
+[38;2;251;210;20mddddddddddddddddd[38;2;218;190;33mO[38;2;51;124;162m\[38;2;24;120;199m|[38;2;23;120;199m|[38;2;82;132;131mf[38;2;240;203;21mq[38;2;251;210;20mddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddd[38;2;229;196;28mm[38;2;84;133;128mf[38;2;122;147;98mu[38;2;245;206;20mp[38;2;251;210;20mdddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m
+[38;2;251;210;20mdddddddddddddddddddddddddddddddddddddddd[0m"###,
             Country::Libya => r###"[38;2;231;0;19m]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]][0m
 [38;2;231;0;19m]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]][0m
 [38;2;231;0;19m]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]][0m
@@ -11464,6 +11501,23 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ----------------------------------------"###,
+            Country::Liberland => r###"dddddddddddddddddddddddddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd
+ddddddddddddddw)xzcrxzcj/ddddddddddddddd
+ddddddddddddddpl!!~][!!!?ddddddddddddddd
+XXXXXXXXXXXXXXXl!!>>>!!i?XXXXXXXXXXXXXXX
+               q@@@$BWo$v               
+               1@@8\CdQMl               
+                L0?:|#M|                
+CCCCCCCCCCCCCCCCJ\|\||fCCCCCCCCCCCCCCCCC
+dddddddddddddddddO\||fqddddddddddddddddd
+ddddddddddddddddddmfupdddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd
+dddddddddddddddddddddddddddddddddddddddd"###,
             Country::Libya => r###"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
 ]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
 ]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
@@ -13718,6 +13772,7 @@ Q>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"###,
             "Lebanon" => Some(Self::Lebanon),
             "Lesotho" => Some(Self::Lesotho),
             "Liberia" => Some(Self::Liberia),
+            "Liberland" => Some(Self::Liberland),
             "Libya" => Some(Self::Libya),
             "Liechtenstein" => Some(Self::Liechtenstein),
             "Lithuania" => Some(Self::Lithuania),
@@ -13973,6 +14028,7 @@ Q>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"###,
             "LBN" => Some(Self::Lebanon),
             "LSO" => Some(Self::Lesotho),
             "LBR" => Some(Self::Liberia),
+            "LIB" => Some(Self::Liberland),
             "LBY" => Some(Self::Libya),
             "LIE" => Some(Self::Liechtenstein),
             "LTU" => Some(Self::Lithuania),
@@ -14228,6 +14284,7 @@ Q>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"###,
             "LB" => Some("LBN"),
             "LS" => Some("LSO"),
             "LR" => Some("LBR"),
+            "LL" => Some("LIB"),
             "LY" => Some("LBY"),
             "LI" => Some("LIE"),
             "LT" => Some("LTU"),

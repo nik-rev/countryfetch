@@ -37,6 +37,7 @@ pub fn currency_position(country: Country) -> CurrencyPosition {
         | Country::IsleOfMan
         | Country::Jersey
         | Country::Liberia
+        | Country::Liberland
         | Country::Malawi
         | Country::Namibia
         | Country::Nigeria
@@ -213,6 +214,7 @@ pub fn established_date(country: Country) -> &'static str {
         Country::Lebanon => "November 22, 1943",
         Country::Lesotho => "October 4, 1966",
         Country::Liberia => "July 26, 1847",
+        Country::Liberland => "April 13, 2015",
         Country::Libya => "December 24, 1951",
         Country::Liechtenstein => "July 23, 1806",
         Country::Lithuania => "February 16, 1918",
@@ -337,5 +339,14 @@ pub fn established_date(country: Country) -> &'static str {
         Country::Yemen => "May 22, 1990",
         Country::Zambia => "October 24, 1964",
         Country::Zimbabwe => "April 18, 1980",
+    }
+}
+
+pub fn status_note(country: Country) -> Option<&'static str> {
+    match country {
+        Country::Liberland => {
+            Some("Self-proclaimed micronation on disputed territory between Croatia and Serbia")
+        },
+        _ => None,
     }
 }

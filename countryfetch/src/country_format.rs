@@ -25,6 +25,7 @@ struct CountryOutput<'a> {
     currency: Currency,
     neighbours: Option<&'a Vec<String>>,
     established_date: Option<&'static str>,
+    status_note: Option<&'static str>,
     dialing_code: Option<String>,
     capital: Option<&'a Vec<String>>,
     driving_side: Option<&'a str>,
@@ -34,6 +35,31 @@ struct CountryOutput<'a> {
 }
 
 impl CountryOutput<'_> {
+    fn format_decimal(value: f64) -> String {
+        let rounded = (value * 100.0).round() / 100.0;
+        let trimmed = format!("{rounded:.2}")
+            .trim_end_matches('0')
+            .trim_end_matches('.')
+            .to_owned();
+
+        let (integer, fraction) = trimmed
+            .split_once('.')
+            .map_or((trimmed.as_str(), None), |(integer, fraction)| {
+                (integer, Some(fraction))
+            });
+
+        let integer = integer
+            .parse::<u64>()
+            .expect("formatted decimal keeps a valid positive integer part")
+            .separated_string();
+
+        fraction.map_or(integer.clone(), |fraction| format!("{integer}.{fraction}"))
+    }
+
+    fn is_blank(value: &str) -> bool {
+        value.trim().is_empty()
+    }
+
     /// Applies the country's brightest color to the given text
     fn colored(&self, s: &str) -> colored::ColoredString {
         s.truecolor(
@@ -45,8 +71,8 @@ impl CountryOutput<'_> {
 
     fn area(&self) -> String {
         if let (Some(area_km), Some(area_mi)) = (self.area_km, self.area_mi) {
-            let km = area_km.separated_string();
-            let mi = area_mi.separated_string();
+            let km = Self::format_decimal(area_km);
+            let mi = Self::format_decimal(area_mi);
             format!("{}: {km} km² ({mi} miles²)\n", self.colored("Area"))
         } else {
             String::new()
@@ -65,6 +91,10 @@ impl CountryOutput<'_> {
 
     fn capital(&self) -> String {
         self.capital.map_or_else(String::new, |capital| {
+            if capital.is_empty() {
+                return String::new();
+            }
+
             format!(
                 "{}: {}\n",
                 self.colored(&format!(
@@ -80,6 +110,10 @@ impl CountryOutput<'_> {
         self.dialing_code
             .as_ref()
             .map_or_else(String::new, |dialing_code| {
+                if Self::is_blank(dialing_code) {
+                    return String::new();
+                }
+
                 format!("{}: {}\n", self.colored("Dialing code"), dialing_code)
             })
     }
@@ -88,6 +122,10 @@ impl CountryOutput<'_> {
         self.iso_codes
             .as_ref()
             .map_or_else(String::new, |iso_codes| {
+                if Self::is_blank(&iso_codes.0) || Self::is_blank(&iso_codes.1) {
+                    return String::new();
+                }
+
                 format!(
                     "{}: {} / {}\n",
                     self.colored("ISO Codes"),
@@ -105,35 +143,35 @@ impl CountryOutput<'_> {
 
     fn currency(&self) -> String {
         if let Some((currency_position, currencies)) = &self.currency {
+            if currencies.is_empty() {
+                return String::new();
+            }
+
             let currency_label = self.colored(&format!(
                 "Currenc{y}",
                 y = if currencies.len() == 1 { "y" } else { "ies" }
             ));
 
-            match currency_position {
-                CurrencyPosition::Left => {
-                    format!(
-                        "{}: {}\n",
-                        currency_label,
-                        currencies
-                            .iter()
-                            .map(|(id, name, symbol)| format!("{symbol} {id} ({name})"))
-                            .collect::<Vec<_>>()
-                            .join(", ")
-                    )
+            let format_currency = |(id, name, symbol): &(String, String, String)| {
+                if Self::is_blank(symbol) || symbol == id {
+                    format!("{id} ({name})")
+                } else {
+                    match currency_position {
+                        CurrencyPosition::Left => format!("{symbol} {id} ({name})"),
+                        CurrencyPosition::Right => format!("{id} {symbol} ({name})"),
+                    }
                 }
-                CurrencyPosition::Right => {
-                    format!(
-                        "{}: {}\n",
-                        currency_label,
-                        currencies
-                            .iter()
-                            .map(|(id, name, symbol)| format!("{id} {symbol} ({name})"))
-                            .collect::<Vec<_>>()
-                            .join(", ")
-                    )
-                }
-            }
+            };
+
+            format!(
+                "{}: {}\n",
+                currency_label,
+                currencies
+                    .iter()
+                    .map(format_currency)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
         } else {
             String::new()
         }
@@ -153,6 +191,10 @@ impl CountryOutput<'_> {
 
     fn neighbours(&self) -> String {
         self.neighbours.map_or_else(String::new, |neighbours| {
+            if neighbours.is_empty() {
+                return String::new();
+            }
+
             let neigh = neighbours
                 .iter()
                 .filter_map(|cc3| {
@@ -180,6 +222,10 @@ impl CountryOutput<'_> {
 
     fn continent(&self) -> String {
         if let (Some(continent), continent_code) = (self.continent, self.continent_code) {
+            if continent.is_empty() {
+                return String::new();
+            }
+
             format!(
                 "{}: {}{}\n",
                 self.colored(&format!(
@@ -203,9 +249,19 @@ impl CountryOutput<'_> {
             })
     }
 
+    fn status_note(&self) -> String {
+        self.status_note.map_or_else(String::new, |status_note| {
+            format!("{}: {}\n", self.colored("Status"), status_note)
+        })
+    }
+
     fn top_level_domain(&self) -> String {
         self.top_level_domain
             .map_or_else(String::new, |top_level_domain| {
+                if top_level_domain.is_empty() {
+                    return String::new();
+                }
+
                 format!(
                     "{}: {}\n",
                     self.colored(&format!(
@@ -221,6 +277,10 @@ impl CountryOutput<'_> {
         self.languages
             .as_ref()
             .map_or_else(String::new, |languages| {
+                if languages.is_empty() {
+                    return String::new();
+                }
+
                 format!(
                     "{}: {}\n",
                     self.colored(&format!(
@@ -234,6 +294,7 @@ impl CountryOutput<'_> {
 
     fn flag(&self) -> String {
         self.flag_emoji
+            .filter(|flag| !Self::is_blank(flag))
             .map(|flag| format!(" {flag}"))
             .unwrap_or_default()
     }
@@ -260,6 +321,7 @@ impl CountryOutput<'_> {
             &self.dialing_code(),
             &self.languages(),
             &self.established_date(),
+            &self.status_note(),
             &self.currency(),
             &self.top_level_domain(),
             &self.palette(),
@@ -314,13 +376,13 @@ pub fn format_country(
         flag_emoji: (!args.no_emoji)
             .then_some(country.map_or(gen_country.emoji(), |c| c.emoji.as_str())),
         area_km: (!args.no_area).then_some(country.map_or(gen_country.area_km(), |c| c.area_km)),
-        // rounds to the nearest 100
-        area_mi: (!args.no_area).then_some((area_km * (0.62137_f64.powi(2)) * 0.01).round() / 0.01),
+        // rounds to 2 decimal places
+        area_mi: (!args.no_area)
+            .then_some((area_km * (0.62137_f64.powi(2)) * 100.0).round() / 100.0),
         country_name: country.map_or(
             gen_country.country_name(),
             super::country::Country::country_name,
         ),
-
         continent: (!args.no_continent).then_some(&country.map_or_else(
             || {
                 gen_country
@@ -333,7 +395,7 @@ pub fn format_country(
         )),
         continent_code: location
             .map(|l| l.continent_code.as_str())
-            .filter(|_| (!args.no_continent)),
+            .filter(|_| !args.no_continent),
         population: (!args.no_population)
             .then_some(country.map_or(gen_country.population(), |c| c.population)),
         top_level_domain: (!args.no_tlds).then_some(&country.map_or_else(
@@ -392,6 +454,7 @@ pub fn format_country(
         )),
         established_date: (!args.no_established_date)
             .then_some(gen_country::established_date(gen_country)),
+        status_note: gen_country::status_note(gen_country),
         iso_codes: (!args.no_iso_codes).then_some(country.map_or_else(
             || {
                 (
@@ -423,4 +486,80 @@ pub fn format_country(
         brightest_color: gen_country.brightest_color(),
     }
     .to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::format_country;
+    use crate::Args;
+
+    fn strip_ansi(input: &str) -> String {
+        let mut output = String::new();
+        let mut chars = input.chars().peekable();
+
+        while let Some(ch) = chars.next() {
+            if ch == '\u{1b}' && chars.next_if_eq(&'[').is_some() {
+                while let Some(next) = chars.next() {
+                    if next.is_ascii_alphabetic() {
+                        break;
+                    }
+                }
+            } else {
+                output.push(ch);
+            }
+        }
+
+        output
+    }
+
+    fn default_args() -> Args {
+        Args {
+            country: None,
+            all_countries: false,
+            list_countries: false,
+            no_area: false,
+            no_flag: true,
+            no_emoji: false,
+            no_continent: false,
+            no_population: false,
+            no_tlds: false,
+            no_languages: false,
+            no_currencies: false,
+            no_neighbours: false,
+            no_established_date: false,
+            no_iso_codes: false,
+            no_driving_side: false,
+            no_capital: false,
+            no_dialing_code: false,
+            no_palette: true,
+            no_color: true,
+        }
+    }
+
+    #[test]
+    fn liberland_output_includes_seeded_metadata() {
+        let output = format_country(gen_country::Country::Liberland, None, None, &default_args());
+        let output = strip_ansi(&output);
+
+        assert!(output.contains("Liberland"));
+        assert!(output.contains("Established: April 13, 2015"));
+        assert!(output.contains("Status: Self-proclaimed micronation"));
+        assert!(output.contains("disputed territory between Croatia and"));
+        assert!(output.contains("Area: 7 km² (2.7 miles²)"));
+        assert!(output.contains("Population: 63 People"));
+        assert!(output.contains("Neighbours: Croatia, Serbia"));
+        assert!(output.contains("Language: English"));
+        assert!(output.contains("Currency: LLD (Liberland dollar)"));
+        assert!(output.contains("ISO Codes: LL / LIB"));
+    }
+
+    #[test]
+    fn liberland_output_omits_unknown_fields() {
+        let output = format_country(gen_country::Country::Liberland, None, None, &default_args());
+        let output = strip_ansi(&output);
+
+        assert!(!output.contains("Capital:"));
+        assert!(!output.contains("Dialing code:"));
+        assert!(!output.contains("Top Level Domain:"));
+    }
 }

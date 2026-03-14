@@ -1,4 +1,4 @@
-use crate::{most_colorful_color, png_url_to_ascii};
+use crate::{image_url_to_ascii, most_colorful_color};
 use deunicode::deunicode;
 use heck::ToPascalCase as _;
 
@@ -33,7 +33,7 @@ pub async fn generate_country_parts(country: &countryfetch::Country) -> CountryP
     let deunicoded_name = deunicode(country_name);
     let enum_name = deunicoded_name.to_pascal_case();
 
-    let (flag_color, flag_nocolor, colors) = png_url_to_ascii(&country.flag.url).await.unwrap();
+    let (flag_color, flag_nocolor, colors) = image_url_to_ascii(&country.flag.url).await.unwrap();
 
     let most_colorful = most_colorful_color(&colors);
     let most_colorful = format!(
@@ -114,5 +114,52 @@ pub async fn generate_country_parts(country: &countryfetch::Country) -> CountryP
         emoji: country.emoji.clone(),
         population: country.population,
         continents,
+    }
+}
+
+const LIBERLAND_FLAG_URL: &str =
+    "https://www.comprarbanderas.es/images/banderas/400/21183-liberland_400px.jpg";
+
+pub async fn manual_liberland_country_parts() -> CountryParts {
+    let (flag_color, flag_nocolor, colors) = image_url_to_ascii(LIBERLAND_FLAG_URL).await.unwrap();
+    let most_colorful = most_colorful_color(&colors);
+    let most_colorful = format!(
+        "({}, {}, {})",
+        most_colorful.r, most_colorful.g, most_colorful.b
+    );
+    let colors = format!(
+        "&[{}]",
+        colors
+            .into_iter()
+            .map(|color| format!("({}, {}, {})", color.r, color.g, color.b))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
+
+    CountryParts {
+        enum_name: "Liberland".to_owned(),
+        deunicoded_name: "Liberland".to_owned(),
+        capital: Vec::new(),
+        dialing_code: String::new(),
+        driving_side: "right".to_owned(),
+        country_name: "Liberland".to_owned(),
+        country_code2: "LL".to_owned(),
+        most_colorful,
+        country_code3: "LIB".to_owned(),
+        flag_color,
+        flag_nocolor,
+        colors,
+        description: Some(
+            "The flag of Liberland has black-yellow-black horizontal bands with the coat of arms centered on the yellow band."
+                .to_owned(),
+        ),
+        top_level_domains: Vec::new(),
+        currencies: "(\"LLD\", \"Liberland dollar\", \"LLD\")".to_owned(),
+        languages: "(\"eng\", \"English\")".to_owned(),
+        neighbours: vec!["\"HRV\"".to_owned(), "\"SRB\"".to_owned()],
+        area_km: 7.0,
+        emoji: "🟨".to_owned(),
+        population: 63,
+        continents: vec!["\"Europe\"".to_owned()],
     }
 }

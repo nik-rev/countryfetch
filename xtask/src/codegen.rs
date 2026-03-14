@@ -60,7 +60,7 @@ impl CountryMethod {
             | Self::Continents => ("self", "&Self"),
             Self::FromStr | Self::FromCountryCode | Self::CountryCode3FromCountryCode2 => {
                 ("s", "&str")
-            }
+            },
         }
     }
 
@@ -87,7 +87,7 @@ impl CountryMethod {
             | Self::Continents => "        }\n    }\n",
             Self::FromStr | Self::FromCountryCode | Self::CountryCode3FromCountryCode2 => {
                 "            _ => None\n        }\n    }\n"
-            }
+            },
         }
     }
 
@@ -102,137 +102,137 @@ impl CountryMethod {
                         .as_ref()
                         .map_or_else(|| "None".to_owned(), |d| format!("Some(r###\"{d}\"###)"))
                 )
-            }
+            },
             Self::CountryName => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_name
                 )
-            }
+            },
             Self::CountryCode3 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_code3
                 )
-            }
+            },
             Self::DialingCode => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.dialing_code
                 )
-            }
+            },
             Self::DrivingSide => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.driving_side
                 )
-            }
+            },
             Self::CountryCode2 => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.country_code2
                 )
-            }
+            },
             Self::TopLevelDomain => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.top_level_domains.join(", ")
                 )
-            }
+            },
             Self::Currencies => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.currencies
                 )
-            }
+            },
             Self::Languages => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.languages
                 )
-            }
+            },
             Self::Capital => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.capital.join(", ")
                 )
-            }
+            },
             Self::Palette => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.colors
                 )
-            }
+            },
             Self::Neighbours => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.neighbours.join(", ")
                 )
-            }
+            },
             Self::AreaKm => {
                 format!(
                     "            {} => {}_f64,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.area_km
                 )
-            }
+            },
             Self::BrightestColor => {
                 format!(
                     "            {} => {},\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.most_colorful
                 )
-            }
+            },
             Self::Emoji => {
                 format!(
                     "            {} => r###\"{}\"###,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.emoji
                 )
-            }
+            },
             Self::Population => {
                 format!(
                     "            {} => {}_u64,\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.population
                 )
-            }
+            },
             Self::Continents => {
                 format!(
                     "            {} => &[{}],\n",
                     format_args!("Self::{}", parts.enum_name),
                     parts.continents.join(", ")
                 )
-            }
+            },
             Self::FromStr => {
                 format!(
                     "            \"{}\" => Some(Self::{}),\n",
                     parts.deunicoded_name, parts.enum_name
                 )
-            }
+            },
             Self::FromCountryCode => {
                 format!(
                     "            \"{}\" => Some(Self::{}),\n",
                     parts.country_code3, parts.enum_name
                 )
-            }
+            },
             Self::CountryCode3FromCountryCode2 => {
                 format!(
                     "            \"{}\" => Some(\"{}\"),\n",
                     parts.country_code2, parts.country_code3
                 )
-            }
+            },
             Self::Flag => format!(
                 "            Country::{} => r###\"{}\"###,\n",
                 parts.enum_name, parts.flag_color
@@ -261,7 +261,7 @@ impl CountryMethod {
             Self::Population => "u64",
             Self::Continents | Self::TopLevelDomain | Self::Neighbours | Self::Capital => {
                 "&'static [&'static str]"
-            }
+            },
             Self::FromStr | Self::FromCountryCode => "Option<Self>",
             Self::CountryCode3FromCountryCode2 | Self::Description => "Option<&'static str>",
         }
@@ -349,13 +349,15 @@ pub enum Country {
 
     // Generate all country parts in parallel because it is an expensive operation
     // that also makes network requests
-    let country_parts: Vec<CountryParts> = futures::future::join_all(
+    let mut country_parts: Vec<CountryParts> = futures::future::join_all(
         countries
             .par_iter()
             .map(country_parts::generate_country_parts)
             .collect::<Vec<_>>(),
     )
     .await;
+    country_parts.push(country_parts::manual_liberland_country_parts().await);
+    country_parts.sort_unstable_by(|a, b| a.country_name.cmp(&b.country_name));
 
     // Append all the generated parts to the respective Codegen objects
     for parts in country_parts {

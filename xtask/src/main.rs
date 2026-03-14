@@ -35,11 +35,13 @@ fn most_colorful_color(colors: &[palette_extract::Color]) -> palette_extract::Co
         .expect("There is at least 1 color")
 }
 
-/// Given a URL to a .png file, convert the file into colored Ascii
-async fn png_url_to_ascii(png_url: &str) -> Result<(String, String, Vec<palette_extract::Color>)> {
-    let pixels: Vec<u8> = reqwest::get(png_url).await?.bytes().await?.to_vec();
+/// Given a URL to an image file, convert it into colored Ascii
+async fn image_url_to_ascii(
+    image_url: &str,
+) -> Result<(String, String, Vec<palette_extract::Color>)> {
+    let pixels: Vec<u8> = reqwest::get(image_url).await?.bytes().await?.to_vec();
 
-    let image = image::load_from_memory_with_format(&pixels, image::ImageFormat::Png)?;
+    let image = image::load_from_memory_with_format(&pixels, image::guess_format(&pixels)?)?;
 
     let pixels = image.to_rgb8().into_raw();
 
